@@ -12,15 +12,21 @@ jobs:
       - uses: actions/checkout@v3
         with:
           node-version: 20
-      - run: sudo apt-get install -y sshpass
+          
+      - name: Install sshPass
+        run: sudo apt-get install -y sshpass
+        
       - name: Build
         run: |
           cd frontend
           npm install
           npm run build
+          
       - name: Delpoy frontend
         run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -r ./dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+        
       - name: Deploy server
         run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
+        
       - name: Restart
         run: ssh ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
