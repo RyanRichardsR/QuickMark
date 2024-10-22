@@ -16,6 +16,7 @@ jobs:
       - name: Build
           run: |
             cd frontend
+            npm install
             npm run build
       - name: Delpoy frontend
         run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -r ./dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
