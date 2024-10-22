@@ -23,7 +23,7 @@ jobs:
           npm run build
           
       - name: Delpoy frontend
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
         
       - name: Deploy server
         run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
