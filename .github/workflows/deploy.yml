@@ -29,4 +29,4 @@ jobs:
         run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
         
       - name: Restart
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
+        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
