@@ -5,7 +5,7 @@ const cors = require("cors");
 const app = express();
 
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://RickL:<db_password>@cop4331.lglw6.mongodb.net/';
+const url = 'mongodb+srv://RickL:cop4331@cop4331.lglw6.mongodb.net/';
 
 const client = new MongoClient(url);
 client.connect();
