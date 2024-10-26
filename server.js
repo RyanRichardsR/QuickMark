@@ -4,10 +4,10 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
+require('dotenv').config();
+const url = process.env.DATABASE_URL;
 
-
-const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb+srv://RickL:<db_password>@cardslab.jz8eh.mongodb.net/';
+const MongoClient = require('mongodb').MongoClient
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
 (async function() {
@@ -22,54 +22,87 @@ const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology:
 app.use(cors());
 app.use(bodyParser.json());
 
-
-
-
+//LOGIN API
 app.post('/api/login', async (req, res) => {
   const { login, password } = req.body;
 
-  var error = '';
-  var id = -1;
-  var fn = '';
-  var ln = '';
+  let error = '';
+  let user = null;
 
   try {
-    const db = client.db('CardsLab'); // Make sure to replace with your actual database name
-    const results = await db.collection('Users').find({ Login: login, Password: password }).toArray();
+    const db = client.db('COP4331');
+    const usersCollection = db.collection('Users');
 
-    if (results.length > 0) {
-      id = results[0].UserId;
-      fn = results[0].firstName;
-      ln = results[0].lastName;
+    const results = await usersCollection.findOne({ login: login, password: password });
+
+    if (results) {
+      //all user info in one variable
+      user = {
+        id: results._id,
+        firstName: results.firstName,
+        lastName: results.lastName,
+        email: results.email,
+        role: results.role,
+        verified: results.verified
+      };
+    } else {
+      error = 'Invalid login credentials';
     }
   } catch (e) {
     error = e.toString();
   }
 
-  var ret = { id: id, firstName: fn, lastName: ln, error: error };
-  res.status(200).json(ret); // Changed tsxon to json
+  const ret = { user: user, error: error };
+  res.status(200).json(ret);
 });
 
 
 
-app.post('/api/addcard', async (req, res) => {
-  const { userId, card } = req.body;
-  const newCard = { Name: card, UserId: userId };
-  var error = '';
+const { ObjectId } = require('mongodb'); // If you want to use MongoDB's ObjectId for _id generation
+
+//REGISTER API
+app.post('/api/register', async (req, res) => {
+  const { login, password, firstName, lastName, email, role, verified } = req.body;
+
+  let error = '';
+  let success = false;
 
   try {
-    const db = client.db('CardsLab'); // Make sure to replace with your actual database name
-    const result = await db.collection('Cards').insertOne(newCard);
+    const db = client.db('COP4331');
+    //find the correct table
+    const usersCollection = db.collection('Users');
+
+    const existingUser = await usersCollection.findOne({ login: login });
+    if (existingUser) {
+      error = 'User already exists';
+    } else {
+      // Generate a custom or default _id
+      const userId = new ObjectId();
+
+      //NEWLY INSERTED INFO
+      const result = await usersCollection.insertOne({
+        _id: userId,
+        login: login,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        role: role,
+        verified: verified
+      });
+
+      success = result.acknowledged;
+    }
   } catch (e) {
     error = e.toString();
   }
 
-  //cardList.push(card);
-
-  var ret = { error: error };
-  res.status(200).json(ret); // Changed tsxon to json
+  const ret = { success: success, error: error };
+  res.status(200).json(ret);
 });
 
+
+//SEARCH API FOR CARDS       KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
 app.post('/api/searchcards', async (req, res) => {
   const { userId, search } = req.body;
   var _search = search.trim();
