@@ -25,15 +25,14 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies
+      - name: Start server
         run: |
-          npm install
+          node server.js
 
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm install
-          npm run build
+          npm run dev
 
       - name: Start server
         run: |
