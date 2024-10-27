@@ -1,0 +1,81 @@
+{
+    "info": {
+      "name": "API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Register User",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"login\": \"testuser\", \"password\": \"password123\", \"firstName\": \"Test\", \"lastName\": \"User\", \"email\": \"test@example.com\", \"role\": \"student\", \"verified\": false}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/api/register",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["api", "register"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Login User",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"login\": \"testuser\", \"password\": \"password123\"}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/api/login",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["api", "login"]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Delete User",
+        "request": {
+          "method": "DELETE",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"login\": \"testuser\"}"
+          },
+          "url": {
+            "raw": "http://localhost:3000/api/delete",
+            "protocol": "http",
+            "host": ["localhost"],
+            "port": "3000",
+            "path": ["api", "delete"]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
+  
