@@ -25,23 +25,19 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Start server
+      - name: Install backend dependencies
         run: |
+          npm install
           node server.js
 
       - name: Install frontend dependencies
         run: |
           cd frontend
-          npm run dev
+          npm install
+          npm run build
 
-      - name: Start server
-        run: |
-          MONGO_URL=${{ secrets.DATABASE_URL }} npm start &
-        env:
-          NODE_ENV: development
-
-      - name: Wait for server to initialize
-        run: sleep 10
+      - name: Wait for MongoDB to initialize
+        run: sleep 15
 
       - name: Run API tests
         run: |
