@@ -1,7 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -13,6 +11,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final String targetUUID = "32145678-1234-5678-1234-56789abcdef0"; // Replace with your target UUID
+  bool isDeviceFound = false;
+  String? deviceName;
 
   @override
   void initState() {
@@ -20,37 +21,33 @@ class _MyHomePageState extends State<MyHomePage> {
     getPermissions();
   }
 
-  final PeripheralManager pm = PeripheralManager();
-  bool isAdvertising = false;
-
-  Advertisement data = Advertisement(
-    name: "COP4331",
-    serviceData: {
-      UUID.fromString("32145678-1234-5678-1234-56789abcdef0") : Uint8List.fromList([255, 100, 255, 111, 255])
-    }
-  );
-
-  void onOff() {
-    setState(() {
-      if (isAdvertising)
-      {
-        isAdvertising = false;
-        pm.stopAdvertising();
-      }
-      else
-      {
-        isAdvertising = true;
-        pm.startAdvertising(data);
-      }
-    });
+  Future<void> getPermissions() async {
+    await Permission.bluetoothScan.request();
+    await Permission.bluetoothConnect.request();
+    await Permission.location.request();
+    startScan();
   }
 
-  Future<void> getPermissions() async {
-    await Permission.bluetoothAdvertise.request();
-    await Permission.bluetoothConnect.request();
-    await Permission.bluetoothScan.request();
-    await Permission.bluetooth.request();
-    await Permission.location.request();
+  void startScan() {
+    // Start scanning with a filter for the target UUID
+    FlutterBluePlus.startScan(
+      timeout: Duration(seconds: 10),
+      withServices: [Guid(targetUUID)],
+    );
+
+    // Listen for scan results
+    FlutterBluePlus.scanResults.listen((scanResults) {
+      for (var result in scanResults) {
+        if (result.advertisementData.serviceUuids.contains(targetUUID)) {
+          setState(() {
+            isDeviceFound = true;
+            deviceName = result.device.name;
+          });
+          FlutterBluePlus.stopScan(); // Stop scanning once the target device is found
+          break;
+        }
+      }
+    });
   }
 
   @override
@@ -64,6 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              isDeviceFound ? 'Device Found!' : 'Scanning for device...',
+              style: TextStyle(fontSize: 24, color: isDeviceFound ? Colors.green : Colors.red),
+            ),
+            if (isDeviceFound)
+              ...[
+                Text('Device Name: $deviceName'),
+                Text('UUID: $targetUUID'),
+              ],
+            SizedBox(height: 20),
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.blue[700],
@@ -71,15 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 shape: const CircleBorder(),
                 side: const BorderSide(width: 4.0),
               ),
-              onPressed: onOff,
-              child: isAdvertising ? const Text('STOP') : const Text('START'),
+              onPressed: startScan,
+              child: const Text('Scan Again'),
             ),
-            if (isAdvertising)
-            ...[
-              Text('Name: ${data.name}'),
-              Text('UUID: ${data.serviceData.keys}'),
-              Text('Arbitrary data: ${data.serviceData.values}'),
-            ],
           ],
         ),
       ),
