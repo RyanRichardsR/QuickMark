@@ -30,7 +30,7 @@ jobs:
 
       - name: Start backend server
         run: |
-          MONGO_URL=${{ secrets.DATABASE_URL }} PORT=3000 node server.js &
+          MONGO_URL=${{ secrets.DATABASE_URL }} node server.js &
         env:
           NODE_ENV: development
 
@@ -41,11 +41,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run build
-
-      - name: Start frontend server
-        run: npm run dev &
-        working-directory: ./frontend
+          npm run deb
 
       - name: Wait for frontend server to initialize
         run: sleep 10
