@@ -30,10 +30,12 @@ jobs:
 
       - name: Start backend server
         run: |
-          MONGO_URL=${{ secrets.DATABASE_URL }} node server.js &
+          MONGO_URL=${{ secrets.DATABASE_URL }} PORT=3000 node server.js &
+        env:
+          NODE_ENV: development
 
       - name: Wait for backend server to initialize
-        run: sleep 10
+        run: sleep 20
 
       - name: Install and build frontend
         run: |
@@ -46,7 +48,7 @@ jobs:
         working-directory: ./frontend
 
       - name: Wait for frontend server to initialize
-        run: sleep 5
+        run: sleep 10
 
       - name: Run API tests
         run: |
