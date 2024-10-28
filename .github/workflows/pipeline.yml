@@ -30,7 +30,7 @@ jobs:
 
       - name: Start backend server
         run: |
-          MONGO_URL=${{ secrets.DATABASE_URL }} node server.js &
+          DATABASE_URL=${{ secrets.DATABASE_URL }} node server.js &
         env:
           NODE_ENV: development
 
