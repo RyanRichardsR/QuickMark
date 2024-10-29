@@ -101,8 +101,8 @@ app.post('/api/register', async (req, res) => {
   res.status(200).json(ret);
 });
 
-app.delete('/api/deleteUser', async (req, res) => {
-  const { id } = req.body; // Assuming the unique identifier is provided in the request body
+pp.delete('/api/deleteUser', async (req, res) => {
+  const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body
 
   let error = '';
   let success = false;
@@ -111,8 +111,8 @@ app.delete('/api/deleteUser', async (req, res) => {
     const db = client.db('COP4331');
     const usersCollection = db.collection('Users');
 
-    //Delete user by _id
-    const result = await usersCollection.deleteOne({ _id: new ObjectId(id) });
+    // Delete user by login
+    const result = await usersCollection.deleteOne({ login: login });
 
     if (result.deletedCount === 1) {
       success = true;
@@ -126,6 +126,7 @@ app.delete('/api/deleteUser', async (req, res) => {
   const ret = { success: success, error: error };
   res.status(200).json(ret);
 });
+
 
 
 //SEARCH API FOR CARDS       KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED

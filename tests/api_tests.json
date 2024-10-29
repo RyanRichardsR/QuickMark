@@ -67,7 +67,7 @@
             "raw": "{\"login\": \"testuser\"}"
           },
           "url": {
-            "raw": "http://localhost:3000/api/delete",
+            "raw": "http://localhost:3000/api/deleteUser",
             "protocol": "http",
             "host": ["localhost"],
             "port": "3000",
