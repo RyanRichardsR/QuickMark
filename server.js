@@ -101,7 +101,7 @@ app.post('/api/register', async (req, res) => {
   res.status(200).json(ret);
 });
 
-pp.delete('/api/deleteUser', async (req, res) => {
+app.delete('/api/deleteUser', async (req, res) => {
   const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body
 
   let error = '';
