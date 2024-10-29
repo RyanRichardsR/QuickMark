@@ -12,6 +12,8 @@ function RegistrationForm() {
   const [verified, setVerified] = useState(false); // Default verified status
 
   async function doRegister(event: React.FormEvent) {
+    console.log("doRegister is called");
+
     event.preventDefault();
 
     const obj = { login, password, firstName, lastName, email, role, verified };
@@ -25,11 +27,12 @@ function RegistrationForm() {
       });
 
       const res = await response.json();
-
-      if (res.error) {
-        setMessage("Registration failed. Please try again.");
+      // Check if registration was successful
+      if (res.success) {
+        setMessage("Registration successful! Please check your email to verify your account.");
       } else {
-        setMessage("Registration successful! You can now log in.");
+        // Display server error message if registration fails
+        setMessage(res.error || "Registration failed. Please try again.");
       }
     } catch (error) {
       setMessage("An error occurred during registration. Please try again.");
@@ -40,6 +43,20 @@ function RegistrationForm() {
     <div>
       <h2 className="auth-title">Create an Account</h2>
       <form className="auth-form" onSubmit={doRegister}>
+      <input
+          type="text"
+          className="auth-input"
+          placeholder="First Name"
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          className="auth-input"
+          placeholder="Last Name"
+          onChange={(e) => setLastName(e.target.value)}
+          required
+        />
         <input
           type="text"
           className="auth-input"
@@ -52,20 +69,6 @@ function RegistrationForm() {
           className="auth-input"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          className="auth-input"
-          placeholder="First Name"
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          className="auth-input"
-          placeholder="Last Name"
-          onChange={(e) => setLastName(e.target.value)}
           required
         />
         <input
@@ -93,7 +96,7 @@ function RegistrationForm() {
           Student
         </button>
       </div>
-      
+
         <button type="submit" className="auth-button">Register</button>
         <span className="auth-message">{message}</span>
       </form>

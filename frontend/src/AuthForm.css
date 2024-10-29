@@ -67,9 +67,10 @@ AuthForm.css
 .auth-message {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #666;
+  color: #d71b1b; /* Green color to indicate success */
   text-align: center;
 }
+
 .role-buttons {
   display: flex;
   justify-content: center;
