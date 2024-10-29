@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -29,6 +31,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startScan() {
+
+    // Reset state
+    setState(() {
+      isDeviceFound = false;
+    });
+
     // Start scanning with a filter for the target UUID
     FlutterBluePlus.startScan(
       timeout: Duration(seconds: 10),
@@ -36,12 +44,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     // Listen for scan results
-    FlutterBluePlus.scanResults.listen((scanResults) {
+    FlutterBluePlus.onScanResults.listen((scanResults) { // Had to change scanResults to onScanResults because one scan that follows a success was reusing the previous scan result
       for (var result in scanResults) {
-        if (result.advertisementData.serviceUuids.contains(targetUUID)) {
+        if (result.advertisementData.serviceUuids.contains(Guid(targetUUID))) { // Had to wrap the string in Guid
           setState(() {
             isDeviceFound = true;
-            deviceName = result.device.name;
+            deviceName = result.device.platformName;
           });
           FlutterBluePlus.stopScan(); // Stop scanning once the target device is found
           break;
