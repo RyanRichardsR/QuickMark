@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [BlueApi]
+    branches: '**'
   pull_request:
-    branches: [BlueApi]
+    branches: '**'
 
 jobs:
   build-and-test:
