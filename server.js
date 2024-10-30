@@ -23,7 +23,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 //LOGIN API
-app.post('/api/login', async (req, res) => {
+app.get('/api/login', async (req, res) => {
   const { login, password } = req.body;
 
   let error = '';
@@ -62,7 +62,7 @@ const { ObjectId } = require('mongodb'); // If you want to use MongoDB's ObjectI
 
 //REGISTER API
 app.post('/api/register', async (req, res) => {
-  const { login, password, firstName, lastName, email, role, verified } = req.body;
+  const { login, password, firstName, lastName, email, role, verified, classes } = req.body;
 
   let error = '';
   let success = false;
@@ -88,6 +88,7 @@ app.post('/api/register', async (req, res) => {
         lastName: lastName,
         email: email,
         role: role,
+        classes: classes,
         emailVerified: verified
       });
 
@@ -126,6 +127,15 @@ app.delete('/api/deleteUser', async (req, res) => {
   const ret = { success: success, error: error };
   res.status(200).json(ret);
 });
+
+/**
+ * API's Needed
+ *  - Search for teacher
+ *  - Search for classes
+ *  - Add a class to student classes array
+ *  - Remove a class from students classes array
+ *  
+ */
 
 
 
