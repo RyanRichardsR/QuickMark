@@ -35,7 +35,7 @@ jobs:
           NODE_ENV: development
 
       - name: Wait for backend server to initialize
-        run: sleep 20
+        run: sleep 5
 
       - name: Install and build frontend
         run: |
@@ -48,7 +48,7 @@ jobs:
         working-directory: ./frontend
 
       - name: Wait for frontend server to initialize
-        run: sleep 10
+        run: sleep 5
 
       - name: Run API tests
         run: |
