@@ -88,7 +88,7 @@ app.post('/api/register', async (req, res) => {
         lastName: lastName,
         email: email,
         role: role,
-        verified: verified
+        emailVerified: verified
       });
 
       success = result.acknowledged;
