@@ -6,8 +6,7 @@ const nodemailer = require("nodemailer"); //for email verification
 const app = express();
 
 require("dotenv").config();
-const url = process.env.DATABASE_URL;
-
+const url = 'mongodb+srv://RickL:cop4331@cop4331.lglw6.mongodb.net/';
 const MongoClient = require("mongodb").MongoClient;
 const client = new MongoClient(url, {
   useNewUrlParser: true,
@@ -52,7 +51,7 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      if (!results.verified) {
+      if (/*!*/results.verified) { 
         error = 'Your email is not verified. Please check your email and verify your account.';
       } else {
       //all user info in one variable
@@ -71,7 +70,7 @@ app.post("/api/login", async (req, res) => {
   } catch (e) {
     error = e.toString();
   }
-
+  
   const ret = { user: user, error: error };
   res.status(200).json(ret);
 });
