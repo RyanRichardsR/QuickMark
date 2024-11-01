@@ -262,6 +262,6 @@ app.post("/api/searchcards", async (req, res) => {
   res.status(200).json(ret); // Changed tsxon to json
 });
 
-app.listen(3000, () => {
+app.listen(3000, '0.0.0.0', () => {
   console.log("Server running on port 3000");
 });
