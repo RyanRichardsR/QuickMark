@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 //import 'package:mobile/class_prof.dart';
 
+//Color Pallete Constants
+const white = Color(0xFFF7FCFF) ;
+const lightBlue = Color(0xFF8DA9C4) ;
+const blue = Color(0xFF134074) ;
+const darkBlue = Color(0xFF13315C) ;
+const navy = Color(0xFF0B2545) ;
+
+
 class Dashboard extends StatelessWidget {
 
   final Map<String, dynamic> user;
@@ -42,11 +50,11 @@ class Dashboard extends StatelessWidget {
         title: const Text(
           'Dashboard',
           style: TextStyle(
-            color: Colors.white,
+            color: white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(int.parse('0xFF0B2545')),
+        backgroundColor: blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
