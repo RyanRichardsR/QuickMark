@@ -9,7 +9,7 @@ function RegistrationForm() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("user"); // Default role set to "user"
-  const [verified, setVerified] = useState(false); // Default verified status
+  const [verified] = useState(false); // Default verified status
 
   async function doRegister(event: React.FormEvent) {
     console.log("doRegister is called");
