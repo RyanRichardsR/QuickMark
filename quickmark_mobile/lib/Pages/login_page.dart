@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
         setState((){
           errorMessage = response['error'];
         });
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : response['user']),
