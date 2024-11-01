@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer"); //for email verification
 const app = express();
 
 require("dotenv").config();
-const url = 'mongodb+srv://RickL:cop4331@cop4331.lglw6.mongodb.net/';
+const url = process.env.DATABASE_URL;
 const MongoClient = require("mongodb").MongoClient;
 const client = new MongoClient(url, {
   useNewUrlParser: true,
