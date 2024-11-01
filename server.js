@@ -2,15 +2,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const nodemailer = require("nodemailer"); //for email verification
 const app = express();
 
-require('dotenv').config();
-const url = process.env.DATABASE_URL;
+require("dotenv").config();
+const url = 'mongodb+srv://RickL:cop4331@cop4331.lglw6.mongodb.net/';
+const MongoClient = require("mongodb").MongoClient;
+const client = new MongoClient(url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-const MongoClient = require('mongodb').MongoClient
-const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-
-(async function() {
+(async function () {
   try {
     await client.connect();
     console.log("Connected to MongoDB");
@@ -22,20 +25,35 @@ const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology:
 app.use(cors());
 app.use(bodyParser.json());
 
+// Setup Nodemailer
+const transporter = nodemailer.createTransport({
+  service: "Gmail", // or your preferred email provider
+  auth: {
+    user: process.env.EMAIL_USER, // your email
+    pass: process.env.EMAIL_PASS, // your email password or app password
+  },
+});
+
 //LOGIN API
-app.get('/api/login', async (req, res) => {
+app.post("/api/login", async (req, res) => {
   const { login, password } = req.body;
 
-  let error = '';
+  let error = "";
   let user = null;
 
   try {
-    const db = client.db('COP4331');
-    const usersCollection = db.collection('Users');
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
 
-    const results = await usersCollection.findOne({ login: login, password: password });
+    const results = await usersCollection.findOne({
+      login: login,
+      password: password,
+    });
 
     if (results) {
+      if (/*!*/results.verified) { 
+        error = 'Your email is not verified. Please check your email and verify your account.';
+      } else {
       //all user info in one variable
       user = {
         id: results._id,
@@ -43,38 +61,56 @@ app.get('/api/login', async (req, res) => {
         lastName: results.lastName,
         email: results.email,
         role: results.role,
-        verified: results.verified
+        verified: results.verified,
       };
+    }
     } else {
-      error = 'Invalid login credentials';
+      error = "Invalid login credentials";
     }
   } catch (e) {
     error = e.toString();
   }
-
+  
   const ret = { user: user, error: error };
   res.status(200).json(ret);
 });
 
-
-
-const { ObjectId } = require('mongodb'); // If you want to use MongoDB's ObjectId for _id generation
+const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
 
 //REGISTER API
 app.post('/api/register', async (req, res) => {
   const { login, password, firstName, lastName, email, role, verified, classes } = req.body;
 
-  let error = '';
+  let error = "";
   let success = false;
 
   try {
-    const db = client.db('COP4331');
+    const db = client.db("COP4331");
     //find the correct table
-    const usersCollection = db.collection('Users');
+    const usersCollection = db.collection("Users");
 
+    // Check if a user with the same email already exists
+    const existingEmailUser = await usersCollection.findOne({ email: email });
+    if (existingEmailUser) {
+      if (existingEmailUser.verified) {
+        // If email is registered and verified, send an error message
+        return res.status(400).json({
+          success: false,
+          error:
+            "This email is already registered and verified. Please log in.",
+        });
+      } else {
+        // If email is registered but not verified, prompt to check email
+        return res.status(400).json({
+          success: false,
+          error:
+            "This email is already registered but not verified. Please check your email for the verification link.",
+        });
+      }
+    }
     const existingUser = await usersCollection.findOne({ login: login });
     if (existingUser) {
-      error = 'User already exists';
+      error = "User already exists";
     } else {
       // Generate a custom or default _id
       const userId = new ObjectId();
@@ -93,6 +129,26 @@ app.post('/api/register', async (req, res) => {
       });
 
       success = result.acknowledged;
+
+      // Generate a temporary token in the URL (no need to store it)
+      const verificationLink = `http://localhost:3000/api/verify-email?email=${encodeURIComponent(
+        email
+      )}`;
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Verify your email",
+        text: `Hello ${firstName}, please verify your email by clicking the following link: ${verificationLink}`,
+        html: `<p>Hello ${firstName},</p><p>Please verify your email by clicking the link below:</p><a href="${verificationLink}">Verify Email</a>`,
+      };
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error("Error sending email:", err);
+        } else {
+          console.log("Verification email sent:", info.response);
+        }
+      });
     }
   } catch (e) {
     error = e.toString();
@@ -138,19 +194,62 @@ app.delete('/api/deleteUser', async (req, res) => {
  */
 
 
+// EMAIL VERIFICATION API
+app.get("/api/verify-email", async (req, res) => {
+  const { email } = req.query;
+  let error = "";
+  let success = false;
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+
+    console.log("Attempting to verify email:", email);
+
+    // Find and update the user document
+    const result = await usersCollection.findOneAndUpdate(
+      { email: email, verified: false },
+      { $set: { verified: true } },
+      { returnDocument: "after" }
+    );
+
+    console.log("findOneAndUpdate result:", result);
+
+    // Set success to true if a document was updated, regardless of result
+
+    console.log(result.verified);
+
+    if (result.verified === true) {
+      success = true;
+      res.send("Email verified successfully. You can now log in.");
+    } else {
+      error = "Invalid or expired verification link, or user already verified.";
+      res.send(error);
+    }
+  } catch (e) {
+    error = "An error occurred: " + e.toString();
+    console.error("Error in verification:", error);
+    res.status(500).send(error);
+  }
+
+  console.log("Verification result:", { success, error });
+});
 
 //SEARCH API FOR CARDS       KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
-app.post('/api/searchcards', async (req, res) => {
+app.post("/api/searchcards", async (req, res) => {
   const { userId, search } = req.body;
   var _search = search.trim();
-  var error = '';
+  var error = "";
   var _ret = [];
 
   try {
-    const db = client.db('CardsLab'); // Make sure to replace with your actual database name
+    const db = client.db("CardsLab"); // Make sure to replace with your actual database name
     //regex is a resular expression to match the beginning of the name field with value in search variable. The .* means any character after. The i makes case insensitive
 
-    const results = await db.collection('Cards').find({ "Name": { $regex: _search + '.*', $options: 'i' } }).toArray();
+    const results = await db
+      .collection("Cards")
+      .find({ Name: { $regex: _search + ".*", $options: "i" } })
+      .toArray();
 
     for (var i = 0; i < results.length; i++) {
       _ret.push(results[i].Name);
