@@ -1,18 +1,5 @@
 import React, { useState } from "react";
 
-const app_name = 'cop4331.xyz';
-function buildPath(route:string) : string
-{
-if (process.env.NODE_ENV != 'development')
-{
-return 'http://' + app_name + ':3000/' + route;
-}
-else
-{
-return 'http://localhost:3000/' + route;
-}
-}
-
 function Login() {
   const [message, setMessage] = useState("");
   const [loginName, setLoginName] = React.useState("");
@@ -26,8 +13,7 @@ function Login() {
     var js = JSON.stringify(obj);
 
     try {
-      //const response = await fetch("http://localhost:3000/api/login", {
-        const response = await fetch (buildPath("api/login"), {
+      const response = await fetch("http://localhost:3000/api/login", {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },

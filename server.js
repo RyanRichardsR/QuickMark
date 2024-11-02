@@ -79,7 +79,7 @@ const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectI
 
 //REGISTER API
 app.post('/api/register', async (req, res) => {
-  const { login, password, firstName, lastName, email, role, verified, classes } = req.body;
+  const { login, password, firstName, lastName, email, role} = req.body;
 
   let error = "";
   let success = false;
@@ -124,8 +124,8 @@ app.post('/api/register', async (req, res) => {
         lastName: lastName,
         email: email,
         role: role,
-        classes: classes,
-        emailVerified: verified
+        classes: [],
+        emailVerified: false
       });
 
       success = result.acknowledged;
