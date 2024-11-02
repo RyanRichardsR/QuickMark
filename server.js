@@ -79,7 +79,7 @@ const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectI
 
 //REGISTER API
 app.post('/api/register', async (req, res) => {
-  const { login, password, firstName, lastName, email, role, verified, classes } = req.body;
+  const { login, password, firstName, lastName, email, role} = req.body;
 
   let error = "";
   let success = false;
@@ -94,14 +94,14 @@ app.post('/api/register', async (req, res) => {
     if (existingEmailUser) {
       if (existingEmailUser.verified) {
         // If email is registered and verified, send an error message
-        return res.status(400).json({
+        return res.status(200).json({
           success: false,
           error:
             "This email is already registered and verified. Please log in.",
         });
       } else {
         // If email is registered but not verified, prompt to check email
-        return res.status(400).json({
+        return res.status(200).json({
           success: false,
           error:
             "This email is already registered but not verified. Please check your email for the verification link.",
@@ -124,8 +124,8 @@ app.post('/api/register', async (req, res) => {
         lastName: lastName,
         email: email,
         role: role,
-        classes: classes,
-        emailVerified: verified
+        classes: [],
+        emailVerified: false
       });
 
       success = result.acknowledged;
