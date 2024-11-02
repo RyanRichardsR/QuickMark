@@ -1,94 +1,121 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
+
+String deviceName = "Unknown Device";
+String targetUUID = "32145678-1234-5678-1234-56789abcdef0";
+int successfulScans = 0;
+int interval = 10;
+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // Request necessary permissions
+    if (await Permission.bluetoothScan.isGranted && await Permission.location.isGranted) {
+      // Start scanning for Bluetooth devices
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 3), withServices: [Guid(targetUUID)]);
+
+      // Listen for scan results
+      FlutterBluePlus.scanResults.listen((scanResults) {
+        for (var result in scanResults) {
+          if (result.advertisementData.serviceUuids.contains(Guid(targetUUID))) {
+            deviceName = result.device.name;
+            successfulScans++;
+          }
+          }
+        
+      });
+    }
+    // Schedule the next task after 10 seconds
+    Workmanager().registerOneOffTask(
+      'bluetoothScanTask',
+      'scanForDevices',
+      initialDelay: Duration(seconds: interval),
+    );
+
+    // Return true to indicate task execution completed successfully
+    return Future.value(true);
+  });
+}
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
   final String title;
 
+  const MyHomePage({super.key, required this.title});
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final String targetUUID = "32145678-1234-5678-1234-56789abcdef0"; // Replace with your target UUID
-  bool isDeviceFound = false;
-  String? deviceName;
+  bool isRunning = false;
 
   @override
-  void initState() {
+  initState(){
     super.initState();
-    getPermissions();
+    // Initialize Workmanager to handle background tasks
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    
   }
 
-  Future<void> getPermissions() async {
-    await Permission.bluetoothScan.request();
-    await Permission.bluetoothConnect.request();
-    await Permission.location.request();
-    startScan();
-  }
-
-  void startScan() {
-
-    // Reset state
-    setState(() {
-      isDeviceFound = false;
-    });
-
-    // Start scanning with a filter for the target UUID
-    FlutterBluePlus.startScan(
-      timeout: Duration(seconds: 10),
-      withServices: [Guid(targetUUID)],
+  void startBluetoothScan() {
+    Workmanager().registerOneOffTask(
+      'bluetoothScanTask', // Unique name for the task
+      'scanForDevices',
     );
-
-    // Listen for scan results
-    FlutterBluePlus.onScanResults.listen((scanResults) { // Had to change scanResults to onScanResults because one scan that follows a success was reusing the previous scan result
-      for (var result in scanResults) {
-        if (result.advertisementData.serviceUuids.contains(Guid(targetUUID))) { // Had to wrap the string in Guid
-          setState(() {
-            isDeviceFound = true;
-            deviceName = result.device.platformName;
-          });
-          FlutterBluePlus.stopScan(); // Stop scanning once the target device is found
-          break;
-        }
-      }
+    setState(() {
+      isRunning = true;
     });
+  }
+
+  void stopBluetoothScan() {
+    Workmanager().cancelAll();
+    setState(() {
+      isRunning = false;
+    });
+    // Display the total number of successful scans
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Scanning Stopped'),
+        content: Text('Total successful scans: $successfulScans'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[700],
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              isDeviceFound ? 'Device Found!' : 'Scanning for device...',
-              style: TextStyle(fontSize: 24, color: isDeviceFound ? Colors.green : Colors.red),
-            ),
-            if (isDeviceFound)
-              ...[
-                Text('Device Name: $deviceName'),
-                Text('UUID: $targetUUID'),
-              ],
+            Text('Device Name: $deviceName'),
+            Text('UUID: $targetUUID'),
+            Text('Successful scans: $successfulScans'),
             SizedBox(height: 20),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.blue[700],
-                fixedSize: const Size(300, 300),
-                shape: const CircleBorder(),
-                side: const BorderSide(width: 4.0),
-              ),
-              onPressed: startScan,
-              child: const Text('Scan Again'),
-            ),
+            isRunning
+                ? ElevatedButton(
+                    onPressed: stopBluetoothScan,
+                    child: Text('Stop Scanning'),
+                  )
+                : ElevatedButton(
+                    onPressed: startBluetoothScan,
+                    child: Text('Start Scanning'),
+                  ),
           ],
         ),
       ),

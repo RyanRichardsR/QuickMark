@@ -38,6 +38,7 @@ dependencies:
   bluetooth_low_energy: ^6.0.2
   permission_handler: ^11.3.1
   flutter_blue_plus: ^1.33.5
+  workmanager: ^0.5.2
 
 dev_dependencies:
   flutter_test:
