@@ -16,7 +16,7 @@
           ],
           "body": {
             "mode": "raw",
-            "raw": "{\"login\": \"testuser\", \"password\": \"password123\", \"firstName\": \"Test\", \"lastName\": \"User\", \"email\": \"test@example.com\", \"role\": \"student\", \"emailVerified\": false}"
+            "raw": "{\"login\": \"testuser\", \"password\": \"password123\", \"firstName\": \"Test\", \"lastName\": \"User\", \"email\": \"test@example.com\", \"role\": \"student\"}"
           },
           "url": {
             "raw": "http://localhost:3000/api/register",
