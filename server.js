@@ -77,7 +77,7 @@ app.post("/api/login", async (req, res) => {
 
 // GET CLASSES API
 app.post("/api/classes", async (req, res) => {
-  const { login } = req.body; // assuming login is passed as a query parameter
+  const { login } = req.body; 
 
   let error = "";
   let classes = [];
@@ -101,6 +101,46 @@ app.post("/api/classes", async (req, res) => {
   const ret = { classes: classes, error: error };
   res.status(200).json(ret);
 });
+
+//CREATE A CLASS
+app.post("/api/createclass", async (req, res) => {
+  const { className, joinCode, teacherID } = req.body;
+
+  let error = "";
+  let newClass = null;
+
+  try {
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+
+    // Check if a class with the same joinCode already exists
+    const existingClass = await classesCollection.findOne({ joinCode: joinCode });
+
+    if (existingClass) {
+      error = "A class with this join code already exists.";
+    } else {
+      newClass = {
+        className: className,
+        joinCode: joinCode,
+        teacherID: teacherID,
+        students: [],
+        sessions: [],       
+        interval: 15        
+      };
+
+      const result = await classesCollection.insertOne(newClass);
+
+      // Update the new class object with the auto-generated _id
+      newClass._id = result.insertedId;
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { newClass: newClass, error: error };
+  res.status(200).json(ret);
+});
+
 
 
 const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
