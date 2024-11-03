@@ -194,7 +194,7 @@ app.post("/api/joinClass", async (req, res) => {
 // LEAVE CLASS API HAVING ISSUES
 //the student id is correct, not sure why it is not being found
 app.post("/api/leaveClass", async (req, res) => {
-  const { studentId, joinCode } = req.body;
+  const { studentId, classId } = req.body;
 
   let error = "";
   let success = false;
@@ -204,23 +204,35 @@ app.post("/api/leaveClass", async (req, res) => {
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
 
-    // Convert studentId to ObjectId
+    // Convert studentId and classId to ObjectId
     const studentObjectId = new ObjectId(studentId);
+    const classObjectId = new ObjectId(classId);
 
-    // Find the class with the given joinCode
-    const classToLeave = await classesCollection.findOne({ joinCode: joinCode });
+    // Find the class with the given classId
+    const classToLeave = await classesCollection.findOne({ _id: classObjectId });
 
     if (!classToLeave) {
-      error = "Class with this join code does not exist.";
+      error = "Class with this _id does not exist";
     } else {
       console.log("Students in class:", classToLeave.students);
       console.log("Checking for student:", studentObjectId);
 
       // Check if the student is enrolled in the class
-      if (classToLeave.students && classToLeave.students.includes(studentObjectId)) {
+      //This WAS the condition thats failing
+      //Convert ObjectId values to strings for comparison
+      //classToLeave.students contains ObjectId instances from database. studentObjectID is a new instance. 
+      //In JavaScript, two distinct object instances are not considered equal, even if their internal values are the same.
+      const studentsStrArray = classToLeave.students.map(id => id.toString()); // Convert all to strings
+      const studentIdStr = studentObjectId.toString(); // Convert the student ID to string
+     
+  
+
+      if (classToLeave.students && studentsStrArray.includes(studentIdStr)) {
+       
+        
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
-          { joinCode: joinCode },
+          { _id: classObjectId },
           { $pull: { students: studentObjectId } }
         );
 
@@ -434,7 +446,7 @@ app.get("/api/verify-email", async (req, res) => {
   console.log("Verification result:", { success, error });
 });
 
-//SEARCH API FOR CARDS       KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
+//SEARCH API FOR CARDS KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
 app.post("/api/searchcards", async (req, res) => {
   const { userId, search } = req.body;
   var _search = search.trim();
