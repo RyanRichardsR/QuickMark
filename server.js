@@ -75,6 +75,34 @@ app.post("/api/login", async (req, res) => {
   res.status(200).json(ret);
 });
 
+// GET CLASSES API
+app.post("/api/classes", async (req, res) => {
+  const { login } = req.body; // assuming login is passed as a query parameter
+
+  let error = "";
+  let classes = [];
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+
+    // Find user by login
+    const results = await usersCollection.findOne({ login: login });
+
+    if (results) {
+      classes = results.classes || [];
+    } else {
+      error = "User not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { classes: classes, error: error };
+  res.status(200).json(ret);
+});
+
+
 const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
 
 //REGISTER API
