@@ -103,7 +103,7 @@ app.post("/api/classes", async (req, res) => {
 });
 
 //CREATE A CLASS
-app.post("/api/createclass", async (req, res) => {
+app.post("/api/createClass", async (req, res) => {
   const { className, joinCode, teacherID } = req.body;
 
   let error = "";
@@ -141,6 +141,38 @@ app.post("/api/createclass", async (req, res) => {
   res.status(200).json(ret);
 });
 
+//CLASS INFO API
+app.post("/api/classInfo", async (req, res) => {
+  const { _id } = req.body; 
+
+  let error = "";
+  let classInfo = null;
+
+  try {
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+
+    // Find the class by _id
+    const result = await classesCollection.findOne({ _id: new ObjectId(_id) });
+
+    if (result) {
+      // Extract only the necessary fields
+      classInfo = {
+        interval: result.interval,
+        joinCode: result.joinCode,
+        className: result.className,
+        sessions: result.sessions
+      };
+    } else {
+      error = "Class not found";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { classInfo: classInfo, error: error };
+  res.status(200).json(ret);
+});
 
 
 const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
