@@ -34,6 +34,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
+
 //LOGIN API
 app.post("/api/login", async (req, res) => {
   const { login, password } = req.body;
@@ -141,8 +143,108 @@ app.post("/api/createClass", async (req, res) => {
   res.status(200).json(ret);
 });
 
-//CLASS INFO API
-app.post("/api/classInfo", async (req, res) => {
+// JOIN CLASS API
+app.post("/api/joinClass", async (req, res) => {
+  const { studentId, joinCode } = req.body;
+
+  let error = "";
+  let success = false;
+
+  try {
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+    const usersCollection = db.collection("Users");
+
+    // Convert studentId to ObjectId
+    const studentObjectId = new ObjectId(studentId);
+
+    // Find the class with the given joinCode
+    const classToJoin = await classesCollection.findOne({ joinCode: joinCode });
+
+    if (!classToJoin) {
+      error = "Class with this join code does not exist.";
+    } else {
+      // Check if the student is already in the class
+      if (classToJoin.students && classToJoin.students.includes(studentObjectId)) {
+        error = "Student is already enrolled in this class.";
+      } else {
+        // Add the student's _id to the students array in the class
+        await classesCollection.updateOne(
+          { joinCode: joinCode },
+          { $push: { students: studentObjectId } }
+        );
+
+        // Add the className to the classes array in the user's document
+        await usersCollection.updateOne(
+          { _id: studentObjectId },
+          { $push: { classes: classToJoin.className } }
+        );
+
+        success = true;
+      }
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { success: success, error: error };
+  res.status(200).json(ret);
+});
+
+// LEAVE CLASS API HAVING ISSUES
+//the student id is correct, not sure why it is not being found
+app.post("/api/leaveClass", async (req, res) => {
+  const { studentId, joinCode } = req.body;
+
+  let error = "";
+  let success = false;
+
+  try {
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+    const usersCollection = db.collection("Users");
+
+    // Convert studentId to ObjectId
+    const studentObjectId = new ObjectId(studentId);
+
+    // Find the class with the given joinCode
+    const classToLeave = await classesCollection.findOne({ joinCode: joinCode });
+
+    if (!classToLeave) {
+      error = "Class with this join code does not exist.";
+    } else {
+      console.log("Students in class:", classToLeave.students);
+      console.log("Checking for student:", studentObjectId);
+
+      // Check if the student is enrolled in the class
+      if (classToLeave.students && classToLeave.students.includes(studentObjectId)) {
+        // Remove the student's _id from the students array in the class
+        await classesCollection.updateOne(
+          { joinCode: joinCode },
+          { $pull: { students: studentObjectId } }
+        );
+
+        // Remove the className from the classes array in the user's document
+        await usersCollection.updateOne(
+          { _id: studentObjectId },
+          { $pull: { classes: classToLeave.className } }
+        );
+
+        success = true;
+      } else {
+        error = "Student is not enrolled in this class.";
+      }
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { success: success, error: error };
+  res.status(200).json(ret);
+});
+
+//CLASS INFO TEACHER API
+app.post("/api/classInfoTeacher", async (req, res) => {
   const { _id } = req.body; 
 
   let error = "";
@@ -173,9 +275,6 @@ app.post("/api/classInfo", async (req, res) => {
   const ret = { classInfo: classInfo, error: error };
   res.status(200).json(ret);
 });
-
-
-const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
 
 //REGISTER API
 app.post('/api/register', async (req, res) => {
