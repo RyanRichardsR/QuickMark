@@ -83,15 +83,15 @@ function RegistrationForm() {
         <div className="role-buttons">
         <button
           type="button"
-          className={`role-button ${role === "Teacher" ? "selected" : ""}`}
-          onClick={() => setRole("Teacher")}
+          className={`role-button ${role === "teacher" ? "selected" : ""}`}
+          onClick={() => setRole("teacher")}
         >
           Teacher
         </button>
         <button
           type="button"
-          className={`role-button ${role === "Student" ? "selected" : ""}`}
-          onClick={() => setRole("Student")}
+          className={`role-button ${role === "student" ? "selected" : ""}`}
+          onClick={() => setRole("student")}
         >
           Student
         </button>
