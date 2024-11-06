@@ -10,40 +10,69 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose }) => {
   const [className, setClassName] = useState("");
   const [classID, setClassID] = useState("");
   const [joinCode, setJoinCode] = useState("");
-  const [step, setStep] = useState(1); // Track the current step
+  const [step, setStep] = useState(1);
+  const [message, setMessage] = useState(""); // For error/success messages
 
-  // Proceed to the next step
   const handleNext = () => {
     if (step === 1 && className && classID) {
-      setStep(2); // Move to step 2 if step 1 fields are filled
+      setStep(2);
     } else if (step === 2 && joinCode) {
-      setStep(3); // Move to step 3 if step 2 field is filled
+      setStep(3);
     } else {
-      alert("Please fill in all fields"); // Notify user if fields are empty
+      alert("Please fill in all fields");
     }
   };
 
-  // Handle modal close and reset state
   const handleClose = () => {
-    setStep(1); // Reset to step 1
+    setStep(1);
     setClassName("");
     setClassID("");
     setJoinCode("");
-    onClose(); // Close the modal
+    setMessage("");
+    onClose();
   };
 
-  // Handle submit action in the final step
-  const handleSubmit = () => {
-    alert("Class Added!");
-    handleClose(); // Close the modal after submission
+  const handleSubmit = async () => {
+    const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    const teacherID = userData.id; // Use `id` instead of `login`
+    console.log("Teacher ID:", teacherID);
+  
+    // Ensure all necessary data is available
+    if (!className || !joinCode || !teacherID) {
+      setMessage("Please complete all fields.");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:3000/api/createClass", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ className, joinCode, teacherID }), // Pass `teacherID` as `id`
+      });
+  
+      const data = await response.json();
+  
+      if (data.error) {
+        setMessage(data.error);
+      } else {
+        setMessage("Class successfully added!");
+  
+        handleClose(); // Close modal after successful submission
+      }
+    } catch (error) {
+      console.error("Error adding class:", error);
+      setMessage("An error occurred. Please try again.");
+    }
   };
+  
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-        {/* Close Button */}
         <button className="modal-close" onClick={handleClose}>
           &times;
         </button>
@@ -113,6 +142,7 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose }) => {
             </>
           )}
         </div>
+        {message && <p className="modal-message">{message}</p>}
       </div>
     </div>
   );

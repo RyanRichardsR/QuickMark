@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const nodemailer = require("nodemailer"); //for email verification
 const app = express();
+const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
 
 require("dotenv").config();
 const url = process.env.DATABASE_URL;
@@ -34,8 +35,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
-
 //LOGIN API
 app.post("/api/login", async (req, res) => {
   const { login, password } = req.body;
@@ -62,6 +61,8 @@ app.post("/api/login", async (req, res) => {
         lastName: results.lastName,
         email: results.email,
         role: results.role,
+        //Dina added this - needed for getting classes
+        login: results.login,
         verified: results.verified,
       };
     } else {
@@ -70,14 +71,14 @@ app.post("/api/login", async (req, res) => {
   } catch (e) {
     error = e.toString();
   }
-  
+
   const ret = { user: user, error: error };
   res.status(200).json(ret);
 });
 
 // GET CLASSES API
 app.post("/api/classes", async (req, res) => {
-  const { login } = req.body; 
+  const { login } = req.body;
 
   let error = "";
   let classes = [];
@@ -85,12 +86,17 @@ app.post("/api/classes", async (req, res) => {
   try {
     const db = client.db("COP4331");
     const usersCollection = db.collection("Users");
+    const classesCollection = db.collection("Classes");
 
-    // Find user by login
-    const results = await usersCollection.findOne({ login: login });
+    // Find user by login and get class IDs
+    const user = await usersCollection.findOne({ login: login });
+    if (user) {
+      const classIds = user.classes || [];
 
-    if (results) {
-      classes = results.classes || [];
+      // Fetch class documents based on class IDs
+      classes = await classesCollection
+        .find({ _id: { $in: classIds } })
+        .toArray();
     } else {
       error = "User not found";
     }
@@ -98,8 +104,7 @@ app.post("/api/classes", async (req, res) => {
     error = e.toString();
   }
 
-  const ret = { classes: classes, error: error };
-  res.status(200).json(ret);
+  res.status(200).json({ classes: classes, error: error });
 });
 
 //CREATE A CLASS
@@ -114,7 +119,9 @@ app.post("/api/createClass", async (req, res) => {
     const classesCollection = db.collection("Classes");
 
     // Check if a class with the same joinCode already exists
-    const existingClass = await classesCollection.findOne({ joinCode: joinCode });
+    const existingClass = await classesCollection.findOne({
+      joinCode: joinCode,
+    });
 
     if (existingClass) {
       error = "A class with this join code already exists.";
@@ -124,8 +131,8 @@ app.post("/api/createClass", async (req, res) => {
         joinCode: joinCode,
         teacherID: teacherID,
         students: [],
-        sessions: [],       
-        interval: 15        
+        sessions: [],
+        interval: 15,
       };
 
       const result = await classesCollection.insertOne(newClass);
@@ -163,7 +170,10 @@ app.post("/api/joinClass", async (req, res) => {
       error = "Class with this join code does not exist.";
     } else {
       // Check if the student is already in the class
-      if (classToJoin.students && classToJoin.students.includes(studentObjectId)) {
+      if (
+        classToJoin.students &&
+        classToJoin.students.includes(studentObjectId)
+      ) {
         error = "Student is already enrolled in this class.";
       } else {
         // Add the student's _id to the students array in the class
@@ -207,7 +217,9 @@ app.post("/api/leaveClass", async (req, res) => {
     const classObjectId = new ObjectId(classId);
 
     // Find the class with the given classId
-    const classToLeave = await classesCollection.findOne({ _id: classObjectId });
+    const classToLeave = await classesCollection.findOne({
+      _id: classObjectId,
+    });
 
     if (!classToLeave) {
       error = "Class with this _id does not exist";
@@ -218,16 +230,12 @@ app.post("/api/leaveClass", async (req, res) => {
       // Check if the student is enrolled in the class
       //This WAS the condition thats failing
       //Convert ObjectId values to strings for comparison
-      //classToLeave.students contains ObjectId instances from database. studentObjectID is a new instance. 
+      //classToLeave.students contains ObjectId instances from database. studentObjectID is a new instance.
       //In JavaScript, two distinct object instances are not considered equal, even if their internal values are the same.
-      const studentsStrArray = classToLeave.students.map(id => id.toString()); // Convert all to strings
+      const studentsStrArray = classToLeave.students.map((id) => id.toString()); // Convert all to strings
       const studentIdStr = studentObjectId.toString(); // Convert the student ID to string
-     
-  
 
       if (classToLeave.students && studentsStrArray.includes(studentIdStr)) {
-       
-        
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
           { _id: classObjectId },
@@ -255,7 +263,7 @@ app.post("/api/leaveClass", async (req, res) => {
 
 //CLASS INFO TEACHER API
 app.post("/api/classInfoTeacher", async (req, res) => {
-  const { _id } = req.body; 
+  const { _id } = req.body;
 
   let error = "";
   let classInfo = null;
@@ -273,7 +281,7 @@ app.post("/api/classInfoTeacher", async (req, res) => {
         interval: result.interval,
         joinCode: result.joinCode,
         className: result.className,
-        sessions: result.sessions
+        sessions: result.sessions,
       };
     } else {
       error = "Class not found";
@@ -287,8 +295,8 @@ app.post("/api/classInfoTeacher", async (req, res) => {
 });
 
 //REGISTER API
-app.post('/api/register', async (req, res) => {
-  const { login, password, firstName, lastName, email, role} = req.body;
+app.post("/api/register", async (req, res) => {
+  const { login, password, firstName, lastName, email, role } = req.body;
 
   let error = "";
   let success = false;
@@ -334,7 +342,7 @@ app.post('/api/register', async (req, res) => {
         email: email,
         role: role,
         classes: [],
-        emailVerified: false
+        emailVerified: false,
       });
 
       success = result.acknowledged;
@@ -367,15 +375,15 @@ app.post('/api/register', async (req, res) => {
   res.status(200).json(ret);
 });
 
-app.delete('/api/deleteUser', async (req, res) => {
+app.delete("/api/deleteUser", async (req, res) => {
   const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body
 
-  let error = '';
+  let error = "";
   let success = false;
 
   try {
-    const db = client.db('COP4331');
-    const usersCollection = db.collection('Users');
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
 
     // Delete user by login
     const result = await usersCollection.deleteOne({ login: login });
@@ -383,7 +391,7 @@ app.delete('/api/deleteUser', async (req, res) => {
     if (result.deletedCount === 1) {
       success = true;
     } else {
-      error = 'User not found or could not be deleted';
+      error = "User not found or could not be deleted";
     }
   } catch (e) {
     error = e.toString();
@@ -399,9 +407,8 @@ app.delete('/api/deleteUser', async (req, res) => {
  *  - Search for classes
  *  - Add a class to student classes array
  *  - Remove a class from students classes array
- *  
+ *
  */
-
 
 // EMAIL VERIFICATION API
 app.get("/api/verify-email", async (req, res) => {
@@ -471,6 +478,6 @@ app.post("/api/searchcards", async (req, res) => {
   res.status(200).json(ret); // Changed tsxon to json
 });
 
-app.listen(3000, '0.0.0.0', () => {
+app.listen(3000, "0.0.0.0", () => {
   console.log("Server running on port 3000");
 });

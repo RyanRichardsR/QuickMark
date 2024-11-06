@@ -14,7 +14,7 @@ const StudentDasboard = () => {
 
       {/* Scrollable container for cards */}
       <div className="cards-scroll-container">
-      <Cards userRole="student" />
+      <Cards userRole="student" showJoinCode />
       </div>
     </div>
   );

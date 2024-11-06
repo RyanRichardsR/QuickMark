@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddClassModal from "../components/AddClassModal";
 import JoinClassModal from "../components/JoinClassModal";
@@ -6,71 +6,75 @@ import "../styles/Cards.css";
 
 interface CardsProps {
   showJoinCode?: boolean;
-  userRole: "teacher" | "student"; // Adding userRole prop to determine behavior
+  userRole: "teacher" | "student";
 }
+
 const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
   const navigate = useNavigate();
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isJoinClassModalOpen, setIsJoinClassModalOpen] = useState(false);
+  const [classes, setClasses] = useState<any[]>([]); // State for dynamically loaded classes
+  const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
 
-
-   // Hardcoded class data with added classID property
-   const classes = [
-    {
-      _id: "60c72b2f5f1b2c001c8d4f1e",
-      joinCode: "ABC123",
-      teacherID: "60c72b2f5f1b2c001c8d4f1f",
-      students: ["60c72b2f5f1b2c001c8d4f20", "60c72b2f5f1b2c001c8d4f21"],
-      interval: 30,
-      sessions: ["session1", "session2"],
-      className: "COP4331C",
-      classID: "24Fall 0001"
-    },
-    {
-      _id: "60c72b2f5f1b2c001c8d4f1d",
-      joinCode: "XYZ789",
-      teacherID: "60c72b2f5f1b2c001c8d4f2f",
-      students: ["60c72b2f5f1b2c001c8d4f22", "60c72b2f5f1b2c001c8d4f23"],
-      interval: 20,
-      sessions: ["session3", "session4"],
-      className: "COP4710C",
-      classID: "24Fall 0002"
-    },
-    {
-      _id: "60c72b2f5f1b2c001c8d4f1c",
-      joinCode: "LMN456",
-      teacherID: "60c72b2f5f1b2c001c8d4f1b",
-      students: ["60c72b2f5f1b2c001c8d4f24", "60c72b2f5f1b2c001c8d4f25"],
-      interval: 25,
-      sessions: ["session5", "session6"],
-      className: "COP3223C",
-      classID: "24Fall 0003"
-    },
-    {
-      _id: "60c72b2f5f1b2c001c8d4f1b",
-      joinCode: "QRS123",
-      teacherID: "60c72b2f5f1b2c001c8d4f2b",
-      students: ["60c72b2f5f1b2c001c8d4f26", "60c72b2f5f1b2c001c8d4f27"],
-      interval: 15,
-      sessions: ["session7", "session8"],
-      className: "CIS3361C",
-      classID: "24Fall 0004"
-    }
-    // Add more class objects as needed
-  ];
-
+  useEffect(() => {
+    const fetchClasses = async () => {
+      // Retrieve user data from localStorage
+      const userData = localStorage.getItem("user_data");
+      console.log("Raw user data from localStorage:", userData);
+  
+      if (!userData) {
+        console.error("No user data found in localStorage.");
+        return;
+      }
+  
+      const { login: login } = JSON.parse(userData);
+      console.log("Parsed login ID:", login);
+  
+      try {
+        console.log("Sending request to /api/classes with login:", login);
+        const response = await fetch("http://localhost:3000/api/classes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ login }), // Send the login ID in the request body
+        });
+  
+        // Log the full response for inspection
+        console.log("Raw response object:", response);
+  
+        if (!response.ok) {
+          console.error("Failed to fetch classes:", response.statusText);
+          return;
+        }
+  
+        const data = await response.json();
+        console.log("Parsed response JSON:", data);
+  
+        if (data.error) {
+          console.error("Error from API:", data.error);
+        } else {
+          console.log("Classes retrieved successfully:", data.classes);
+          setClasses(data.classes); // Set classes from the response
+        }
+      } catch (error) {
+        console.error("Error during API call:", error);
+      }
+    };
+  
+    fetchClasses();
+  }, []);
+  
   const handleAddClassClick = () => {
     if (userRole === "teacher") {
-      setIsAddClassModalOpen(true); // Open add class modal for teacher
+      setIsAddClassModalOpen(true);
     } else {
-      setIsJoinClassModalOpen(true); // Open join class modal for student
+      setIsJoinClassModalOpen(true);
     }
   };
 
   const closeAddClassModal = () => setIsAddClassModalOpen(false);
   const closeJoinClassModal = () => setIsJoinClassModalOpen(false);
-
-  const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
 
   return (
     <div className="cards-container">
@@ -104,10 +108,16 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
 
       {/* Modal for Adding or Joining Class */}
       {userRole === "teacher" && (
-        <AddClassModal isOpen={isAddClassModalOpen} onClose={closeAddClassModal} />
+        <AddClassModal
+          isOpen={isAddClassModalOpen}
+          onClose={closeAddClassModal}
+        />
       )}
       {userRole === "student" && (
-        <JoinClassModal isOpen={isJoinClassModalOpen} onClose={closeJoinClassModal} />
+        <JoinClassModal
+          isOpen={isJoinClassModalOpen}
+          onClose={closeJoinClassModal}
+        />
       )}
     </div>
   );
