@@ -171,11 +171,11 @@ class _LoginPageState extends State<LoginPage> {
 
               //Shows error message for failed login
               if (errorMessage.isNotEmpty) 
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  'Username or Password is Incorrect',  // Display the error message
-                  style: TextStyle(
+                  errorMessage,  // Display the error message
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 14,
                   ),

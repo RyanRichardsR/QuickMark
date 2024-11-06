@@ -51,8 +51,8 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      if (/*!*/results.emailVerified) { 
-        error = 'Your email is not verified. Please check your email and verify your account.';
+      if (!results.emailVerified) { 
+        error = 'Your email is not verified';
       } else {
       //all user info in one variable
       user = {
@@ -65,7 +65,7 @@ app.post("/api/login", async (req, res) => {
       };
     }
     } else {
-      error = "Invalid login credentials";
+      error = "Username or Password is incorrect";
     }
   } catch (e) {
     error = e.toString();
