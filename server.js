@@ -177,7 +177,7 @@ app.post("/api/joinClass", async (req, res) => {
         // Add the className to the classes array in the user's document
         await usersCollection.updateOne(
           { _id: studentObjectId },
-          { $push: { classes: classToJoin.className } }
+          { $push: { classes: classToJoin._id } }
         );
 
         success = true;
