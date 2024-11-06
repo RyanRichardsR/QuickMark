@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AddClassModal from "../components/AddClassModal";
+import JoinClassModal from "../components/JoinClassModal";
 import "../styles/Cards.css";
 
 interface CardsProps {
-    showJoinCode?: boolean; // Optional prop to control the visibility of the join code
-  }
-  
-  const Cards: React.FC<CardsProps> = ({ showJoinCode }) => {
-    const navigate = useNavigate();
+  showJoinCode?: boolean;
+  userRole: "teacher" | "student"; // Adding userRole prop to determine behavior
+}
+const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
+  const navigate = useNavigate();
+  const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
+  const [isJoinClassModalOpen, setIsJoinClassModalOpen] = useState(false);
+
 
    // Hardcoded class data with added classID property
    const classes = [
@@ -54,26 +59,26 @@ interface CardsProps {
     // Add more class objects as needed
   ];
 
-  // Function to navigate to the class details page
-  const handleCardClick = (id: string) => {
-    navigate(`/class-details/${id}`);
-  };
-
-  // Function to handle adding a new class
   const handleAddClassClick = () => {
-    navigate("/add-class"); // Navigate to an add class page or open a modal
+    if (userRole === "teacher") {
+      setIsAddClassModalOpen(true); // Open add class modal for teacher
+    } else {
+      setIsJoinClassModalOpen(true); // Open join class modal for student
+    }
   };
 
-   // Array of colors for alternating card headers
-   const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
+  const closeAddClassModal = () => setIsAddClassModalOpen(false);
+  const closeJoinClassModal = () => setIsJoinClassModalOpen(false);
 
-   return (
+  const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
+
+  return (
     <div className="cards-container">
       {classes.map((classItem, index) => (
         <div
           key={classItem._id}
           className="card"
-          onClick={() => handleCardClick(classItem._id)}
+          onClick={() => navigate(`/class-details/${classItem._id}`)}
         >
           <div
             className="card-header"
@@ -82,17 +87,28 @@ interface CardsProps {
           <div className="card-content">
             <h3 className="card-title">{classItem.className}</h3>
             <p className="card-description">{classItem.classID}</p>
+            {showJoinCode && userRole === "teacher" && (
+              <p className="card-join-code">Join Code: {classItem.joinCode}</p>
+            )}
           </div>
         </div>
       ))}
 
       {/* Add Class Card */}
-      <div className="card add-card" onClick={() => navigate("/add-class")}>
+      <div className="card add-card" onClick={handleAddClassClick}>
         <div className="card-content">
           <span className="add-icon">+</span>
           <p className="add-text">Add Class</p>
         </div>
       </div>
+
+      {/* Modal for Adding or Joining Class */}
+      {userRole === "teacher" && (
+        <AddClassModal isOpen={isAddClassModalOpen} onClose={closeAddClassModal} />
+      )}
+      {userRole === "student" && (
+        <JoinClassModal isOpen={isJoinClassModalOpen} onClose={closeJoinClassModal} />
+      )}
     </div>
   );
 };

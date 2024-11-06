@@ -52,9 +52,8 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      if (!results.verified) {
-        error = 'Your email is not verified. Please check your email and verify your account.';
-      } else {
+      // if (!results.verified) {
+      // } else {
       //all user info in one variable
       user = {
         id: results._id,
@@ -64,7 +63,6 @@ app.post("/api/login", async (req, res) => {
         role: results.role,
         verified: results.verified,
       };
-    }
     } else {
       error = "Invalid login credentials";
     }

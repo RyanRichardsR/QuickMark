@@ -14,8 +14,7 @@ const StudentDasboard = () => {
 
       {/* Scrollable container for cards */}
       <div className="cards-scroll-container">
-        <Cards showJoinCode={false} />{" "}
-        {/* Hide join code on student dashboard */}
+      <Cards userRole="student" />
       </div>
     </div>
   );
