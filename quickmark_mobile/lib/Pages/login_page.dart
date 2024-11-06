@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
+import 'package:quickmark_mobile/Pages/forgot_password.dart';
 import 'package:quickmark_mobile/Pages/register_page.dart';
 import 'package:quickmark_mobile/components/input_field.dart';
 import 'package:quickmark_mobile/server_calls.dart';
@@ -158,10 +159,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
+                    GestureDetector(
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ForgotPassword() )
+                      )
+                    },
+                    child: Text(                    
                       'Forgot Password?',
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                      ),
+                    ),
+                  ),
                   ],
                 ),
               ),
