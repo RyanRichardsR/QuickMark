@@ -9,14 +9,13 @@ function RegistrationForm() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("user"); // Default role set to "user"
-  const [verified, setVerified] = useState(false); // Default verified status
 
   async function doRegister(event: React.FormEvent) {
     console.log("doRegister is called");
 
     event.preventDefault();
 
-    const obj = { login, password, firstName, lastName, email, role, verified };
+    const obj = { login, password, firstName, lastName, email, role};
     const js = JSON.stringify(obj);
 
     try {
