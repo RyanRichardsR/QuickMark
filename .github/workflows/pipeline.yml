@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: '**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start backend server
+        run: |
+          DATABASE_URL=${{ secrets.DATABASE_URL }} node server.js &
+        env:
+          NODE_ENV: development
+
+      - name: Wait for backend server to initialize
+        run: sleep 5
+
+      - name: Install and build frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Start frontend server
+        run: npm run dev &
+        working-directory: ./frontend
+
+      - name: Wait for frontend server to initialize
+        run: sleep 5
+
+      - name: Run API tests
+        run: |
+          npm install -g newman
+          newman run tests/api_tests.json
