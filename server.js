@@ -114,6 +114,7 @@ app.post("/api/createClass", async (req, res) => {
   try {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
+    const usersCollection = db.collection("Users");
 
     // Check if a class with the same joinCode already exists
     const existingClass = await classesCollection.findOne({ joinCode: joinCode });
@@ -124,16 +125,19 @@ app.post("/api/createClass", async (req, res) => {
       newClass = {
         className: className,
         joinCode: joinCode,
-        teacherID: teacherID,
+        teacherID: new ObjectId(teacherID),
         students: [],
-        sessions: [],       
-        interval: 15        
+        sessions: [],
+        interval: 15
       };
 
       const result = await classesCollection.insertOne(newClass);
-
-      // Update the new class object with the auto-generated _id
       newClass._id = result.insertedId;
+      //adding class to teachers classes array
+      await usersCollection.updateOne(
+        { _id: new ObjectId(teacherID) },
+        { $push: { classes: newClass._id } }
+      );
     }
   } catch (e) {
     error = e.toString();
@@ -142,6 +146,7 @@ app.post("/api/createClass", async (req, res) => {
   const ret = { newClass: newClass, error: error };
   res.status(200).json(ret);
 });
+
 
 // JOIN CLASS API
 app.post("/api/joinClass", async (req, res) => {
@@ -394,16 +399,6 @@ app.delete('/api/deleteUser', async (req, res) => {
   const ret = { success: success, error: error };
   res.status(200).json(ret);
 });
-
-/**
- * API's Needed
- *  - Search for teacher
- *  - Search for classes
- *  - Add a class to student classes array
- *  - Remove a class from students classes array
- *  
- */
-
 
 // EMAIL VERIFICATION API
 app.get("/api/verify-email", async (req, res) => {
