@@ -51,7 +51,7 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      if (/*!*/results.verified) { 
+      if (/*!*/results.emailVerified) { 
         error = 'Your email is not verified. Please check your email and verify your account.';
       } else {
       //all user info in one variable
@@ -61,7 +61,7 @@ app.post("/api/login", async (req, res) => {
         lastName: results.lastName,
         email: results.email,
         role: results.role,
-        verified: results.verified,
+        emailVerified: results.emailVerified,
       };
     }
     } else {
@@ -92,7 +92,7 @@ app.post('/api/register', async (req, res) => {
     // Check if a user with the same email already exists
     const existingEmailUser = await usersCollection.findOne({ email: email });
     if (existingEmailUser) {
-      if (existingEmailUser.verified) {
+      if (existingEmailUser.emailVerified) {
         // If email is registered and verified, send an error message
         return res.status(200).json({
           success: false,
@@ -208,8 +208,8 @@ app.get("/api/verify-email", async (req, res) => {
 
     // Find and update the user document
     const result = await usersCollection.findOneAndUpdate(
-      { email: email, verified: false },
-      { $set: { verified: true } },
+      { email: email, emailVerified: false },
+      { $set: { emailVerified: true } },
       { returnDocument: "after" }
     );
 
@@ -217,9 +217,9 @@ app.get("/api/verify-email", async (req, res) => {
 
     // Set success to true if a document was updated, regardless of result
 
-    console.log(result.verified);
+    console.log(result.emailVerified);
 
-    if (result.verified === true) {
+    if (result.emailVerified === true) {
       success = true;
       res.send("Email verified successfully. You can now log in.");
     } else {
