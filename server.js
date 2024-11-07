@@ -48,7 +48,10 @@ app.post("/api/login", async (req, res) => {
     const usersCollection = db.collection("Users");
 
     const results = await usersCollection.findOne({
-      login: login,
+      $or: [
+        { login: login },
+        { email: login },
+      ],
       password: password,
     });
 
