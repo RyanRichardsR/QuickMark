@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
+import 'package:quickmark_mobile/Pages/forgot_password.dart';
+import 'package:quickmark_mobile/Pages/register_page.dart';
 import 'package:quickmark_mobile/components/input_field.dart';
 import 'package:quickmark_mobile/server_calls.dart';
 
@@ -12,39 +14,77 @@ const darkBlue = Color(0xFF13315C) ;
 const navy = Color(0xFF0B2545) ;
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final bool success;
 
+  const LoginPage({
+    super.key,
+    required this.success
+  });
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 
 class _LoginPageState extends State<LoginPage> {
+  
   // text inputs
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   String errorMessage = '';
-  
-  
-  // sign in function
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Shows a message for successful registration
+    if (widget.success) {
+      Future.delayed(Duration.zero, () => _showRegistrationSuccessDialog(context));
+    }
+  }
+
+  void _showRegistrationSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Registration Successful!'),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('You have successfully registered!')
+            ],
+          ),
+        );
+      },
+    );
+
+    // Automatically close the dialog after a second
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.of(context).pop(); // Close the dialog
+    });
+  }
+
+  // Login API function
   void signIn(String username, String password, context) async {
+    //Json data
     final body = {
       'login': username,
       'password': password,
     };
     
+    //Make API call
     try {
       var response = await ServerCalls().post('/login', body);
       if(response['error'] != '') {
-        setState((){
+        setState((){ //Creates the error message
           errorMessage = response['error'];
         });
-      } else {
+      } else { //Logs the User in
         debugPrint('Login successful: ${response['user']}');
-        setState((){
+        setState((){ //Reset Error message
           errorMessage = response['error'];
         });
-        Navigator.push(
+        Navigator.push( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : response['user']),
@@ -59,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false, //Fixes the bottom when user uses keypad
       backgroundColor: white,
       
       body: SafeArea(
@@ -119,10 +159,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
+                    GestureDetector(
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ForgotPassword() )
+                      )
+                    },
+                    child: Text(                    
                       'Forgot Password?',
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                      ),
+                    ),
+                  ),
                   ],
                 ),
               ),
@@ -130,28 +178,26 @@ class _LoginPageState extends State<LoginPage> {
               //Spacer for spacing
               const SizedBox(height: 15),
 
+              //Shows error message for failed login
               if (errorMessage.isNotEmpty) 
-              const Padding(
-                padding: EdgeInsets.only(bottom: 8.0),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: Text(
-                  'Username or Password is Incorrect',  // Display the error message
-                  style: TextStyle(
+                  errorMessage,  // Display the error message
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 14,
                   ),
                 ),
               ),
 
-              
-          
-              //sign in button
+              //Log in button
               SizedBox(
                 width: 250,
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    signIn(usernameController.text, passwordController.text, context);
-                    
+                    signIn(usernameController.text, passwordController.text, context);                  
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: blue,                   
@@ -173,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
               //Spacer for spacing
               const SizedBox(height: 170),
 
-              //signup button
+              //Register button
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -182,15 +228,20 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                   const SizedBox(width: 4,),
-                  const Text(
-                    'Register Now',
-                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                  GestureDetector(
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Register() )
+                      )
+                    },
+                    child: const Text(                    
+                      'Register Now',
+                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
-
-              //Spacer for spacing
-              //const SizedBox(height: 30),
           ]),
         ),
       )

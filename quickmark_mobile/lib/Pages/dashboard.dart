@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'package:mobile/class_prof.dart';
+import 'package:quickmark_mobile/components/side_menu.dart';
+import 'package:quickmark_mobile/Pages/class_prof.dart';
+import 'package:quickmark_mobile/components/add_class_popup.dart';
+import 'package:quickmark_mobile/components/course_card.dart';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -41,114 +44,100 @@ class Dashboard extends StatelessWidget {
     },
   ];
   
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: white,
       appBar: AppBar(
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(
-            color: white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
         backgroundColor: blue,
+        iconTheme: const IconThemeData(color: white),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+                    'lib/images/QM_white.png',
+                    height: 60,
+                  ),
+            const Text(
+              'QuickMark',
+              style: TextStyle(
+                color: white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            //const SizedBox(width: 10)
+          ],
+        ),
       ),
+
+      // This is the side menu
+      endDrawer: SideMenu(name: user["firstName"]),
+
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-          ),
-          itemCount: courses.length+1,
-          itemBuilder: (context, index) {
-            if (index < courses.length) {
-              return InkWell(
-                onTap: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ClassProf(title: '${courses[index]['title']}'))
-                  )
-                },
-                child: CourseCard(
-                  title: courses[index]['title']!,
-                  subtitle: courses[index]['subtitle']!,
-                  color: courses[index]['color']!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Dashboard',
+              style: TextStyle(
+                color: navy,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Divider(
+              height: 40,
+              color: navy,
+            ),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
                 ),
-              );
-            }
-            else {
-              return InkWell(
-                onTap: () => {
-                  print('tapped +')
+                itemCount: courses.length+1,
+                itemBuilder: (context, index) {
+                  if (index < courses.length) {
+                    return InkWell(
+                      onTap: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ClassProf(title: '${courses[index]['title']}'))
+                        )
+                      },
+                      child: CourseCard(
+                        title: courses[index]['title']!,
+                        subtitle: courses[index]['subtitle']!,
+                        color: courses[index]['color']!,
+                      ),
+                    );
+                  }
+                  else {
+                    return InkWell(
+                      onTap: () {
+                        showDialog<List>(
+                          context: context,
+                          builder: (context) => AddClassPopup(isTeacher: false,),
+                          barrierDismissible: false,
+                          
+                        );
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 10,
+                        child: const Icon(Icons.add, size: 50.0),
+                      )
+                    );
+                  }
                 },
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 10,
-                  child: const Icon(Icons.add, size: 50.0),
-                )
-              );
-            }
-          },
+              ),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  void tapped(TapUpDetails details) {
-  }
-}
-
-ClassProf({required String title}) {
-}
-
-class CourseCard extends StatelessWidget {
-
-  final String title;
-  final String subtitle;
-  final String color;
-
-  const CourseCard({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 10,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: Color(int.parse(color)),
-            ),
-            height: 80,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title),
-                Text(subtitle),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -10,7 +10,13 @@ class ServerCalls
   //Get
   Future<dynamic> get(String api, Map<String, dynamic> map) async {
     var url = Uri.parse(baseURL + api);
-    var res = await client.get(url);
+    var res = await client.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    );
     if (res.statusCode == 200) {
       return json.decode(res.body);
     } else {
@@ -21,12 +27,14 @@ class ServerCalls
   //Post
   Future<dynamic> post(String api, Map<String, dynamic> body) async {
     var url = Uri.parse(baseURL + api);
-    var res = await client.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: json.encode(body));
+    var res = await client.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: json.encode(body)
+    );
     if (res.statusCode == 200 || res.statusCode == 201) {
       return json.decode(res.body);
     } else {
