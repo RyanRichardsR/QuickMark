@@ -174,19 +174,19 @@ app.post("/api/joinClass", async (req, res) => {
       // Check if the student is already in the class
       if (
         classToJoin.students &&
-        classToJoin.students.includes(studentObjectId)
+        classToJoin.students.includes(new ObjectId(studentObjectId))
       ) {
         error = "Student is already enrolled in this class.";
       } else {
         // Add the student's _id to the students array in the class
         await classesCollection.updateOne(
           { joinCode: joinCode },
-          { $push: { students: studentObjectId } }
+          { $push: { students: new ObjectId(studentObjectId) } }
         );
 
         // Add the className to the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $push: { classes: classToJoin._id } }
         );
 
@@ -222,7 +222,7 @@ app.post("/api/leaveClass", async (req, res) => {
       error = "Class with this _id does not exist";
     } else {
       console.log("Students in class:", classToLeave.students);
-      console.log("Checking for student:", studentObjectId);
+      console.log("Checking for student:", new ObjectId(studentObjectId));
 
       // Check if the student is enrolled in the class
       //This WAS the condition thats failing
@@ -236,12 +236,12 @@ app.post("/api/leaveClass", async (req, res) => {
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
           { _id: classObjectId },
-          { $pull: { students: studentObjectId } }
+          { $pull: { students: new ObjectId(studentObjectId) } }
         );
 
         // Remove the className from the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $pull: { classes: classToLeave.className } }
         );
 
