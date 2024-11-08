@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
+import { SERVER_BASE_URL } from "../config";
 
 function LoginForm() {
   const [message, setMessage] = useState("");
@@ -18,7 +19,7 @@ function LoginForm() {
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch("http://localhost:3000/api/login", {
+      const response = await fetch(`${SERVER_BASE_URL}api/login`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },
