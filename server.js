@@ -155,7 +155,7 @@ app.post("/api/createClass", async (req, res) => {
 
 // JOIN CLASS API
 app.post("/api/joinClass", async (req, res) => {
-  const { studentId, joinCode } = req.body;
+  const { studentObjectId, joinCode } = req.body;
 
   let error = "";
   let success = false;
@@ -164,9 +164,6 @@ app.post("/api/joinClass", async (req, res) => {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
-
-    // Convert studentId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
 
     // Find the class with the given joinCode
     const classToJoin = await classesCollection.findOne({ joinCode: joinCode });
@@ -204,10 +201,9 @@ app.post("/api/joinClass", async (req, res) => {
   res.status(200).json(ret);
 });
 
-// LEAVE CLASS API HAVING ISSUES
-//the student id is correct, not sure why it is not being found
+//LEAVE CLASS
 app.post("/api/leaveClass", async (req, res) => {
-  const { studentId, classId } = req.body;
+  const { studentObjectId, classObjectId } = req.body;
 
   let error = "";
   let success = false;
@@ -216,10 +212,6 @@ app.post("/api/leaveClass", async (req, res) => {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
-
-    // Convert studentId and classId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
-    const classObjectId = new ObjectId(classId);
 
     // Find the class with the given classId
     const classToLeave = await classesCollection.findOne({
