@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const nodemailer = require("nodemailer"); //for email verification
 const app = express();
+const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
 
 require("dotenv").config();
 const url = process.env.DATABASE_URL;
@@ -34,8 +35,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
-
 //LOGIN API
 app.post("/api/login", async (req, res) => {
   const { login, password } = req.body;
@@ -56,9 +55,8 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      if (!results.emailVerified) { 
-        error = 'Your email is not verified';
-      } else {
+      // if (!results.emailVerified) {
+      // } else {
       //all user info in one variable
       user = {
         id: results._id,
@@ -66,23 +64,24 @@ app.post("/api/login", async (req, res) => {
         lastName: results.lastName,
         email: results.email,
         role: results.role,
+        //Dina added this - needed for getting classes
+        login: results.login,
         emailVerified: results.emailVerified,
       };
-    }
     } else {
       error = "Username or Password is incorrect";
     }
   } catch (e) {
     error = e.toString();
   }
-  
+
   const ret = { user: user, error: error };
   res.status(200).json(ret);
 });
 
 // GET CLASSES API
 app.post("/api/classes", async (req, res) => {
-  const { login } = req.body; 
+  const { login } = req.body;
 
   let error = "";
   let classes = [];
@@ -90,12 +89,17 @@ app.post("/api/classes", async (req, res) => {
   try {
     const db = client.db("COP4331");
     const usersCollection = db.collection("Users");
+    const classesCollection = db.collection("Classes");
 
-    // Find user by login
-    const results = await usersCollection.findOne({ login: login });
+    // Find user by login and get class IDs
+    const user = await usersCollection.findOne({ login: login });
+    if (user) {
+      const classIds = user.classes || [];
 
-    if (results) {
-      classes = results.classes || [];
+      // Fetch class documents based on class IDs
+      classes = await classesCollection
+        .find({ _id: { $in: classIds } })
+        .toArray();
     } else {
       error = "User not found";
     }
@@ -103,8 +107,7 @@ app.post("/api/classes", async (req, res) => {
     error = e.toString();
   }
 
-  const ret = { classes: classes, error: error };
-  res.status(200).json(ret);
+  res.status(200).json({ classes: classes, error: error });
 });
 
 //CREATE A CLASS
@@ -120,7 +123,9 @@ app.post("/api/createClass", async (req, res) => {
     const usersCollection = db.collection("Users");
 
     // Check if a class with the same joinCode already exists
-    const existingClass = await classesCollection.findOne({ joinCode: joinCode });
+    const existingClass = await classesCollection.findOne({
+      joinCode: joinCode,
+    });
 
     if (existingClass) {
       error = "A class with this join code already exists.";
@@ -153,18 +158,18 @@ app.post("/api/createClass", async (req, res) => {
 
 // JOIN CLASS API
 app.post("/api/joinClass", async (req, res) => {
-  const { studentId, joinCode } = req.body;
+  const { studentObjectId, joinCode } = req.body;
 
   let error = "";
   let success = false;
+  console.log("Received studentObjectId:", studentObjectId);
+  console.log("Wrapped as a new object:", new ObjectId(studentObjectId));
+
 
   try {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
-
-    // Convert studentId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
 
     // Find the class with the given joinCode
     const classToJoin = await classesCollection.findOne({ joinCode: joinCode });
@@ -173,18 +178,21 @@ app.post("/api/joinClass", async (req, res) => {
       error = "Class with this join code does not exist.";
     } else {
       // Check if the student is already in the class
-      if (classToJoin.students && classToJoin.students.includes(studentObjectId)) {
+      if (
+        classToJoin.students &&
+        classToJoin.students.includes(new ObjectId(studentObjectId))
+      ) {
         error = "Student is already enrolled in this class.";
       } else {
         // Add the student's _id to the students array in the class
         await classesCollection.updateOne(
           { joinCode: joinCode },
-          { $push: { students: studentObjectId } }
+          { $push: { students: new ObjectId(studentObjectId) } }
         );
 
         // Add the className to the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $push: { classes: classToJoin._id } }
         );
 
@@ -199,10 +207,9 @@ app.post("/api/joinClass", async (req, res) => {
   res.status(200).json(ret);
 });
 
-// LEAVE CLASS API HAVING ISSUES
-//the student id is correct, not sure why it is not being found
+//LEAVE CLASS
 app.post("/api/leaveClass", async (req, res) => {
-  const { studentId, classId } = req.body;
+  const { studentObjectId, classObjectId } = req.body;
 
   let error = "";
   let success = false;
@@ -212,41 +219,35 @@ app.post("/api/leaveClass", async (req, res) => {
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
 
-    // Convert studentId and classId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
-    const classObjectId = new ObjectId(classId);
-
     // Find the class with the given classId
-    const classToLeave = await classesCollection.findOne({ _id: classObjectId });
+    const classToLeave = await classesCollection.findOne({
+      _id: classObjectId,
+    });
 
     if (!classToLeave) {
       error = "Class with this _id does not exist";
     } else {
       console.log("Students in class:", classToLeave.students);
-      console.log("Checking for student:", studentObjectId);
+      console.log("Checking for student:", new ObjectId(studentObjectId));
 
       // Check if the student is enrolled in the class
       //This WAS the condition thats failing
       //Convert ObjectId values to strings for comparison
-      //classToLeave.students contains ObjectId instances from database. studentObjectID is a new instance. 
+      //classToLeave.students contains ObjectId instances from database. studentObjectID is a new instance.
       //In JavaScript, two distinct object instances are not considered equal, even if their internal values are the same.
-      const studentsStrArray = classToLeave.students.map(id => id.toString()); // Convert all to strings
+      const studentsStrArray = classToLeave.students.map((id) => id.toString()); // Convert all to strings
       const studentIdStr = studentObjectId.toString(); // Convert the student ID to string
-     
-  
 
       if (classToLeave.students && studentsStrArray.includes(studentIdStr)) {
-       
-        
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
           { _id: classObjectId },
-          { $pull: { students: studentObjectId } }
+          { $pull: { students: new ObjectId(studentObjectId) } }
         );
 
         // Remove the className from the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $pull: { classes: classToLeave.className } }
         );
 
@@ -265,7 +266,7 @@ app.post("/api/leaveClass", async (req, res) => {
 
 //CLASS INFO TEACHER API
 app.post("/api/classInfoTeacher", async (req, res) => {
-  const { _id } = req.body; 
+  const { _id } = req.body;
 
   let error = "";
   let classInfo = null;
@@ -283,7 +284,7 @@ app.post("/api/classInfoTeacher", async (req, res) => {
         interval: result.interval,
         joinCode: result.joinCode,
         className: result.className,
-        sessions: result.sessions
+        sessions: result.sessions,
       };
     } else {
       error = "Class not found";
@@ -297,8 +298,8 @@ app.post("/api/classInfoTeacher", async (req, res) => {
 });
 
 //REGISTER API
-app.post('/api/register', async (req, res) => {
-  const { login, password, firstName, lastName, email, role} = req.body;
+app.post("/api/register", async (req, res) => {
+  const { login, password, firstName, lastName, email, role } = req.body;
 
   let error = "";
   let success = false;
@@ -344,7 +345,7 @@ app.post('/api/register', async (req, res) => {
         email: email,
         role: role,
         classes: [],
-        emailVerified: false
+        emailVerified: false,
       });
 
       success = result.acknowledged;
@@ -377,15 +378,15 @@ app.post('/api/register', async (req, res) => {
   res.status(200).json(ret);
 });
 
-app.delete('/api/deleteUser', async (req, res) => {
+app.delete("/api/deleteUser", async (req, res) => {
   const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body
 
-  let error = '';
+  let error = "";
   let success = false;
 
   try {
-    const db = client.db('COP4331');
-    const usersCollection = db.collection('Users');
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
 
     // Delete user by login
     const result = await usersCollection.deleteOne({ login: login });
@@ -393,7 +394,7 @@ app.delete('/api/deleteUser', async (req, res) => {
     if (result.deletedCount === 1) {
       success = true;
     } else {
-      error = 'User not found or could not be deleted';
+      error = "User not found or could not be deleted";
     }
   } catch (e) {
     error = e.toString();
@@ -471,6 +472,6 @@ app.post("/api/searchcards", async (req, res) => {
   res.status(200).json(ret); // Changed tsxon to json
 });
 
-app.listen(3000, '0.0.0.0', () => {
+app.listen(3000, "0.0.0.0", () => {
   console.log("Server running on port 3000");
 });

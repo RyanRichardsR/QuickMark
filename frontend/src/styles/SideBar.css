@@ -1,0 +1,98 @@
+/* Sidebar.css */
+.sidebar {
+  background-color: #8da9c4;
+  width: 200px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 20px;
+  color: #333;
+  padding-left: 20px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Prevents hover effects on the logo */
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.account-label {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.sidebar-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-size: 18px;
+  cursor: pointer;
+  color: #333;
+  text-align: left;
+  padding-left: 10px;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.divider {
+  width: 90%;
+  height: 1px;
+  background-color: #333;
+  opacity: 0.3;
+  margin: 20px 0;
+}
+
+.about-us {
+  width: 100%;
+}
+
+/* Targeting the images inside sidebar buttons */
+.sidebar-button img {
+  width: 16px; /* Adjust the width as needed */
+  height: 16px; /* Adjust the height as needed */
+  margin-right: 8px; /* Add space between the icon and text */
+  vertical-align: middle; /* Aligns icon vertically with text */
+}
+
+.divider {
+  margin: 20px 0;
+  border-bottom: 1px solid #ddd;
+}
+.sidebar-button:hover {
+  background-color: #e0e7ff;
+}
