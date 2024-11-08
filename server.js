@@ -159,6 +159,9 @@ app.post("/api/joinClass", async (req, res) => {
 
   let error = "";
   let success = false;
+  console.log("Received studentObjectId:", studentObjectId);
+  console.log("Wrapped as a new object:", new ObjectId(studentObjectId));
+
 
   try {
     const db = client.db("COP4331");
