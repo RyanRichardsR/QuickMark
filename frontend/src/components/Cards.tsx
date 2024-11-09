@@ -13,55 +13,46 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
   const navigate = useNavigate();
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isJoinClassModalOpen, setIsJoinClassModalOpen] = useState(false);
-  const [classes, setClasses] = useState<any[]>([]); // State for dynamically loaded classes
+  const [classes, setClasses] = useState<any[]>([]);
   const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
 
-  useEffect(() => {
-    const fetchClasses = async () => {
-      // Retrieve user data from localStorage
-      const userData = localStorage.getItem("user_data");
-      console.log("Raw user data from localStorage:", userData);
+  const fetchClasses = async () => {
+    const userData = localStorage.getItem("user_data");
 
-      if (!userData) {
-        console.error("No user data found in localStorage.");
+    if (!userData) {
+      console.error("No user data found in localStorage.");
+      return;
+    }
+
+    const { login } = JSON.parse(userData);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/classes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ login }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch classes:", response.statusText);
         return;
       }
 
-      const { login: login } = JSON.parse(userData);
-      console.log("Parsed login ID:", login);
+      const data = await response.json();
 
-      try {
-        console.log("Sending request to /api/classes with login:", login);
-        const response = await fetch("http://localhost:3000/api/classes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ login }), // Send the login ID in the request body
-        });
-
-        // Log the full response for inspection
-        console.log("Raw response object:", response);
-
-        if (!response.ok) {
-          console.error("Failed to fetch classes:", response.statusText);
-          return;
-        }
-
-        const data = await response.json();
-        console.log("Parsed response JSON:", data);
-
-        if (data.error) {
-          console.error("Error from API:", data.error);
-        } else {
-          console.log("Classes retrieved successfully:", data.classes);
-          setClasses(data.classes); // Set classes from the response
-        }
-      } catch (error) {
-        console.error("Error during API call:", error);
+      if (data.error) {
+        console.error("Error from API:", data.error);
+      } else {
+        setClasses(data.classes);
       }
-    };
+    } catch (error) {
+      console.error("Error during API call:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchClasses();
   }, []);
 
@@ -76,12 +67,10 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
   const closeAddClassModal = () => setIsAddClassModalOpen(false);
   const closeJoinClassModal = () => setIsJoinClassModalOpen(false);
 
-  // Navigate to the appropriate page based on the user role and class ID
   const handleCardClick = (classId: string) => {
     if (userRole === "teacher") {
       navigate(`/sessions/${classId}`);
     } else {
-      // Navigate to the student's history page for that class
       navigate(`/history/${classId}`);
     }
   };
@@ -127,6 +116,7 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
         <JoinClassModal
           isOpen={isJoinClassModalOpen}
           onClose={closeJoinClassModal}
+          onClassJoined={fetchClasses} // This refetches the classes after joining
         />
       )}
     </div>

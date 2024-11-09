@@ -1,24 +1,58 @@
 import React, { useState } from "react";
 import "../styles/JoinClassModal.css";
+import { SERVER_BASE_URL } from "../config";
 
 interface JoinClassModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onClassJoined: () => void; // New prop to trigger refresh in parent
 }
 
-const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose }) => {
+const JoinClassModal: React.FC<JoinClassModalProps> = ({
+  isOpen,
+  onClose,
+  onClassJoined,
+}) => {
   const [classCode, setClassCode] = useState("");
+  const [message, setMessage] = useState("");
 
-  // Handle modal close and reset state
   const handleClose = () => {
-    setClassCode(""); // Reset input field
-    onClose(); // Close the modal
+    setClassCode("");
+    setMessage("");
+    onClose();
   };
 
-  // Handle join action
-  const handleJoin = () => {
-    alert(`Attempting to join class with code: ${classCode}`);
-    handleClose(); // Close the modal after the action
+  const handleJoin = async () => {
+    const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+    const studentId = userData.id;
+
+    if (!classCode || !studentId) {
+      setMessage("Please enter the class code.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${SERVER_BASE_URL}api/joinClass`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ studentObjectId: studentId, joinCode: classCode }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setMessage(data.error);
+      } else if (data.success) {
+        setMessage("Successfully joined the class!");
+        onClassJoined(); // Refresh the classes in the parent component
+        handleClose(); // Close modal after successful join
+      }
+    } catch (error) {
+      console.error("Error joining class:", error);
+      setMessage("An error occurred. Please try again.");
+    }
   };
 
   if (!isOpen) return null;
@@ -45,6 +79,7 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({ isOpen, onClose }) => {
               Join Class
             </button>
           </div>
+          {message && <p className="modal-message">{message}</p>}
         </div>
       </div>
     </div>

@@ -41,3 +41,12 @@
     background-color: #357ab8;
   }
   
+  .modal-message {
+    margin-top: 15px;
+    color: #007bff; /* Success */
+  }
+  
+  .modal-message.error {
+    color: #ff0000; /* Error */
+  }
+  

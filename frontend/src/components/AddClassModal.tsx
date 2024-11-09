@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/AddClassModal.css";
+import { SERVER_BASE_URL } from "../config";
 
 interface AddClassModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose }) => {
     }
   
     try {
-      const response = await fetch("http://localhost:3000/api/createClass", {
+      const response = await fetch(`${SERVER_BASE_URL}api/createClass`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
