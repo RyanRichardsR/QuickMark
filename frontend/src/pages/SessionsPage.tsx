@@ -1,30 +1,49 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom"; // Add useParams to get classId from URL
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionsPage.css";
+import { SERVER_BASE_URL } from "../config"; // Adjust the import path as needed
 
 const SessionsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { classId } = useParams<{ classId: string }>(); // Get classId from URL params
+  const [sessions, setSessions] = useState<any[]>([]); // State to hold session data
+  const [loading, setLoading] = useState<boolean>(true); // State to show loading status
+  const [error, setError] = useState<string>(""); // State to show error messages
+  const [className, setClassName] = useState<string>(""); // State to hold class name
 
-  // Hardcoded session data
-  const sessions = [
-    { date: "2024-10-30", time: "09:00 - 10:00", id: "session-001" },
-    { date: "2024-10-30", time: "10:30 - 11:30", id: "session-002" },
-    { date: "2024-10-30", time: "12:00 - 13:00", id: "session-003" },
-    { date: "2024-10-30", time: "14:00 - 15:00", id: "session-004" },
-    { date: "2024-10-30", time: "16:00 - 17:00", id: "session-005" },
-    { date: "2024-10-30", time: "09:00 - 10:00", id: "session-001" },
-    { date: "2024-10-30", time: "10:30 - 11:30", id: "session-002" },
-    { date: "2024-10-30", time: "12:00 - 13:00", id: "session-003" },
-    { date: "2024-10-30", time: "14:00 - 15:00", id: "session-004" },
-    { date: "2024-10-30", time: "16:00 - 17:00", id: "session-005" },
-    { date: "2024-10-30", time: "09:00 - 10:00", id: "session-001" },
-    { date: "2024-10-30", time: "10:30 - 11:30", id: "session-002" },
-    { date: "2024-10-30", time: "12:00 - 13:00", id: "session-003" },
-    { date: "2024-10-30", time: "14:00 - 15:00", id: "session-004" },
-    { date: "2024-10-30", time: "16:00 - 17:00", id: "session-005" },
-  ];
+  useEffect(() => {
+    // Fetch class info (including sessions) from the backend
+    const fetchClassInfo = async () => {
+      try {
+        const response = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ _id: classId }), // Pass classId in the body
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setSessions(data.classInfo.sessions || []); // Set sessions from classInfo
+          setClassName(data.classInfo.className || ""); // Set class name from classInfo
+        }
+      } catch (err) {
+        setError("Failed to fetch class information. Please try again later.");
+      } finally {
+        setLoading(false); // Set loading to false after fetching
+      }
+    };
+
+    if (classId) {
+      fetchClassInfo();
+    }
+  }, [classId]);
 
   return (
     <div className="sessions-page">
@@ -38,19 +57,34 @@ const SessionsPage: React.FC = () => {
 
         {/* Class Title */}
         <div className="sessions-table-container">
-          <h2 className="sessions-title">COP 4331 - Sessions</h2>
+          <h2 className="sessions-title">{className ? `${className} - Sessions` : "Class Sessions"}</h2>
           <div className="sessions-table">
-            {sessions.length > 0 ? (
-              sessions.map((session, index) => (
-                <div key={index} className="session-row">
-                  <span>{session.date}  {session.time}</span>
-                  <span className="arrow">&gt;</span>
-                </div>
-              ))
+            {loading ? (
+              <p>Loading sessions...</p>
+            ) : error ? (
+              <p className="error-message">{error}</p>
+            ) : sessions.length > 0 ? (
+              sessions.map((session, index) => {
+                const startDate = new Date(Date.parse(session.startTime));
+                const endDate = new Date(Date.parse(session.endTime));
+
+                // Check if startDate and endDate are valid
+                const isValidStartDate = !isNaN(startDate.getTime());
+                const isValidEndDate = !isNaN(endDate.getTime());
+
+                return (
+                  <div key={session._id || index} className="session-row">
+                    <span>
+                      {isValidStartDate && isValidEndDate
+                        ? `${startDate.toLocaleDateString()} - ${startDate.toLocaleTimeString()} to ${endDate.toLocaleTimeString()}` //ERROR: Invalid Date THIS STILL DOESNT WORK
+                        : "Invalid Date"}  
+                    </span>
+                    <span className="arrow">&gt;</span>
+                  </div>
+                );
+              })
             ) : (
-              <div className="no-sessions-message">
-                No sessions available
-              </div>
+              <div className="no-sessions-message">No sessions available</div>
             )}
           </div>
         </div>
