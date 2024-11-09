@@ -63,7 +63,7 @@ app.post("/api/login", async (req, res) => {
         role: results.role,
         //Dina added this - needed for getting classes
         login: results.login,
-        verified: results.verified,
+        emailVerified: results.emailVerified,
       };
     } else {
       error = "Username or Password is incorrect";
@@ -155,18 +155,18 @@ app.post("/api/createClass", async (req, res) => {
 
 // JOIN CLASS API
 app.post("/api/joinClass", async (req, res) => {
-  const { studentId, joinCode } = req.body;
+  const { studentObjectId, joinCode } = req.body;
 
   let error = "";
   let success = false;
+  console.log("Received studentObjectId:", studentObjectId);
+  console.log("Wrapped as a new object:", new ObjectId(studentObjectId));
+
 
   try {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
-
-    // Convert studentId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
 
     // Find the class with the given joinCode
     const classToJoin = await classesCollection.findOne({ joinCode: joinCode });
@@ -177,19 +177,19 @@ app.post("/api/joinClass", async (req, res) => {
       // Check if the student is already in the class
       if (
         classToJoin.students &&
-        classToJoin.students.includes(studentObjectId)
+        classToJoin.students.includes(new ObjectId(studentObjectId))
       ) {
         error = "Student is already enrolled in this class.";
       } else {
         // Add the student's _id to the students array in the class
         await classesCollection.updateOne(
           { joinCode: joinCode },
-          { $push: { students: studentObjectId } }
+          { $push: { students: new ObjectId(studentObjectId) } }
         );
 
         // Add the className to the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $push: { classes: classToJoin._id } }
         );
 
@@ -204,10 +204,9 @@ app.post("/api/joinClass", async (req, res) => {
   res.status(200).json(ret);
 });
 
-// LEAVE CLASS API HAVING ISSUES
-//the student id is correct, not sure why it is not being found
+//LEAVE CLASS
 app.post("/api/leaveClass", async (req, res) => {
-  const { studentId, classId } = req.body;
+  const { studentObjectId, classObjectId } = req.body;
 
   let error = "";
   let success = false;
@@ -216,10 +215,6 @@ app.post("/api/leaveClass", async (req, res) => {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
     const usersCollection = db.collection("Users");
-
-    // Convert studentId and classId to ObjectId
-    const studentObjectId = new ObjectId(studentId);
-    const classObjectId = new ObjectId(classId);
 
     // Find the class with the given classId
     const classToLeave = await classesCollection.findOne({
@@ -230,7 +225,7 @@ app.post("/api/leaveClass", async (req, res) => {
       error = "Class with this _id does not exist";
     } else {
       console.log("Students in class:", classToLeave.students);
-      console.log("Checking for student:", studentObjectId);
+      console.log("Checking for student:", new ObjectId(studentObjectId));
 
       // Check if the student is enrolled in the class
       //This WAS the condition thats failing
@@ -244,12 +239,12 @@ app.post("/api/leaveClass", async (req, res) => {
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
           { _id: classObjectId },
-          { $pull: { students: studentObjectId } }
+          { $pull: { students: new ObjectId(studentObjectId) } }
         );
 
         // Remove the className from the classes array in the user's document
         await usersCollection.updateOne(
-          { _id: studentObjectId },
+          { _id: new ObjectId(studentObjectId) },
           { $pull: { classes: classToLeave.className } }
         );
 
@@ -379,6 +374,54 @@ app.post("/api/register", async (req, res) => {
   const ret = { success: success, error: error };
   res.status(200).json(ret);
 });
+
+//CREATE SESSION
+app.post("/api/createSession", async (req, res) => {
+  const { uuid, startTime, endTime, signals = 0, isRunning = false, student = [], classId } = req.body;
+  let error = "";
+  let newSession = null;
+
+  try {
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+    const classesCollection = db.collection("Classes");
+
+    // Step 1: Create the session in the Sessions collection
+    const sessionData = {
+      uuid,                        // Unique session identifier
+      startTime: new Date(startTime),  // Convert to Date object
+      endTime: new Date(endTime),      // Convert to Date object
+      signals,                     // Number of signals
+      isRunning,                   // Boolean indicating if session is running
+      student: student.map(id => new ObjectId(id)), // Convert student IDs to ObjectIds
+    };
+
+    const result = await sessionsCollection.insertOne(sessionData);
+
+    if (result.acknowledged) {
+      newSession = { ...sessionData, _id: result.insertedId };
+
+      // Step 2: Update the specified class document to include the new session's _id
+      const updateResult = await classesCollection.updateOne(
+        { _id: new ObjectId(classId) },                  // Filter to find the correct class
+        { $push: { sessions: result.insertedId } }       // Add the session _id to the sessions array
+      );
+
+      if (!updateResult.matchedCount) {
+        error = "Class not found or could not be updated";
+      }
+    } else {
+      error = "Failed to create session";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  // Return the created session data or an error
+  res.status(error ? 500 : 201).json({ newSession, error });
+});
+
+
 
 app.delete("/api/deleteUser", async (req, res) => {
   const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body

@@ -8,7 +8,20 @@ import StudentHistoryPage from "./pages/StudentHistoryPage";
 
 
 function App() {
-  const userRole = localStorage.getItem("role");
+  const userData = localStorage.getItem("user_data");  // Get complete user data (not just the role)
+
+  // If no user data, send them to the login page
+  if (!userData) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
+  const userRole = JSON.parse(userData).role; // Extract the role from the user data
 
   return (
     <BrowserRouter>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SERVER_BASE_URL } from "../config";
 
 function Login() {
   const [message, setMessage] = useState("");
@@ -13,7 +14,7 @@ function Login() {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch("http://localhost:3000/api/login", {
+      const response = await fetch(`${SERVER_BASE_URL}api/login`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },
