@@ -63,7 +63,7 @@ app.post("/api/login", async (req, res) => {
         role: results.role,
         //Dina added this - needed for getting classes
         login: results.login,
-        verified: results.verified,
+        emailVerified: results.emailVerified,
       };
     } else {
       error = "Username or Password is incorrect";
