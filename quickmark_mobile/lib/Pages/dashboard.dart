@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_randomcolor/flutter_randomcolor.dart';
 import 'package:quickmark_mobile/components/side_menu.dart';
 import 'package:quickmark_mobile/Pages/class_prof.dart';
 import 'package:quickmark_mobile/components/add_class_popup.dart';
 import 'package:quickmark_mobile/components/course_card.dart';
+import 'package:quickmark_mobile/server_calls.dart';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -11,38 +14,56 @@ const blue = Color(0xFF134074) ;
 const darkBlue = Color(0xFF13315C) ;
 const navy = Color(0xFF0B2545) ;
 
-
-class Dashboard extends StatelessWidget {
-
+class Dashboard extends StatefulWidget {
   final Map<String, dynamic> user;
 
-  Dashboard({
+  const Dashboard({
     super.key,
     required this.user,
   });
 
-  final List<Map<String, String>> courses = [
-    {
-      'title': 'COP4331C',
-      'subtitle': '24Fall 0001',
-      'color': '0xFF4B5B40',
-    },
-    {
-      'title': 'COP4331C',
-      'subtitle': '24Fall 0002',
-      'color': '0xFF394949',
-    },
-    {
-      'title': 'COP4331C',
-      'subtitle': '24Fall 0003',
-      'color': '0xFF4B5B40',
-    },
-    {
-      'title': 'COP4331C',
-      'subtitle': '24Fall 0004',
-      'color': '0xFF5B4656',
-    },
-  ];
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  String errorMessage = '';
+
+  //Get Classes API
+  getClasses(String login) async {
+
+    final body = {
+      'login' : login
+    };
+
+    //Make Call
+    try {
+      final response = await ServerCalls().post('/classes', body) as Map<String, dynamic>;
+      if(response['error'] != '') {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+      } else {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+        List<ClassModel> classes = (response['classes'] as List)
+          .map((data) => ClassModel.fromJson(data)).toList();
+        return classes;
+      }
+    } catch (err) {
+      debugPrint('Error: $err');
+    }
+  }
+
+  late Future<dynamic> futureClasses;
+
+  @override
+  void initState() {
+    super.initState();
+    futureClasses = getClasses(widget.user['login']);
+  }
+
   
   @override
   Widget build(BuildContext context) {
@@ -71,7 +92,7 @@ class Dashboard extends StatelessWidget {
       ),
 
       // This is the side menu
-      endDrawer: SideMenu(name: user["firstName"]),
+      endDrawer: SideMenu(name: widget.user["firstName"]),
 
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -91,54 +112,102 @@ class Dashboard extends StatelessWidget {
               color: navy,
             ),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                ),
-                itemCount: courses.length+1,
-                itemBuilder: (context, index) {
-                  if (index < courses.length) {
-                    return InkWell(
-                      onTap: () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ClassProf(title: '${courses[index]['title']}'))
-                        )
-                      },
-                      child: CourseCard(
-                        title: courses[index]['title']!,
-                        subtitle: courses[index]['subtitle']!,
-                        color: courses[index]['color']!,
-                      ),
-                    );
+              child: FutureBuilder<dynamic>(
+                future: futureClasses,
+                builder:(context, snapshot) {
+                  // Show loading spinner while waiting for data
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
                   }
-                  else {
-                    return InkWell(
-                      onTap: () {
-                        showDialog<List>(
-                          context: context,
-                          builder: (context) => AddClassPopup(isTeacher: false,),
-                          barrierDismissible: false,
-                          
-                        );
-                      },
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  // If no data is available, display a placeholder message
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No classes available'));
+                  }
+
+                  List<ClassModel> courses = snapshot.data!;
+
+                  return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 20,
+                  ),
+                  itemCount: courses.length+1,
+                  itemBuilder: (context, index) {
+                    if (index < courses.length) {
+                      return InkWell(
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ClassProf(title: courses[index].className))
+                          )
+                        },
+                        child: CourseCard(
+                          title: courses[index].className,
+                          subtitle: courses[index].joinCode,
+                          color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
                         ),
-                        elevation: 10,
-                        child: const Icon(Icons.add, size: 50.0),
-                      )
-                    );
-                  }
+                      );
+                    }
+                    else {
+                      return InkWell(
+                        onTap: () {
+                          showDialog<List>(
+                            context: context,
+                            builder: (context) => AddClassPopup(isTeacher: false,),
+                            barrierDismissible: false,
+                            
+                          );
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 10,
+                          child: const Icon(Icons.add, size: 50.0),
+                        ),
+                      );
+                    }
+                  },
+                  );
                 },
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class ClassModel {
+  final String id;
+  final String className;
+  final String joinCode;
+  final String teacherID;
+  final List<dynamic> students;
+  final List<dynamic> sessions;
+  final int interval;
+
+  ClassModel({
+    required this.id,
+    required this.className,
+    required this.joinCode,
+    required this.teacherID,
+    required this.students,
+    required this.sessions,
+    required this.interval,
+  });
+
+  factory ClassModel.fromJson(Map<String, dynamic> json) {
+    return ClassModel(
+      id: json['_id'],
+      className: json['className'],
+      joinCode: json['joinCode'],
+      teacherID: json['teacherID'],
+      students: json['students'],
+      sessions: json['sessions'],
+      interval: json['interval'],
     );
   }
 }

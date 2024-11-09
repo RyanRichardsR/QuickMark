@@ -4,7 +4,7 @@ class CourseCard extends StatelessWidget {
 
   final String title;
   final String subtitle;
-  final String color;
+  final Color color;
 
   const CourseCard({
     super.key,
@@ -26,7 +26,7 @@ class CourseCard extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: Color(int.parse(color)),
+              color: color,
             ),
             height: 80,
           ),
