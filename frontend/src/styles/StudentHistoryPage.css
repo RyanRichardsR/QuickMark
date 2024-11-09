@@ -1,0 +1,95 @@
+/* StudentHistoryPage.css */
+
+.student-history-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    height: calc(100vh - 80px); /* Full height minus header */
+    width: calc(100vw - 150px); /* Full width minus sidebar */
+    margin-left: 150px; /* Adjusted for sidebar width */
+    margin-top: 85px; /* Adjusted for header height */
+    overflow-y: auto;
+  }
+  
+  .history-content {
+    width: 100%;
+    max-width: 1000px;
+    padding: 20px;
+  }
+  
+  .breadcrumb {
+    font-size: 16px;
+    color: #13315C;
+    cursor: pointer;
+    position: absolute;
+    top: 100px;
+    left: 260px;
+    text-decoration: none;
+  }
+  
+  .history-title {
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .history-table-container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 3%;
+  }
+  
+  .history-table-container h2 {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: left;
+    color: #13315C;
+  }
+  
+  .history-table {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  
+  .history-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+  }
+  
+  .attendance-status {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .attendance-status.present {
+    color: green;
+  }
+  
+  .attendance-status.absent {
+    color: red;
+  }
+  
+  .no-history-message {
+    text-align: center;
+    color: #999;
+    padding: 20px 0;
+    font-size: 18px;
+    font-style: italic;
+  }
+  
