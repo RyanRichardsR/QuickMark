@@ -116,17 +116,16 @@ class _DashboardState extends State<Dashboard> {
               child: FutureBuilder<dynamic>(
                 future: futureClasses,
                 builder:(context, snapshot) {
+                  List<ClassModel> courses = [];
+
                   // Show loading spinner while waiting for data
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   // If no data is available, display a placeholder message
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No classes available'));
+                  if (!snapshot.hasData || snapshot.data!.isNotEmpty) {
+                    courses = snapshot.data!;
                   }
-
-                  List<ClassModel> courses = snapshot.data!;
-
                   return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
