@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quickmark_mobile/Pages/login_page.dart';
+import 'package:quickmark_mobile/Pages/ble_demo_dart.dart';
+
 
 //Color Pallete Constants
 const white = Color(0xFFEEF4ED) ;
@@ -17,9 +18,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      // ignore: unnecessary_constructor_name
+      home: ble_demo_page.new(),
     );
   }
 }

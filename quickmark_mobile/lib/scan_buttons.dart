@@ -102,7 +102,7 @@ class _ScanButtonsState extends State<ScanButtons> {
       isScanning = true;
       statusStr = 'Scanning';
     });
-    await Future.delayed(const Duration(minutes: 5));
+    await Future.delayed(const Duration(seconds: 10));
 
 
 

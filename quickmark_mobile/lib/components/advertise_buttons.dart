@@ -125,7 +125,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
     // TODO: Change this value
     // TODO: Call createSession API
     _updateStatus(3);
-    await Future.delayed(const Duration(minutes: 5));
+    await Future.delayed(const Duration(seconds: 10));
 
     if (await FlutterForegroundTask.isRunningService) {
       return FlutterForegroundTask.restartService();
