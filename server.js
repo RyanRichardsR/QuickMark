@@ -271,17 +271,38 @@ app.post("/api/classInfoTeacher", async (req, res) => {
   try {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
+    const sessionsCollection = db.collection("Sessions");
 
     // Find the class by _id
     const result = await classesCollection.findOne({ _id: new ObjectId(_id) });
 
+    console.log("Class Id searched: ", result._id);
+
     if (result) {
-      // Extract only the necessary fields
+      // Log the class sessions for debugging
+      console.log("Class sessions from database:", result.sessions);
+
+      // Convert each session ID to an ObjectId and store in an array
+      const sessionIds = result.sessions.map(id => new ObjectId(id));
+      console.log("Converted session IDs for query:", sessionIds);
+
+      // Retrieve only session documents matching these specific ObjectIds
+      const sessionDetails = await sessionsCollection
+        .find({ _id: { $in: sessionIds } })
+        .toArray();
+
+      // Log the retrieved sessions for debugging
+      console.log("Retrieved sessions:", sessionDetails);
+
+      // Build the class info object with the relevant session data
       classInfo = {
         interval: result.interval,
         joinCode: result.joinCode,
         className: result.className,
-        sessions: result.sessions,
+        sessions: sessionDetails.map(session => ({
+          _id: session._id,
+          ...session
+        })),
       };
     } else {
       error = "Class not found";
@@ -293,6 +314,8 @@ app.post("/api/classInfoTeacher", async (req, res) => {
   const ret = { classInfo: classInfo, error: error };
   res.status(200).json(ret);
 });
+
+
 
 //REGISTER API
 app.post("/api/register", async (req, res) => {
