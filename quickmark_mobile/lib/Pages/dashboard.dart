@@ -70,6 +70,7 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: blue,
         iconTheme: const IconThemeData(color: white),
         title: Row(

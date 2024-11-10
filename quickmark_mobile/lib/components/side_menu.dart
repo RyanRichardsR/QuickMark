@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/login_page.dart';
 
 //Color Pallete Constants
@@ -11,10 +12,15 @@ const navy = Color(0xFF0B2545) ;
 class SideMenu extends StatelessWidget {
   final String name;
 
-    SideMenu({
-      super.key,
-      required this.name
-    });
+  const SideMenu({
+    super.key,
+    required this.name
+  });
+
+  Future<void> logoutUser() async{
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('userData');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +31,7 @@ class SideMenu extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(color: blue),
+            decoration: const BoxDecoration(color: blue),
             padding: EdgeInsets.zero,
             child: Column(
               children: [
@@ -51,6 +57,7 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () {
+              logoutUser();
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

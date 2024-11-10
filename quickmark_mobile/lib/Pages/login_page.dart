@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
 import 'package:quickmark_mobile/Pages/forgot_password.dart';
 import 'package:quickmark_mobile/Pages/register_page.dart';
@@ -64,6 +67,12 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  Future<void> saveUserLogin(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    String userJsonString = jsonEncode(userData);
+    prefs.setString('userData', userJsonString);
+  }
+
   // Login API function
   void signIn(String username, String password, context) async {
     //Json data
@@ -84,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
         setState((){ //Reset Error message
           errorMessage = response['error'];
         });
+        saveUserLogin(response['user']);
         Navigator.push( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
