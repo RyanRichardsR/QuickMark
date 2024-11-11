@@ -6,7 +6,15 @@ import { SERVER_BASE_URL } from "../config";
 //EMAIL_PASS=xjjygcjdylbrciln
 
 
-function RegistrationForm() {
+//EMAIL_USER=officialquickmark@gmail.com
+//EMAIL_PASS=xjjygcjdylbrciln
+
+
+interface RegistrationFormProps {
+  onSwitch: () => void;
+}
+
+const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(""); // New error state
   const [login, setLogin] = useState("");
@@ -28,7 +36,6 @@ function RegistrationForm() {
 
   async function doRegister(event: React.FormEvent) {
     event.preventDefault();
-
     if (!allRequirementsMet) {
       setError("Please ensure your password meets all requirements.");
       return;
@@ -40,7 +47,7 @@ function RegistrationForm() {
 
     setError(""); // Clear error if all conditions are met
 
-    const obj = { login, password, firstName, lastName, email, role };
+    const obj = { login, password, firstName, lastName, email, role  };
     const js = JSON.stringify(obj);
 
     try {
@@ -56,6 +63,11 @@ function RegistrationForm() {
       } else {
         setMessage(res.error || "Registration failed. Please try again.");
       }
+      setMessage(
+        res.success
+          ? "Registration successful! Please check your email to verify your account."
+          : res.error || "Registration failed. Please try again."
+      );
     } catch (error) {
       setMessage("An error occurred during registration. Please try again.");
     }
@@ -65,7 +77,7 @@ function RegistrationForm() {
     <div>
       <h2 className="auth-title">Create an Account</h2>
       <form className="auth-form" onSubmit={doRegister}>
-        <input
+          <input
           type="text"
           className="auth-input"
           placeholder="First Name"
@@ -140,8 +152,9 @@ function RegistrationForm() {
         <button type="submit" className="auth-button">Register</button>
         <span className="auth-message">{message}</span>
       </form>
+      <button onClick={onSwitch} className="toggle-link">Already have an account? Login</button>
     </div>
   );
-}
+};
 
 export default RegistrationForm;

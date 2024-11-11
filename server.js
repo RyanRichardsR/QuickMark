@@ -56,9 +56,6 @@ app.post("/api/login", async (req, res) => {
     });
 
     if (results) {
-      // if (!results.emailVerified) {
-      // } else {
-      //all user info in one variable
       user = {
         id: results._id,
         firstName: results.firstName,
