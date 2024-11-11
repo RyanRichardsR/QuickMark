@@ -6,6 +6,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import SessionsPage from "./pages/SessionsPage";
 import StudentHistoryPage from "./pages/StudentHistoryPage";
 import SessionDetailsPage from "./pages/SessionDetailsPage";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   const userData = localStorage.getItem("user_data");  // Get complete user data (not just the role)
@@ -16,6 +17,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+          <Route path="/resetpassword/:token" element={<ResetPassword />} />
         </Routes>
       </BrowserRouter>
     );
@@ -50,6 +52,8 @@ function App() {
         <Route path="/history/:classId" element={<StudentHistoryPage />} /> 
 
         <Route path="/session-details/:sessionId" element={<SessionDetailsPage />} />
+
+        <Route path="/resetpassword/:token" element={<ResetPassword />} />
 
         {/* Catch-all route to redirect unknown paths */}
         <Route path="*" element={<Navigate to="/" replace />} />

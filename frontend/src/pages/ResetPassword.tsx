@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { SERVER_BASE_URL } from "../config";
 
 
 const ResetPassword: React.FC = () => {
-    const { token } = useParams<{ token: string }>(); // Get the token from the URL
+    const { token } = useParams(); // Get the token from the URL
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const navigate = useNavigate();
@@ -16,17 +17,20 @@ const ResetPassword: React.FC = () => {
             return;
         }
 
+        const obj = { password: password };
+        const js = JSON.stringify(obj); 
+
         try {
-            const response = await fetch(`/api/resetpassword/${token}`, {
-                method: 'POST',
+            const response = await fetch(`${SERVER_BASE_URL}api/resetpassword/${token}`, {
+                method: 'POST',   
+                body: js,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, password }),
             });
 
             const data = await response.json();
             if (response.ok) {
                 alert('Password reset successful');
-                navigate('/login'); // Redirect to login page
+                navigate('/'); // Redirect to login page
             } else {
                 alert(data.message);
             }

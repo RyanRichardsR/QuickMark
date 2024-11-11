@@ -553,7 +553,7 @@ app.post("/api/forgotPassword", async (req, res) =>  {
 
         Please click on the following link, or paste this into your browser to complete the process:
 
-        http://localhost:3000/resetpassword/${resetToken}
+        http://localhost:5173/resetpassword/${resetToken}
 
         If you did not request this, please ignore this email and your password will remain unchanged.
         `
@@ -581,7 +581,8 @@ app.post("/api/forgotPassword", async (req, res) =>  {
 
 //Reset Password
 app.post('/api/resetPassword/:token', async (req, res) => {
-  const { token, password } = req.body;
+  const token = req.params.token;
+  const { password } = req.body;
 
   let error = "";
   let success = false;
@@ -616,7 +617,7 @@ app.post('/api/resetPassword/:token', async (req, res) => {
 
   const ret = { success: success, error: error };
   res.status(200).json(ret);
-})
+});
 
 //SEARCH API FOR CARDS KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
 app.post("/api/searchcards", async (req, res) => {
