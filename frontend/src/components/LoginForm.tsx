@@ -26,6 +26,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
 
       const res = await response.json();
       if (res.user && res.user.login && res.user.role && res.user.id) {
+        // Check if the email is verified
+        if (res.user.emailVerified === false) {
+          setMessage("Your email is not verified. Please check your inbox for the verification link.");
+          return; // Stop the login process
+        }
+
+        // Store user data in localStorage if the email is verified
         const user = {
           id: res.user.id,
           firstName: res.user.firstName || "",
@@ -34,8 +41,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
           role: res.user.role,
         };
         localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("role", res.user.role);
+        localStorage.setItem("login", res.user.login);
+        setMessage(""); // Clear any previous messages
         window.location.href =
-          res.user.role === "teacher" ? "/teacher" : "/student";
+          res.user.role === "teacher" ? "/teacher" : "/student"; // Redirect based on role
       } else {
         setMessage(res.error || "User/Password combination incorrect");
       }
