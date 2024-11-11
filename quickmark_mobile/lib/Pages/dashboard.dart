@@ -67,6 +67,7 @@ class _DashboardState extends State<Dashboard> {
   
   @override
   Widget build(BuildContext context) {
+    String firstName = widget.user['firstName'];
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
@@ -100,9 +101,9 @@ class _DashboardState extends State<Dashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Dashboard',
-              style: TextStyle(
+            Text(
+              'Welcome back, $firstName!',
+              style: const TextStyle(
                 color: navy,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -154,8 +155,8 @@ class _DashboardState extends State<Dashboard> {
                         onTap: () {
                           showDialog<List>(
                             context: context,
-                            builder: (context) => AddClassPopup(isTeacher: false,),
-                            barrierDismissible: false,
+                            builder: (context) => AddClassPopup(user: widget.user),
+                            barrierDismissible: true,
                             
                           );
                         },
