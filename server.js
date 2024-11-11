@@ -441,6 +441,49 @@ app.post("/api/createSession", async (req, res) => {
   res.status(error ? 500 : 201).json({ newSession, error });
 });
 
+//Get Session info
+app.post("/api/getSessionInfo", async (req, res) => {
+  const { sessionId } = req.body;
+  let error = "";
+
+  try {
+    //Connect to Database and retrieve Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    //convert sessionId to objectId
+    const session = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    const { signals } = session; // Get the signals value from the session
+    const updatedStudents = session.student.map(student => {
+    
+      student.attendanceGrade = student.attendanceNumber === signals - 1;
+      return student;
+    });
+
+    // Optionally, if you want to update the document in the database with new attendanceGrades
+    await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { $set: { student: updatedStudents } }
+    );
+
+    // Respond with the modified session object
+    res.json({
+      ...session,
+      student: updatedStudents
+    });
+
+  } catch (error) {
+    console.error("Error fetching session info:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+
+});
+
 
 
 app.delete("/api/deleteUser", async (req, res) => {
