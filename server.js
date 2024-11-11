@@ -5,6 +5,7 @@ const cors = require("cors");
 const nodemailer = require("nodemailer"); //for email verification
 const app = express();
 const { ObjectId } = require("mongodb"); // If you want to use MongoDB's ObjectId for _id generation
+const crypto = require("crypto-js");
 
 require("dotenv").config();
 const url = process.env.DATABASE_URL;
@@ -515,6 +516,110 @@ app.get("/api/verify-email", async (req, res) => {
 
   console.log("Verification result:", { success, error });
 });
+
+//Forgot Password
+app.post("/api/forgotPassword", async (req, res) =>  {
+  const { email } = req.body;
+
+  let error = "";
+  let success = false;
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+    
+    const result = await usersCollection.findOne({ email: email });
+
+    if (result) {
+      const resetToken = crypto.lib.WordArray.random(16).toString(); //random Token generator
+      const resetTokenExpiration = Date.now() + 3600000; // 1 hour from now
+
+      //adds two variables to the database for password reset verification
+      await usersCollection.updateOne(
+        { email: email },
+        {
+          $set: {
+            resetToken: resetToken,
+            resetTokenExpiration: resetTokenExpiration,
+          }
+        }
+      );
+
+      success = result.acknowledged;
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'QuickMark Password Reset',
+        text: `
+        You are receiving this because you (or someone else) have requested the reset of the password for your account.
+
+        Please click on the following link, or paste this into your browser to complete the process:
+
+        http://localhost:3000/resetpassword/${resetToken}
+
+        If you did not request this, please ignore this email and your password will remain unchanged.
+        `
+      }
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error("Error sending email:", err);
+          error = "Error sending email";
+        } else {
+          success = true;
+          console.log("Password reset email sent:", info.response);
+        }
+      });
+    } else {
+      error = "Email not found"
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+  
+  const ret = { success: success, error: error };
+  res.status(200).json(ret);
+});
+
+//Reset Password
+app.post('/api/resetPassword/:token', async (req, res) => {
+  const { token, password } = req.body;
+
+  let error = "";
+  let success = false;
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+
+    const result = await usersCollection.findOne({ 
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() }, //ensure token is not expired
+    });
+
+    if(result) {
+      await usersCollection.updateOne(
+        { resetToken: token },
+        {
+          $set: {
+            password: password,
+          },
+          $unset: {
+            resetToken: "", resetTokenExpiration: "",
+          }
+        }
+      );
+    } else {
+      error = "Invalid or Expired token"
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { success: success, error: error };
+  res.status(200).json(ret);
+})
 
 //SEARCH API FOR CARDS KEPT IN FOR MODELING FUTURE SEARCH API IF NEEDED
 app.post("/api/searchcards", async (req, res) => {

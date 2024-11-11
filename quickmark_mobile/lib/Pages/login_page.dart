@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('You have successfully registered!')
+              Text('Please verify your email!')
             ],
           ),
         );
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // Automatically close the dialog after a second
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Close the dialog
     });
   }
