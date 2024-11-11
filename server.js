@@ -274,17 +274,38 @@ app.post("/api/classInfoTeacher", async (req, res) => {
   try {
     const db = client.db("COP4331");
     const classesCollection = db.collection("Classes");
+    const sessionsCollection = db.collection("Sessions");
 
     // Find the class by _id
     const result = await classesCollection.findOne({ _id: new ObjectId(_id) });
 
+    console.log("Class Id searched: ", result._id);
+
     if (result) {
-      // Extract only the necessary fields
+      // Log the class sessions for debugging
+      console.log("Class sessions from database:", result.sessions);
+
+      // Convert each session ID to an ObjectId and store in an array
+      const sessionIds = result.sessions.map(id => new ObjectId(id));
+      console.log("Converted session IDs for query:", sessionIds);
+
+      // Retrieve only session documents matching these specific ObjectIds
+      const sessionDetails = await sessionsCollection
+        .find({ _id: { $in: sessionIds } })
+        .toArray();
+
+      // Log the retrieved sessions for debugging
+      console.log("Retrieved sessions:", sessionDetails);
+
+      // Build the class info object with the relevant session data
       classInfo = {
         interval: result.interval,
         joinCode: result.joinCode,
         className: result.className,
-        sessions: result.sessions,
+        sessions: sessionDetails.map(session => ({
+          _id: session._id,
+          ...session
+        })),
       };
     } else {
       error = "Class not found";
@@ -296,6 +317,8 @@ app.post("/api/classInfoTeacher", async (req, res) => {
   const ret = { classInfo: classInfo, error: error };
   res.status(200).json(ret);
 });
+
+
 
 //REGISTER API
 app.post("/api/register", async (req, res) => {
@@ -377,6 +400,54 @@ app.post("/api/register", async (req, res) => {
   const ret = { success: success, error: error };
   res.status(200).json(ret);
 });
+
+//CREATE SESSION
+app.post("/api/createSession", async (req, res) => {
+  const { uuid, startTime, endTime, signals = 0, isRunning = false, student = [], classId } = req.body;
+  let error = "";
+  let newSession = null;
+
+  try {
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+    const classesCollection = db.collection("Classes");
+
+    // Step 1: Create the session in the Sessions collection
+    const sessionData = {
+      uuid,                        // Unique session identifier
+      startTime: new Date(startTime),  // Convert to Date object
+      endTime: new Date(endTime),      // Convert to Date object
+      signals,                     // Number of signals
+      isRunning,                   // Boolean indicating if session is running
+      student: student.map(id => new ObjectId(id)), // Convert student IDs to ObjectIds
+    };
+
+    const result = await sessionsCollection.insertOne(sessionData);
+
+    if (result.acknowledged) {
+      newSession = { ...sessionData, _id: result.insertedId };
+
+      // Step 2: Update the specified class document to include the new session's _id
+      const updateResult = await classesCollection.updateOne(
+        { _id: new ObjectId(classId) },                  // Filter to find the correct class
+        { $push: { sessions: result.insertedId } }       // Add the session _id to the sessions array
+      );
+
+      if (!updateResult.matchedCount) {
+        error = "Class not found or could not be updated";
+      }
+    } else {
+      error = "Failed to create session";
+    }
+  } catch (e) {
+    error = e.toString();
+  }
+
+  // Return the created session data or an error
+  res.status(error ? 500 : 201).json({ newSession, error });
+});
+
+
 
 app.delete("/api/deleteUser", async (req, res) => {
   const { login } = req.body; // Assuming the unique identifier is the 'login' field in the request body

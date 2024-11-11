@@ -99,3 +99,39 @@ AuthForm.css
   color: #fff;
 }
 
+.password-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.requirement-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requirement-bubble {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: lightgray;
+  border: 1px solid gray;
+}
+
+.requirement-bubble.filled {
+  background-color: green;
+  border-color: green;
+}
+
+.requirement-label {
+  font-size: 0.9em;
+  color: black;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 10px;
+}

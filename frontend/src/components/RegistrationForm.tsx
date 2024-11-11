@@ -2,21 +2,45 @@ import React, { useState } from "react";
 import "../AuthForm.css";
 import { SERVER_BASE_URL } from "../config";
 
+//EMAIL_USER=officialquickmark@gmail.com
+//EMAIL_PASS=xjjygcjdylbrciln
+
+
 function RegistrationForm() {
   const [message, setMessage] = useState("");
+  const [error, setError] = useState(""); // New error state
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("user"); // Default role set to "user"
+  const [role, setRole] = useState("user");
+
+  const passwordRequirements = [
+    { id: "length", label: "7 characters", isValid: password.length >= 7 },
+    { id: "uppercase", label: "1 uppercase", isValid: /[A-Z]/.test(password) },
+    { id: "lowercase", label: "1 lowercase", isValid: /[a-z]/.test(password) },
+    { id: "special", label: "1 special character", isValid: /[^a-zA-Z0-9]/.test(password) },
+  ];
+
+  const allRequirementsMet = passwordRequirements.every(req => req.isValid);
+  const roleSelected = role === "teacher" || role === "student";
 
   async function doRegister(event: React.FormEvent) {
-    console.log("doRegister is called");
-
     event.preventDefault();
 
-    const obj = { login, password, firstName, lastName, email, role};
+    if (!allRequirementsMet) {
+      setError("Please ensure your password meets all requirements.");
+      return;
+    }
+    if (!roleSelected) {
+      setError("Please select either 'Teacher' or 'Student' as your role.");
+      return;
+    }
+
+    setError(""); // Clear error if all conditions are met
+
+    const obj = { login, password, firstName, lastName, email, role };
     const js = JSON.stringify(obj);
 
     try {
@@ -27,11 +51,9 @@ function RegistrationForm() {
       });
 
       const res = await response.json();
-      // Check if registration was successful
       if (res.success) {
         setMessage("Registration successful! Please check your email to verify your account.");
       } else {
-        // Display server error message if registration fails
         setMessage(res.error || "Registration failed. Please try again.");
       }
     } catch (error) {
@@ -43,7 +65,7 @@ function RegistrationForm() {
     <div>
       <h2 className="auth-title">Create an Account</h2>
       <form className="auth-form" onSubmit={doRegister}>
-      <input
+        <input
           type="text"
           className="auth-input"
           placeholder="First Name"
@@ -64,6 +86,21 @@ function RegistrationForm() {
           onChange={(e) => setLogin(e.target.value)}
           required
         />
+
+        {/* Password Requirements Bubbles */}
+        <div className="password-requirements">
+          {passwordRequirements.map((requirement) => (
+            <div key={requirement.id} className="requirement-item">
+              <span
+                className={`requirement-bubble ${
+                  requirement.isValid ? "filled" : ""
+                }`}
+              ></span>
+              <span className="requirement-label">{requirement.label}</span>
+            </div>
+          ))}
+        </div>
+
         <input
           type="password"
           className="auth-input"
@@ -78,25 +115,28 @@ function RegistrationForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        
+
         {/* Role Selection */}
         <div className="role-buttons">
-        <button
-          type="button"
-          className={`role-button ${role === "teacher" ? "selected" : ""}`}
-          onClick={() => setRole("teacher")}
-        >
-          Teacher
-        </button>
-        <button
-          type="button"
-          className={`role-button ${role === "student" ? "selected" : ""}`}
-          onClick={() => setRole("student")}
-        >
-          Student
-        </button>
-      </div>
+          <button
+            type="button"
+            className={`role-button ${role === "teacher" ? "selected" : ""}`}
+            onClick={() => setRole("teacher")}
+          >
+            Teacher
+          </button>
+          <button
+            type="button"
+            className={`role-button ${role === "student" ? "selected" : ""}`}
+            onClick={() => setRole("student")}
+          >
+            Student
+          </button>
+        </div>
 
+        {/* Display Error Message if Requirements are Unmet */}
+        {error && <p className="error-message">{error}</p>}
+        
         <button type="submit" className="auth-button">Register</button>
         <span className="auth-message">{message}</span>
       </form>

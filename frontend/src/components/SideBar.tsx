@@ -10,9 +10,12 @@ const Sidebar = () => {
 
     // Clear user data from local storage
     localStorage.removeItem('user_data');
+    localStorage.removeItem('role');
+    localStorage.removeItem('login');
 
     // Redirect to login page
     navigate('/'); // Redirects to the login page
+    window.location.reload();
 
   }
 
