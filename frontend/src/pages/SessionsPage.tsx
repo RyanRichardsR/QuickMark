@@ -1,42 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Add useParams to get classId from URL
+import { useNavigate, useParams } from "react-router-dom"; 
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionsPage.css";
-import { SERVER_BASE_URL } from "../config"; // Adjust the import path as needed
+import { SERVER_BASE_URL } from "../config";
 
 const SessionsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { classId } = useParams<{ classId: string }>(); // Get classId from URL params
-  const [sessions, setSessions] = useState<any[]>([]); // State to hold session data
-  const [loading, setLoading] = useState<boolean>(true); // State to show loading status
-  const [error, setError] = useState<string>(""); // State to show error messages
-  const [className, setClassName] = useState<string>(""); // State to hold class name
+  const { classId } = useParams<{ classId: string }>();
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [className, setClassName] = useState<string>("");
 
   useEffect(() => {
-    // Fetch class info (including sessions) from the backend
     const fetchClassInfo = async () => {
       try {
         const response = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ _id: classId }), // Pass classId in the body
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ _id: classId }),
         });
-
         const data = await response.json();
 
         if (data.error) {
           setError(data.error);
         } else {
-          setSessions(data.classInfo.sessions || []); // Set sessions from classInfo
-          setClassName(data.classInfo.className || ""); // Set class name from classInfo
+          setSessions(data.classInfo.sessions || []);
+          setClassName(data.classInfo.className || "");
         }
       } catch (err) {
         setError("Failed to fetch class information. Please try again later.");
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
@@ -45,17 +41,18 @@ const SessionsPage: React.FC = () => {
     }
   }, [classId]);
 
+  const handleSessionClick = (sessionId: string) => {
+    navigate(`/session-details/${sessionId}`);
+  };
+
   return (
     <div className="sessions-page">
       <Header />
       <SideBar />
       <div className="sessions-content">
-        {/* Breadcrumb */}
         <div className="breadcrumb" onClick={() => navigate("/teacher")}>
           &lt; Back to Classes
         </div>
-
-        {/* Class Title */}
         <div className="sessions-table-container">
           <h2 className="sessions-title">{className ? `${className} - Sessions` : "Class Sessions"}</h2>
           <div className="sessions-table">
@@ -67,17 +64,15 @@ const SessionsPage: React.FC = () => {
               sessions.map((session, index) => {
                 const startDate = new Date(Date.parse(session.startTime));
                 const endDate = new Date(Date.parse(session.endTime));
-
-                // Check if startDate and endDate are valid
                 const isValidStartDate = !isNaN(startDate.getTime());
                 const isValidEndDate = !isNaN(endDate.getTime());
 
                 return (
-                  <div key={session._id || index} className="session-row">
+                  <div key={session._id || index} className="session-row" onClick={() => handleSessionClick(session._id)}>
                     <span>
                       {isValidStartDate && isValidEndDate
-                        ? `${startDate.toLocaleDateString()} - ${startDate.toLocaleTimeString()} to ${endDate.toLocaleTimeString()}` //ERROR: Invalid Date THIS STILL DOESNT WORK
-                        : "Invalid Date"}  
+                        ? `${startDate.toLocaleDateString()} - ${startDate.toLocaleTimeString()} to ${endDate.toLocaleTimeString()}`
+                        : "Invalid Date"}
                     </span>
                     <span className="arrow">&gt;</span>
                   </div>

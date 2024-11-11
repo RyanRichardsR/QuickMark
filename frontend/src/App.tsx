@@ -5,7 +5,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import SessionsPage from "./pages/SessionsPage";
 import StudentHistoryPage from "./pages/StudentHistoryPage";
-
+import SessionDetailsPage from "./pages/SessionDetailsPage";
 
 function App() {
   const userData = localStorage.getItem("user_data");  // Get complete user data (not just the role)
@@ -48,6 +48,8 @@ function App() {
         <Route path="/sessions/:classId" element={<SessionsPage />} />
 
         <Route path="/history/:classId" element={<StudentHistoryPage />} /> 
+
+        <Route path="/session-details/:sessionId" element={<SessionDetailsPage />} />
 
         {/* Catch-all route to redirect unknown paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
