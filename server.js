@@ -451,21 +451,29 @@ app.post("/api/getSessionInfo", async (req, res) => {
     const db = client.db("COP4331");
     const sessionsCollection = db.collection("Sessions");
 
-    //convert sessionId to objectId
+    //convert sessionId to objectId because a string is passed in
     const session = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
 
     if (!session) {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    const { signals } = session; // Get the signals value from the session
+    const { signals } = session; // Get the signals value from the session document
+
+    //Look through each student in the session's student array to update attendance
     const updatedStudents = session.student.map(student => {
-    
-      student.attendanceGrade = student.attendanceNumber === signals - 1;
+
+      if (student.attendanceNumber >= signals - 1) {
+        student.attendanceGrade = true;
+      }
+      else {
+        false;
+      }
       return student;
+    
     });
 
-    // Optionally, if you want to update the document in the database with new attendanceGrades
+    //Update databse
     await sessionsCollection.updateOne(
       { _id: new ObjectId(sessionId) },
       { $set: { student: updatedStudents } }
