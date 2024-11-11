@@ -9,9 +9,9 @@ interface ForgotPasswordFormProps {
 
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSwitchToLogin }) => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [message] = useState("");
 
-  async function handleForgotPassword(event: React.FormEvent) {
+  async function handleForgotPassword(_event: React.FormEvent) {
 //implement the handleForgotPassword function
   }
 
