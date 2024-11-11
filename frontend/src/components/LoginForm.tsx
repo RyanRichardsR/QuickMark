@@ -29,8 +29,15 @@ function LoginForm() {
 
       // Ensure redirection only happens if the user is found
       if (res.user && res.user.login && res.user.role && res.user.id) {
+        // Check if the email is verified
+        if (res.user.emailVerified === false) {
+          setMessage("Your email is not verified. Please check your inbox for the verification link.");
+          return; // Stop the login process
+        }
+
+        // Store user data in localStorage if the email is verified
         const user = {
-          id: res.user.id, // Store `id` in `localStorage`
+          id: res.user.id,
           firstName: res.user.firstName || "",
           lastName: res.user.lastName || "",
           login: res.user.login,
@@ -38,11 +45,11 @@ function LoginForm() {
         };
 
         localStorage.setItem("user_data", JSON.stringify(user));
-        localStorage.setItem("role", res.user.role); // Store role separately if needed for quick access
-        localStorage.setItem("login", res.user.login); // Store login separately if needed for quick access
-        setMessage("");
+        localStorage.setItem("role", res.user.role);
+        localStorage.setItem("login", res.user.login);
+        setMessage(""); // Clear any previous messages
         window.location.href =
-          res.user.role === "teacher" ? "/teacher" : "/student";
+          res.user.role === "teacher" ? "/teacher" : "/student"; // Redirect based on role
       } else {
         setMessage(res.error || "User/Password combination incorrect");
       }
@@ -70,10 +77,12 @@ function LoginForm() {
         placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
+      
+      {message && <div className="auth-message">{message}</div>}
+
       <button type="submit" className="auth-button">
         Login
       </button>
-      <span className="auth-message">{message}</span>
     </form>
   );
 }
