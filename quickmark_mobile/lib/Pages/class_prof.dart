@@ -84,7 +84,7 @@ class _ClassProfState extends State<ClassProf> {
           ],
         ),
       ),
-      endDrawer: SideMenu(name: 'name'),
+      endDrawer: const SideMenu(name: 'name', role: 'role'),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

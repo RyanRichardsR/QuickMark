@@ -94,7 +94,7 @@ class _DashboardState extends State<Dashboard> {
       ),
 
       // This is the side menu
-      endDrawer: SideMenu(name: widget.user["firstName"]),
+      endDrawer: SideMenu(name: widget.user["firstName"], role: widget.user["role"]),
 
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -147,6 +147,7 @@ class _DashboardState extends State<Dashboard> {
                           title: courses[index].className,
                           subtitle: courses[index].joinCode,
                           color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
+                          user: widget.user,
                         ),
                       );
                     }

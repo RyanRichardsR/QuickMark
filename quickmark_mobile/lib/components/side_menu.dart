@@ -11,10 +11,12 @@ const navy = Color(0xFF0B2545) ;
 
 class SideMenu extends StatelessWidget {
   final String name;
+  final String role;
 
   const SideMenu({
     super.key,
-    required this.name
+    required this.name,
+    required this.role
   });
 
   Future<void> logoutUser() async{
@@ -35,11 +37,13 @@ class SideMenu extends StatelessWidget {
             padding: EdgeInsets.zero,
             child: Column(
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.white,
+                const Icon(
+                  Icons.account_circle,
+                  size: 100,
+                  color: white,
                 ),
                 Text(name, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),),
+                Text(role, style: const TextStyle(color: Colors.white, fontSize: 16),)
               ],
             ),
           ),
