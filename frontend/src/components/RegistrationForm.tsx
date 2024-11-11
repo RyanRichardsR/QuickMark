@@ -2,21 +2,22 @@ import React, { useState } from "react";
 import "../AuthForm.css";
 import { SERVER_BASE_URL } from "../config";
 
-function RegistrationForm() {
+interface RegistrationFormProps {
+  onSwitch: () => void;
+}
+
+const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   const [message, setMessage] = useState("");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("user"); // Default role set to "user"
+  const [role, setRole] = useState("user");
 
   async function doRegister(event: React.FormEvent) {
-    console.log("doRegister is called");
-
     event.preventDefault();
-
-    const obj = { login, password, firstName, lastName, email, role};
+    const obj = { login, password, firstName, lastName, email, role };
     const js = JSON.stringify(obj);
 
     try {
@@ -27,13 +28,11 @@ function RegistrationForm() {
       });
 
       const res = await response.json();
-      // Check if registration was successful
-      if (res.success) {
-        setMessage("Registration successful! Please check your email to verify your account.");
-      } else {
-        // Display server error message if registration fails
-        setMessage(res.error || "Registration failed. Please try again.");
-      }
+      setMessage(
+        res.success
+          ? "Registration successful! Please check your email to verify your account."
+          : res.error || "Registration failed. Please try again."
+      );
     } catch (error) {
       setMessage("An error occurred during registration. Please try again.");
     }
@@ -43,7 +42,7 @@ function RegistrationForm() {
     <div>
       <h2 className="auth-title">Create an Account</h2>
       <form className="auth-form" onSubmit={doRegister}>
-      <input
+        <input
           type="text"
           className="auth-input"
           placeholder="First Name"
@@ -78,30 +77,28 @@ function RegistrationForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        
-        {/* Role Selection */}
         <div className="role-buttons">
-        <button
-          type="button"
-          className={`role-button ${role === "teacher" ? "selected" : ""}`}
-          onClick={() => setRole("teacher")}
-        >
-          Teacher
-        </button>
-        <button
-          type="button"
-          className={`role-button ${role === "student" ? "selected" : ""}`}
-          onClick={() => setRole("student")}
-        >
-          Student
-        </button>
-      </div>
-
+          <button
+            type="button"
+            className={`role-button ${role === "teacher" ? "selected" : ""}`}
+            onClick={() => setRole("teacher")}
+          >
+            Teacher
+          </button>
+          <button
+            type="button"
+            className={`role-button ${role === "student" ? "selected" : ""}`}
+            onClick={() => setRole("student")}
+          >
+            Student
+          </button>
+        </div>
         <button type="submit" className="auth-button">Register</button>
         <span className="auth-message">{message}</span>
       </form>
+      <button onClick={onSwitch} className="toggle-link">Already have an account? Login</button>
     </div>
   );
-}
+};
 
 export default RegistrationForm;
