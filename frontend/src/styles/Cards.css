@@ -3,12 +3,12 @@
     flex-wrap: wrap;
     gap: 30px;
     padding: 60px;
-    max-width: calc(100vw - 400px); /* Full viewport width minus sidebar width */
+    max-width: calc(100vw - 480px); /* Full viewport width minus sidebar width */
     max-height: calc(100vh - 80px); /* Full viewport height minus header height */
     overflow-y: auto;
     background-color: #ffffff;
     border-radius: 8px;
-    margin-left: auto; /* Aligns it from the left, filling right space */
+    margin-left: 200px; /* Aligns it from the left, filling right space */
     margin-right: 0;
 }
 
