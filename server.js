@@ -344,6 +344,74 @@ app.post("/api/classInfoTeacher", async (req, res) => {
   res.status(200).json(ret);
 });
 
+//CLASS INFO STUDENT API
+app.post("/api/classInfoStudent", async (req, res) => {
+  const { classId, userId } = req.body;
+
+  let error = "";
+  
+  try {
+    //Connect to DB and retrieve classes and sessions
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+    const sessionsCollection = db.collection("Sessions");
+    const usersCollection = db.collection("Users")
+
+
+    //use class id to find document
+    const classDocument = await classesCollection.findOne({ _id: new ObjectId(classId) });
+    if (!classDocument) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+
+    //get teachers name
+    const teacherID = classDocument.teacherID;
+    const teacherUserDocument = await usersCollection.findOne({ _id: new ObjectId(teacherID) });
+    if (!teacherUserDocument) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+    const teacherLastName = teacherUserDocument.lastName;
+    
+     //Get Latest session
+     const latestSessionId = classDocument.sessions[classDocument.sessions.length - 1];
+     if (!latestSessionId) {
+       return res.status(404).json({ error: "No sessions found for this class" });
+     }
+
+    //Find the latest session document with the session ID
+    const sessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(latestSessionId) });
+    if (!sessionDocument) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    //Get The sessions details
+    const { isRunning, startTime, endTime, students, signals} = sessionDocument; 
+
+    //Get student attendance
+    const studentSearch = students.find(s => s.userId.equals(new ObjectId(userId)));
+    if (!studentSearch) {
+      return res.status(404).json({ error: "Student not found in this session" });
+    }
+    const studentAttendanceNumber = studentSearch.attendanceNumber;
+    const studentAttendanceGrade = studentSearch.attendanceGrade;
+
+    // Respond with the required details
+    res.json({
+      teacherLastName,
+      isRunning,
+      startTime,
+      endTime,
+      studentAttendanceNumber,
+      studentAttendanceGrade,
+      signals
+    });
+  } catch (error) {
+    console.error("Error fetching class info for student:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 //REGISTER API
