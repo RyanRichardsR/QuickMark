@@ -372,38 +372,61 @@ app.post("/api/classInfoStudent", async (req, res) => {
     }
     const teacherLastName = teacherUserDocument.lastName;
     
-     //Get Latest session
-     const latestSessionId = classDocument.sessions[classDocument.sessions.length - 1];
-     if (!latestSessionId) {
-       return res.status(404).json({ error: "No sessions found for this class" });
-     }
+    //get all sessionIds
+    const sessionIds = classDocument.sessions;
+    const className = classDocument.className;
 
-    //Find the latest session document with the session ID
-    const sessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(latestSessionId) });
-    if (!sessionDocument) {
-      return res.status(404).json({ error: "Session not found" });
+    //array for attendance data
+    const attendanceData = [];
+
+    for (const sessionId of sessionIds) {
+      //find each session document
+      const sessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+      // Debugging step: Check if the session document was found
+      //console.log("Checking session ID:", sessionId, "Found:", !!sessionDocument);
+
+      if (sessionDocument) {
+        const { isRunning, startTime, endTime, students} = sessionDocument;
+
+        //check inside students array
+        if(Array.isArray(students)) {
+          //find the student
+          const studentSearch = students.find(s => s.userId.equals(new ObjectId(userId)));
+        
+          if(studentSearch) {
+            attendanceData.push({
+              sessionId: sessionId,         // Track session ID for reference
+              isRunning,
+              startTime,
+              endTime,
+              attendanceGrade: studentSearch.attendanceGrade,
+              attendanceNumber: studentSearch.attendanceNumber
+            });
+          }
+        }
+      }
     }
 
-    //Get The sessions details
-    const { isRunning, startTime, endTime, students, signals} = sessionDocument; 
+    // Label sessions in chronological order
+     attendanceData.forEach((session, index) => {
+      session.sessionNumber = `Session ${index + 1}`;
+    });
 
-    //Get student attendance
-    const studentSearch = students.find(s => s.userId.equals(new ObjectId(userId)));
-    if (!studentSearch) {
-      return res.status(404).json({ error: "Student not found in this session" });
+    // Get the latest session's isRunning status (from the last session ID in the array)
+    let latestSessionIsRunning = null;
+    if (sessionIds.length > 0) {
+      const latestSessionId = sessionIds[sessionIds.length - 1];
+      const latestSessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(latestSessionId) });
+      latestSessionIsRunning = latestSessionDocument ? latestSessionDocument.isRunning : null;
     }
-    const studentAttendanceNumber = studentSearch.attendanceNumber;
-    const studentAttendanceGrade = studentSearch.attendanceGrade;
 
-    // Respond with the required details
+    // Respond with the teacher's name and the attendance data for each session
     res.json({
+      className,
       teacherLastName,
-      isRunning,
-      startTime,
-      endTime,
-      studentAttendanceNumber,
-      studentAttendanceGrade,
-      signals
+      latestSessionIsRunning,
+      attendanceData
     });
   } catch (error) {
     console.error("Error fetching class info for student:", error);
