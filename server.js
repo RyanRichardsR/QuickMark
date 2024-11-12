@@ -77,6 +77,33 @@ app.post("/api/login", async (req, res) => {
   res.status(200).json(ret);
 });
 
+app.post("/api/getUsersByIds", async (req, res) => {
+  const { userIds } = req.body; // Expecting userIds to be an array of ObjectId strings
+
+  let error = "";
+  let users = [];
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+
+    // Convert user IDs to ObjectId format
+    const objectIds = userIds.map(id => new ObjectId(id));
+
+    // Fetch users by their _id from the Users collection
+    users = await usersCollection.find(
+      { _id: { $in: objectIds } },
+      { projection: { firstName: 1, lastName: 1 } } // Only retrieve firstName and lastName
+    ).toArray();
+
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { users: users, error: error };
+  res.status(200).json(ret);
+});
+
 // GET CLASSES API
 app.post("/api/classes", async (req, res) => {
   const { login } = req.body;
