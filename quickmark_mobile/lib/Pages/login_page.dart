@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
 import 'package:quickmark_mobile/Pages/forgot_password.dart';
 import 'package:quickmark_mobile/Pages/register_page.dart';
@@ -51,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
           content: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('You have successfully registered!')
+              Text('Please verify your email!')
             ],
           ),
         );
@@ -59,9 +62,15 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     // Automatically close the dialog after a second
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Close the dialog
     });
+  }
+
+  Future<void> saveUserLogin(Map<String, dynamic> userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    String userJsonString = jsonEncode(userData);
+    prefs.setString('userData', userJsonString);
   }
 
   // Login API function
@@ -84,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
         setState((){ //Reset Error message
           errorMessage = response['error'];
         });
+        saveUserLogin(response['user']);
         Navigator.push( //Redirect to the Dashboard
           context,
           MaterialPageRoute(

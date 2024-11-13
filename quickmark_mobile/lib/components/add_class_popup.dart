@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quickmark_mobile/Pages/dashboard.dart';
 import 'package:quickmark_mobile/components/input_field.dart';
+import 'package:quickmark_mobile/server_calls.dart';
+import 'dart:math';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -8,17 +11,94 @@ const blue = Color(0xFF134074) ;
 const darkBlue = Color(0xFF13315C) ;
 const navy = Color(0xFF0B2545) ;
 
-class AddClassPopup extends StatelessWidget {
 
-  final bool isTeacher;
+class AddClassPopup extends StatefulWidget {
+  final Map<String, dynamic> user;
 
-  AddClassPopup({
+  const AddClassPopup({
     super.key,
-    required this.isTeacher,
+    required this.user,
   });
+  
 
-  final inputController = TextEditingController();
+  @override
+  State<AddClassPopup> createState() => _AddClassPopupState();
+}
 
+class _AddClassPopupState extends State<AddClassPopup> {
+  late bool isTeacher;
+  final classNameController = TextEditingController();
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    isTeacher = widget.user['role'].toLowerCase().contains('teacher');
+  }
+
+  //add class for student
+  void addClassStudent(String joinCode, String studentId, context) async {
+    //Json data
+    final body = {
+      'studentObjectId' : studentId,
+      'joinCode': joinCode,
+    };
+    
+    //Make API call
+    try {
+      var response = await ServerCalls().post('/joinClass', body);
+      if(response['error'] != '') {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+      } else { 
+        setState((){ //Reset Error message
+          errorMessage = response['error'];
+        });
+        Navigator.push( //Redirect to the Dashboard
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dashboard(user : widget.user),
+          ),
+        );
+      }
+    } catch (err) {
+      debugPrint('Error: $err');
+    }
+  }
+  
+  //add class for teacher
+  void addClassTeacher(String className, String joinCode, String teacherId, context) async {
+    //Json data
+    final body = {
+      'className': className,
+      'joinCode': joinCode,
+      'teacherID': teacherId,
+    };
+    
+    //Make API call
+    try {
+      var response = await ServerCalls().post('/createClass', body);
+      if(response['error'] != '') {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+      } else { 
+        setState((){ //Reset Error message
+          errorMessage = response['error'];
+        });
+        Navigator.push( //Redirect to the Dashboard
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dashboard(user : widget.user),
+          ),
+        );
+      }
+    } catch (err) {
+      debugPrint('Error: $err');
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -52,7 +132,7 @@ class AddClassPopup extends StatelessWidget {
           const SizedBox(height: 10),
 
           textField(
-            input: inputController,
+            input: classNameController,
             hintText: isTeacher ? "Class Name" : "Class Code",
             obscureText: false,
           ),
@@ -69,7 +149,11 @@ class AddClassPopup extends StatelessWidget {
                     ),
                   ),
             onPressed: () {
-              Navigator.of(context).pop([]);
+              if (isTeacher){
+                addClassTeacher(classNameController.text, (Random().nextInt(999999)).toString(), widget.user['id'], context);
+              } else {
+                addClassStudent(classNameController.text, widget.user['id'], context);
+              }
             },
             child: Text(isTeacher ? 'Create' : 'Join', style: const TextStyle(color: Colors.white)),
           ),

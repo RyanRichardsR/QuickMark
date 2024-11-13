@@ -370,7 +370,7 @@ class _RegisterState extends State<Register> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    signUp(usernameController.text, passwordController.text, firstNameController.text, lastNameController.text, emailController.text, _role!, confirmPasswordController.text, context);                  
+                    signUp(usernameController.text, passwordController.text, firstNameController.text, lastNameController.text, emailController.text, _role!.toLowerCase(), confirmPasswordController.text, context);                  
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: blue,                   
