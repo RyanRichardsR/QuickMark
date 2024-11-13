@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
@@ -148,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                 input: usernameController,
                 hintText: 'Username or Email',
                 obscureText: false,
+                paddingHorizontal: 20.0,
               ),
           
               //Spacer for spacing
@@ -158,6 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                 input: passwordController,
                 hintText: 'Password',
                 obscureText: true, 
+                paddingHorizontal: 20.0,
               ),
           
               //Spacer for spacing

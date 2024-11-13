@@ -1,7 +1,7 @@
 import 'package:bluetooth_low_energy/bluetooth_low_energy.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:quickmark_mobile/components/side_menu.dart';
+//import 'package:quickmark_mobile/components/side_menu.dart';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -84,7 +84,7 @@ class _ClassProfState extends State<ClassProf> {
           ],
         ),
       ),
-      endDrawer: const SideMenu(name: 'name', role: 'role'),
+      //endDrawer: const SideMenu(user: ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

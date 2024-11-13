@@ -208,6 +208,7 @@ class _RegisterState extends State<Register> {
                 input: emailController,
                 hintText: 'Email Address',
                 obscureText: false,
+                paddingHorizontal: 20.0,
               ),
 
               //Spacer for spacing
@@ -218,6 +219,7 @@ class _RegisterState extends State<Register> {
                 input: usernameController,
                 hintText: 'Username',
                 obscureText: false,
+                paddingHorizontal: 20.0,
               ),
 
               //Spacer for spacing
@@ -276,6 +278,7 @@ class _RegisterState extends State<Register> {
                 input: confirmPasswordController,
                 hintText: 'Confirm Password',
                 obscureText: true,
+                paddingHorizontal: 20.0,
               ),
 
               //Spacer for spacing

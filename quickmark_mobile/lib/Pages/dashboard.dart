@@ -77,6 +77,7 @@ class _DashboardState extends State<Dashboard> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(width: 20),
             Image.asset(
                     'lib/images/QM_white.png',
                     height: 60,
@@ -88,13 +89,12 @@ class _DashboardState extends State<Dashboard> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            //const SizedBox(width: 10)
           ],
         ),
       ),
 
       // This is the side menu
-      endDrawer: SideMenu(name: widget.user["firstName"], role: widget.user["role"]),
+      endDrawer: SideMenu(user: widget.user),
 
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -148,6 +148,7 @@ class _DashboardState extends State<Dashboard> {
                           subtitle: courses[index].joinCode,
                           color: RandomColor.getColorObject(Options(luminosity: Luminosity.light)),
                           user: widget.user,
+                          classId: courses[index].id,
                         ),
                       );
                     }
@@ -157,8 +158,7 @@ class _DashboardState extends State<Dashboard> {
                           showDialog<List>(
                             context: context,
                             builder: (context) => AddClassPopup(user: widget.user),
-                            barrierDismissible: true,
-                            
+                            barrierDismissible: true,                           
                           );
                         },
                         child: Card(

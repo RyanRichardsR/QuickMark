@@ -129,6 +129,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     input: emailController,
                     hintText: 'Email',
                     obscureText: false, 
+                    paddingHorizontal: 25.0,
                   ),
         
                   //Spacer for spacing

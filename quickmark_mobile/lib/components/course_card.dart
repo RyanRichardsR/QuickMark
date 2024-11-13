@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-//import 'package:quickmark_mobile/server_calls.dart';
+import 'package:quickmark_mobile/Pages/dashboard.dart';
+import 'package:quickmark_mobile/server_calls.dart';
 
 class CourseCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final Color color;
   final Map<String, dynamic> user;
+  final String classId;
 
   const CourseCard({
     super.key,
@@ -13,17 +15,57 @@ class CourseCard extends StatefulWidget {
     required this.subtitle,
     required this.color,
     required this.user,
+    required this.classId,
   });
 
   @override
   State<CourseCard> createState() => _CourseCardState();
 }
 
-//FOR DASHBOARD MENU
-//enum Menu { delete, edit }
+enum Menu { delete, edit }
 
 class _CourseCardState extends State<CourseCard> {
-  
+  late bool isTeacher;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    isTeacher = widget.user['role'].toLowerCase().contains('teacher');
+  }
+
+  //Leave Class API
+  void leaveClass(String stuId, String classId, context) async {
+
+    final body = {
+      'studentObjectId' : stuId,
+      'classObjectId' : classId,
+    };
+
+    //Make Call
+    try {
+      final response = await ServerCalls().post('/leaveClass', body);
+      if(response['error'] != '') {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+          debugPrint(errorMessage);
+        });
+      } else {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+        Navigator.push( //Redirect to the Dashboard
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dashboard(user : widget.user),
+          ),
+        );
+      }
+    } catch (err) {
+      debugPrint('Error: $err');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -53,13 +95,13 @@ class _CourseCardState extends State<CourseCard> {
                         widget.title,
                         style: const TextStyle(fontWeight: FontWeight.bold,)
                       ),
-                      Text('Class Code: ${widget.subtitle}'),
+                      Text('Code: ${widget.subtitle}'),
                     ],
                   ),
                 ),
 
                 //IF WE WANT TO ADD A MENU ON THE DASHBOARD
-                /*Align(  
+                Align(  
                   alignment: Alignment.topRight,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: .0, left: 16.0),
@@ -67,18 +109,18 @@ class _CourseCardState extends State<CourseCard> {
                       onSelected: (Menu item) {
                         switch (item) {
                           case Menu.delete:
-                    
+                            isTeacher ? debugPrint('Delete') : leaveClass(widget.user['id'], widget.classId, context);
                           case Menu.edit:
                           
                         }
                       }, 
                       itemBuilder: (BuildContext context) { 
                         return <PopupMenuEntry<Menu>>[
-                          const PopupMenuItem<Menu>(
+                          PopupMenuItem<Menu>(
                             value: Menu.delete,
                             child: ListTile(
-                              leading: Icon(Icons.delete_outline),
-                              title: Text('Delete'),
+                              leading:isTeacher ? const Icon(Icons.delete_outline) : const Icon(Icons.exit_to_app),
+                              title: Text(isTeacher ? 'Delete' : 'Leave'),
                             ),
                           ),
                           const PopupMenuItem<Menu>(
@@ -92,7 +134,7 @@ class _CourseCardState extends State<CourseCard> {
                       },
                     ),
                   ),
-                ),*/
+                ),
               ],
             ),
           ),

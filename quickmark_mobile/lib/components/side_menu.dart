@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickmark_mobile/Pages/about_us.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/login_page.dart';
 
@@ -10,13 +11,11 @@ const darkBlue = Color(0xFF13315C) ;
 const navy = Color(0xFF0B2545) ;
 
 class SideMenu extends StatelessWidget {
-  final String name;
-  final String role;
+  final Map<String, dynamic> user;
 
   const SideMenu({
     super.key,
-    required this.name,
-    required this.role
+    required this.user,
   });
 
   Future<void> logoutUser() async{
@@ -26,6 +25,8 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String name = user['firstName'];
+    final String role = user['role'];
     return Drawer(
       backgroundColor: white,
       width: 200,
@@ -77,7 +78,12 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.group),
             title: const Text('About Us'),
             onTap: () {
-              
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AboutUs(user: user),
+                ),
+              );
             },
           ),
         ],

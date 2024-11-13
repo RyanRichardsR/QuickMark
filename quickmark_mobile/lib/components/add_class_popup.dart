@@ -135,6 +135,7 @@ class _AddClassPopupState extends State<AddClassPopup> {
             input: classNameController,
             hintText: isTeacher ? "Class Name" : "Class Code",
             obscureText: false,
+            paddingHorizontal: 5.0,
           ),
 
           const SizedBox(height: 5),
