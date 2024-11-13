@@ -44,8 +44,10 @@
     font-weight: 500;
     color: #666;
     margin-bottom: 5px;
-  }
-  
+    text-align: left; /* Add this line */
+    display: block; /* Add this line */
+    width: 100%; /* Add this line */
+}
   /* Input fields */
   .modal-input {
     width: 100%;
