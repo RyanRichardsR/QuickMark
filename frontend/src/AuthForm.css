@@ -271,3 +271,15 @@ html, body {
   flex-direction: column;
   gap: 0.5rem; /* Small gap to ensure consistent spacing between form elements */
 }
+/* Success and error message styling */
+.auth-message-success {
+  color: green;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-message-error {
+  color: red;
+  font-size: 0.9rem;
+  text-align: center;
+}

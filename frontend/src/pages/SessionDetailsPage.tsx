@@ -8,8 +8,6 @@ import { SERVER_BASE_URL } from "../config";
 const SessionDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { sessionId, classId } = useParams<{ sessionId: string; classId: string }>();
-
-
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -34,12 +32,24 @@ const SessionDetailsPage: React.FC = () => {
 
         if (classData.error) throw new Error(classData.error);
 
-        // Check if `classData.classInfo.students` exists and is an array
-        const classStudents = (classData.classInfo?.students || []).map((studentId: any) => ({
-          _id: studentId,
-          name: "Name", // Placeholder name
-          attendanceStatus: "Absent", // Default to "Absent"
-        }));
+        const studentIds = classData.classInfo?.students || [];
+
+        // Fetch student names using the /api/getUsersByIds endpoint
+        const namesResponse = await fetch(`${SERVER_BASE_URL}api/getUsersByIds`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userIds: studentIds }),
+        });
+        const namesData = await namesResponse.json();
+
+        if (namesData.error) throw new Error(namesData.error);
+
+        // Create a map of user IDs to names
+        const namesMap = namesData.users.reduce((acc: any, user: any) => {
+          acc[user._id] = `${user.firstName} ${user.lastName}`;
+          return acc;
+        }, {});
+
         // Fetch session data for attendance information
         const sessionResponse = await fetch(`${SERVER_BASE_URL}api/getSessionInfo`, {
           method: "POST",
@@ -54,11 +64,8 @@ const SessionDetailsPage: React.FC = () => {
         const sessionStudents = sessionData.student || [];
 
         // Map through the class students and update their attendance based on session data
-        const updatedStudents = classStudents.map((student: any) => {
-          const sessionStudent = sessionStudents.find((s: any) => {
-            return s.userId === student._id;
-          });
-
+        const updatedStudents = studentIds.map((studentId: any) => {
+          const sessionStudent = sessionStudents.find((s: any) => s.userId === studentId);
           const attendanceStatus = sessionStudent
             ? sessionStudent.attendanceGrade
               ? "Present"
@@ -67,7 +74,8 @@ const SessionDetailsPage: React.FC = () => {
 
 
           return {
-            ...student,
+            _id: studentId,
+            name: namesMap[studentId] || "Unknown Name", // Get the name from the namesMap
             attendanceStatus,
           };
         });
@@ -105,7 +113,7 @@ const SessionDetailsPage: React.FC = () => {
           ) : students.length > 0 ? (
             students.map((student) => (
               <div key={student._id} className="student-row">
-                <span>{student.name}</span> {/* Placeholder name */}
+                <span>{student.name}</span>
                 <span className={`attendance-status ${student.attendanceStatus.toLowerCase()}`}>
                   {student.attendanceStatus}
                 </span>

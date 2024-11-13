@@ -1,7 +1,5 @@
-// ForgotPasswordForm.tsx
 import React, { useState } from "react";
 import "../AuthForm.css";
-
 
 interface ForgotPasswordFormProps {
   onSwitchToLogin: () => void;
@@ -9,10 +7,40 @@ interface ForgotPasswordFormProps {
 
 const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSwitchToLogin }) => {
   const [email, setEmail] = useState("");
-  const [message] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleForgotPassword(_event: React.FormEvent) {
-//implement the handleForgotPassword function
+  async function handleForgotPassword(event: React.FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setMessage("");
+    setMessageType(""); // Clear the message type on new submission
+
+    try {
+      const response = await fetch("http://localhost:3000/api/forgotPassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+  
+      const data = await response.json();
+      console.log("Response Data:", data); // Keep for debugging
+  
+      if (data.error) {
+        setMessage(data.error || "Error sending reset link. Please try again.");
+        setMessageType("error"); // Set message type to error
+      } else {
+        setMessage("Password reset link sent. Please check your email.");
+        setMessageType("success"); // Set message type to success
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setMessage("An error occurred. Please try again later.");
+      setMessageType("error"); // Set message type to error
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -27,8 +55,14 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSwitchToLogin
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button type="submit" className="auth-button">Send Reset Link</button>
-        <span className="auth-message">{message}</span>
+        <button type="submit" className="auth-button" disabled={loading}>
+          {loading ? "Sending..." : "Send Reset Link"}
+        </button>
+        <span
+          className={`auth-message ${messageType === "success" ? "auth-message-success" : "auth-message-error"}`}
+        >
+          {message}
+        </span>
       </form>
       <button onClick={onSwitchToLogin} className="toggle-link">
         Back to Login

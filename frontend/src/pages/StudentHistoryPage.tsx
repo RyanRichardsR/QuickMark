@@ -64,7 +64,7 @@ const StudentHistoryPage: React.FC = () => {
             }
 
             // Check if studentId exists in the session's students array and evaluate attendanceGrade
-            const sessionStudent = sessionData.student.find(
+            const sessionStudent = sessionData.students.find(
               (s: any) => s.userId === studentId // Compare with userId instead of _id
             );
             console.log(
