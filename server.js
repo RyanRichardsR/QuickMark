@@ -246,7 +246,7 @@ app.post("/api/leaveClass", async (req, res) => {
 
     // Find the class with the given classId
     const classToLeave = await classesCollection.findOne({
-      _id: classObjectId,
+      _id: new ObjectId(classObjectId),
     });
 
     if (!classToLeave) {
@@ -266,14 +266,14 @@ app.post("/api/leaveClass", async (req, res) => {
       if (classToLeave.students && studentsStrArray.includes(studentIdStr)) {
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
-          { _id: classObjectId },
+          { _id: new ObjectId(classObjectId) },
           { $pull: { students: new ObjectId(studentObjectId) } }
         );
 
         // Remove the className from the classes array in the user's document
         await usersCollection.updateOne(
           { _id: new ObjectId(studentObjectId) },
-          { $pull: { classes: classToLeave.className } }
+          { $pull: { classes: new ObjectId(classToLeave._id) } }
         );
 
         success = true;
