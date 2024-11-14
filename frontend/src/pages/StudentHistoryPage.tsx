@@ -12,9 +12,8 @@ const StudentHistoryPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [className, setClassName] = useState<string>("");
-  const studentId =
-    JSON.parse(localStorage.getItem("user_data") || "{}").id || ""; // Retrieve studentId from local storage
-  console.log("Student ID from localStorage:", studentId);
+  const [message, setMessage] = useState<string>("");
+  const studentId = JSON.parse(localStorage.getItem("user_data") || "{}").id || "";
 
   useEffect(() => {
     const fetchClassAndSessionInfo = async () => {
@@ -109,6 +108,30 @@ const StudentHistoryPage: React.FC = () => {
     }
   }, [classId, studentId]);
 
+  const handleLeaveClass = async () => {
+    const confirmed = window.confirm("Are you sure you want to leave this class?");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`${SERVER_BASE_URL}api/leaveClass`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentObjectId: studentId, classObjectId: classId }),
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("Successfully left the class.");
+        navigate("/student"); // Redirect to the classes page
+      } else {
+        setMessage(data.error || "Failed to leave the class. Please try again.");
+      }
+    } catch (error) {
+      setMessage("An error occurred. Please try again later.");
+    }
+  };
+
+ 
   return (
     <div className="student-history-page">
       <Header />
@@ -116,6 +139,14 @@ const StudentHistoryPage: React.FC = () => {
       <div className="history-content">
         <div className="breadcrumb" onClick={() => navigate("/student")}>
           &lt; Back to Classes
+        </div>
+
+        {message && <p className="leave-message">{message}</p>}
+
+        <div className="leave-class-container">
+          <button className="leave-class-button" onClick={handleLeaveClass}>
+            Leave Class
+          </button>
         </div>
 
         <div className="history-table-container">
@@ -135,7 +166,6 @@ const StudentHistoryPage: React.FC = () => {
                 const isValidStartDate = !isNaN(startDate.getTime());
                 const isValidEndDate = !isNaN(endDate.getTime());
 
-                // Set a default value for attendance if it's undefined
                 const attendance = session.attendance || "Absent";
 
                 return (
@@ -145,9 +175,7 @@ const StudentHistoryPage: React.FC = () => {
                         ? `${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString()} to ${endDate.toLocaleTimeString()}`
                         : "Invalid Date"}
                     </span>
-                    <span
-                      className={`attendance-status ${attendance.toLowerCase()}`}
-                    >
+                    <span className={`attendance-status ${attendance.toLowerCase()}`}>
                       {attendance}
                     </span>
                   </div>

@@ -61,7 +61,7 @@ const SessionDetailsPage: React.FC = () => {
         if (sessionData.error) throw new Error(sessionData.error);
 
         // Check if `sessionData.student` exists and is an array
-        const sessionStudents = sessionData.student || [];
+        const sessionStudents = sessionData.students || [];
 
         // Map through the class students and update their attendance based on session data
         const updatedStudents = studentIds.map((studentId: any) => {
