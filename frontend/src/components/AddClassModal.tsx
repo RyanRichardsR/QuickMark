@@ -1,3 +1,4 @@
+// AddClassModal.jsx
 import React, { useState } from "react";
 import "../styles/AddClassModal.css";
 import { SERVER_BASE_URL } from "../config";
@@ -5,9 +6,10 @@ import { SERVER_BASE_URL } from "../config";
 interface AddClassModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onClassAdded: () => void; // New prop to refresh class list
 }
 
-const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose }) => {
+const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, onClassAdded }) => {
   const [className, setClassName] = useState("");
   const [classID, setClassID] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -59,7 +61,10 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose }) => {
         setMessage(data.error);
       } else {
         setMessage("Class successfully added!");
-  
+
+        // Call onClassAdded to refresh classes in Cards component
+        onClassAdded();
+
         handleClose(); // Close modal after successful submission
       }
     } catch (error) {

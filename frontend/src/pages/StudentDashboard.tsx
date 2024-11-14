@@ -1,21 +1,18 @@
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import Cards from "../components/Cards";
+import "../styles/Dashboard.css";
 
-const StudentDasboard = () => {
+const StudentDashboard = () => {
   return (
-    <div>
-      {/* Header at the top */}
+    <div className="dashboard-container">
       <Header />
-
-      {/* Sidebar as a fixed overlay on the left */}
       <SideBar />
-
-      {/* Scrollable container for cards */}
-      <div className="cards-scroll-container">
-      <Cards userRole="student" showJoinCode />
-      </div>
+      <main className="dashboard-main">
+        <Cards userRole="student" showJoinCode />
+      </main>
     </div>
   );
 };
-export default StudentDasboard;
+
+export default StudentDashboard;

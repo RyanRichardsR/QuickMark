@@ -1,3 +1,4 @@
+// Cards.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddClassModal from "../components/AddClassModal";
@@ -9,12 +10,18 @@ interface CardsProps {
   userRole: "teacher" | "student";
 }
 
+interface ClassItem {
+  _id: string;
+  className: string;
+  classID: string;
+  joinCode: string;
+}
+
 const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
   const navigate = useNavigate();
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isJoinClassModalOpen, setIsJoinClassModalOpen] = useState(false);
-  const [classes, setClasses] = useState<any[]>([]);
-  const colors = ["#4A5D23", "#2F4F4F", "#4A5D23", "#4B3C5D"];
+  const [classes, setClasses] = useState<ClassItem[]>([]);
 
   const fetchClasses = async () => {
     const userData = localStorage.getItem("user_data");
@@ -77,16 +84,13 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
 
   return (
     <div className="cards-container">
-      {classes.map((classItem, index) => (
+      {classes.map((classItem) => (
         <div
           key={classItem._id}
           className="card"
           onClick={() => handleCardClick(classItem._id)}
         >
-          <div
-            className="card-header"
-            style={{ backgroundColor: colors[index % colors.length] }}
-          ></div>
+          <div className="card-header"></div>
           <div className="card-content">
             <h3 className="card-title">{classItem.className}</h3>
             <p className="card-description">{classItem.classID}</p>
@@ -98,25 +102,24 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
       ))}
 
       {/* Add Class Card */}
-      <div className="card add-card" onClick={handleAddClassClick}>
-        <div className="card-content">
-          <span className="add-icon">+</span>
-          <p className="add-text">Add Class</p>
-        </div>
+      <div className="add-card" onClick={handleAddClassClick}>
+        <span className="add-icon">+</span>
+        <p className="add-text">Add Class</p>
       </div>
 
-      {/* Modal for Adding or Joining Class */}
+      {/* Modals */}
       {userRole === "teacher" && (
         <AddClassModal
           isOpen={isAddClassModalOpen}
           onClose={closeAddClassModal}
+          onClassAdded={fetchClasses} // Pass fetchClasses as onClassAdded prop
         />
       )}
       {userRole === "student" && (
         <JoinClassModal
           isOpen={isJoinClassModalOpen}
           onClose={closeJoinClassModal}
-          onClassJoined={fetchClasses} // This refetches the classes after joining
+          onClassJoined={fetchClasses}
         />
       )}
     </div>

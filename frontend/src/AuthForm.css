@@ -15,7 +15,7 @@ html, body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #8da9c414, #13315c11, #0b254547);
+  background: #ffffff;
 }
 
 .auth-page {

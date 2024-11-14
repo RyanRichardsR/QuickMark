@@ -8,7 +8,7 @@ interface RegistrationFormProps {
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   const [message, setMessage] = useState("");
-  const [, setError] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">(""); // New state for message type
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -51,11 +51,10 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   async function doRegister(event: React.FormEvent) {
     event.preventDefault();
     if (!validateForm() || !allRequirementsMet) {
-      setError("Please ensure all fields are filled in correctly.");
+      setMessageType("error");
+      setMessage("Please ensure all fields are filled in correctly.");
       return;
     }
-
-    setError("");
 
     const obj = { login, password, firstName, lastName, email, role };
     const js = JSON.stringify(obj);
@@ -68,12 +67,14 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
       });
 
       const res = await response.json();
+      setMessageType(res.success ? "success" : "error");
       setMessage(
         res.success
           ? "Registration successful! Please check your email to verify your account."
           : res.error || "Registration failed. Please try again."
       );
     } catch (error) {
+      setMessageType("error");
       setMessage("An error occurred during registration. Please try again.");
     }
   }
@@ -179,7 +180,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
         {errors.role && <p className="error-message">{errors.role}</p>}
 
         <button type="submit" className="auth-button">Register</button>
-        <span className="auth-message">{message}</span>
+        <span className={`auth-message ${messageType === "success" ? "auth-message-success" : "auth-message-error"}`}>
+          {message}
+        </span>
       </form>
       <button onClick={onSwitch} className="toggle-link">Already have an account? Login</button>
     </div>
