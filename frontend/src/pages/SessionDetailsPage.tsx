@@ -72,7 +72,6 @@ const SessionDetailsPage: React.FC = () => {
               : "Absent"
             : "Absent";
 
-
           return {
             _id: studentId,
             name: namesMap[studentId] || "Unknown Name", // Get the name from the namesMap
@@ -93,18 +92,46 @@ const SessionDetailsPage: React.FC = () => {
     fetchSessionAndClassInfo();
   }, [classId, sessionId]);
 
+  const handleExportToCSV = () => {
+    const csvContent = [
+      ["Student ID", "Name", "Attendance Status"], // Header row
+      ...students.map((student) => [
+        student._id,
+        student.name,
+        student.attendanceStatus,
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `session_${sessionId}_attendance.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="session-details-page">
       <Header />
       <SideBar />
       <div className="session-content">
-        {/* Breadcrumb */}
         <div className="breadcrumb" onClick={() => navigate(-1)}>
           &lt; Back to Sessions
         </div>
 
-        <h2 className="session-title">Session Details</h2>
-        <p className="session-subtitle">Attendance Record</p>
+        <div className="session-header">
+          <div>
+            <h2 className="session-title">Session Details</h2>
+            <p className="session-subtitle">Attendance Record</p>
+          </div>
+          <button className="export-button" onClick={handleExportToCSV}>
+            Export to CSV
+          </button>
+        </div>
+
         <div className="students-table">
           {loading ? (
             <p>Loading student attendance...</p>
