@@ -3,30 +3,48 @@ name: Deploy Project
 on:
   push:
     branches:
-      - main
+      - BlueApi
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
         with:
           node-version: 20
-          
+          run: echo "Checked out the repository."
+
       - name: Install sshPass
-        run: sudo apt-get install -y sshpass
-        
-      - name: Build
         run: |
+          echo "Installing sshPass..."
+          sudo apt-get install -y sshpass
+          echo "sshPass installed successfully."
+
+      - name: Build Frontend
+        run: |
+          echo "Navigating to the frontend directory."
           cd frontend
+          echo "Installing frontend dependencies."
           npm install
+          echo "Building the frontend application."
           npm run build
-          
-      - name: Delpoy frontend
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
-        
-      - name: Deploy server
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
-        
-      - name: Restart
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
+          echo "Frontend build completed."
+
+      - name: Deploy Frontend
+        run: |
+          echo "Starting frontend deployment..."
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+          echo "Frontend deployed successfully."
+
+      - name: Deploy Backend
+        run: |
+          echo "Deploying server.js..."
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
+          echo "Server deployed successfully."
+
+      - name: Restart Server
+        run: |
+          echo "Restarting the server using PM2..."
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
+          echo "Server restarted successfully."
