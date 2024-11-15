@@ -3,7 +3,7 @@ name: Deploy Project
 on:
   push:
     branches:
-      - BlueApi
+      - main
 
 jobs:
   deploy:

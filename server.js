@@ -489,7 +489,7 @@ app.post("/api/register", async (req, res) => {
       success = result.acknowledged;
 
       // Generate a temporary token in the URL (no need to store it)
-      const verificationLink = `http://localhost:3000/api/verify-email?email=${encodeURIComponent(
+      const verificationLink = `${SERVER_BASE_URL}api/verify-email?email=${encodeURIComponent(
         email
       )}`;
       const mailOptions = {
