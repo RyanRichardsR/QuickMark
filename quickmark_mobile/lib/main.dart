@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:quickmark_mobile/Pages/dashboard.dart';
 import 'package:quickmark_mobile/Pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+    FlutterForegroundTask.initCommunicationPort();
   runApp(const MyApp());
 }
 

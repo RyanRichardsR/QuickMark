@@ -519,7 +519,7 @@ app.post("/api/register", async (req, res) => {
 //CREATE SESSION
 app.post("/api/createSession", async (req, res) => {
   //Update: pass in students array from the class document into the session document
-  const { uuid, startTime, endTime, signals = 0, isRunning = true, classId } = req.body;
+  const { uuid, startTime, endTime=null, signals = 0, isRunning = true, classId } = req.body;
   let error = "";
   let newSession = null;
 
@@ -544,7 +544,7 @@ app.post("/api/createSession", async (req, res) => {
     const sessionData = {
       uuid,                        // Unique session identifier
       startTime: new Date(startTime),  // Convert to Date object
-      endTime: new Date(endTime),      // Convert to Date object
+      endTime,      // Convert to Date object
       signals,                     // Number of signals
       isRunning,                   // Boolean indicating if session is running
       students: studentArray, // Convert student IDs to ObjectIds
@@ -693,7 +693,7 @@ app.post("/api/studentScan", async (req, res) => {
 
     // Respond with a success message and the current session's isRunning status
     res.json({
-      error: "Student attendance updated successfully",
+      message: "Student attendance updated successfully",
       isRunning: isRunning
     });
 
@@ -730,7 +730,7 @@ app.post("/api/getSessionInfo", async (req, res) => {
         students.attendanceGrade = true;
       }
       else {
-        false;
+        students.attendanceGrade = false;
       }
       return students;
     
