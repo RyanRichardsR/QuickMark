@@ -3,53 +3,53 @@ name: Deploy Project
 on:
   push:
     branches:
-      - BlueApi
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      # Step 1: Checkout the code
+      - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: Log Checkout Status
-        run: echo "Checked out the repository."
-
-      - name: Install sshPass
+        with:
+          fetch-depth: 0
+      - run: echo "Checked out the repository."
+        
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+        
+      # Step 3: Install dependencies (including lucide-react)
+      - name: Install Dependencies
         run: |
-          echo "Installing sshPass..."
-          sudo apt-get install -y sshpass
-          echo "sshPass installed successfully."
+          cd frontend
+          npm install
+          npm install lucide-react
 
+      # Step 4: Build the frontend
       - name: Build Frontend
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing files in the current directory:"
-          ls -al
-          echo "Navigating to the frontend directory."
           cd frontend
-          echo "Listing files in the frontend directory:"
-          ls -al
-          echo "Installing frontend dependencies."
-          npm install || { echo "npm install failed"; exit 1; }
-          echo "Building the frontend application."
-          npm run build || { echo "npm run build failed"; exit 1; }
-          echo "Frontend build completed."
-
+          npm run build
+      - run: echo "Frontend built successfully."
+        
+      # Step 5: Deploy frontend
       - name: Deploy Frontend
         run: |
-          echo "Starting frontend deployment..."
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
-          echo "Frontend deployed successfully."
-
-      - name: Deploy Backend
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+      - run: echo "Frontend deployed successfully."
+        
+      # Step 6: Deploy server files
+      - name: Deploy Server
         run: |
-          echo "Deploying server.js..."
           sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
-          echo "Server deployed successfully."
-
+      - run: echo "Server deployed successfully."
+        
+      # Step 7: Restart the server
       - name: Restart Server
         run: |
-          echo "Restarting the server using PM2..."
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
-          echo "Server restarted successfully."
+      - run: echo "Server restarted successfully."
