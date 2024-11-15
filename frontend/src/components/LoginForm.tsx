@@ -14,6 +14,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
 
   async function doLogin(event: React.FormEvent) {
     event.preventDefault();
+
+    // Check for missing fields and set a combined error message
+    if (!loginName && !loginPassword) {
+      setMessage("Username and Password are required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginName) {
+      setMessage("Username is required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginPassword) {
+      setMessage("Password is required");
+      document.getElementById("password")?.focus();
+      return;
+    }
+
     const obj = { login: loginName, password: loginPassword };
     const js = JSON.stringify(obj);
 
@@ -26,13 +44,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
 
       const res = await response.json();
       if (res.user && res.user.login && res.user.role && res.user.id) {
-        // Check if the email is verified
         if (res.user.emailVerified === false) {
           setMessage("Your email is not verified. Please check your inbox for the verification link.");
-          return; // Stop the login process
+          return;
         }
 
-        // Store user data in localStorage if the email is verified
         const user = {
           id: res.user.id,
           firstName: res.user.firstName || "",
@@ -41,11 +57,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
           role: res.user.role,
         };
         localStorage.setItem("user_data", JSON.stringify(user));
-        localStorage.setItem("role", res.user.role);
-        localStorage.setItem("login", res.user.login);
-        setMessage(""); // Clear any previous messages
-        window.location.href =
-          res.user.role === "teacher" ? "/teacher" : "/student"; // Redirect based on role
+        setMessage("");
+        window.location.href = res.user.role === "teacher" ? "/teacher" : "/student";
       } else {
         setMessage(res.error || "User/Password combination incorrect");
       }
@@ -57,21 +70,39 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
   return (
     <div>
       <h2 className="auth-title">Log In</h2>
-      <form className="auth-form" onSubmit={doLogin}>
+      <form className="auth-form" onSubmit={doLogin} noValidate>
+        <label htmlFor="login" className="auth-label">
+          Username:<span aria-hidden="true" style={{ color: 'red' }}> *</span>
+        </label>
         <input
           type="text"
+          id="login"
           className="auth-input"
           placeholder="Username"
-          onChange={(e) => setLoginName(e.target.value)}
+          onChange={(e) => {
+            setLoginName(e.target.value);
+            if (message) setMessage(""); 
+          }}
+          aria-describedby="loginError"
         />
+
+        <label htmlFor="password" className="auth-label">
+          Password:<span aria-hidden="true" style={{ color: 'red' }}> *</span>
+        </label>
         <input
           type="password"
+          id="password"
           className="auth-input"
           placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (message) setMessage(""); 
+          }}
+          aria-describedby="passwordError"
         />
+
         <button type="submit" className="auth-button">Login</button>
-        <span className="auth-message">{message}</span>
+        {message && <span className="auth-message" role="alert">{message}</span>}
       </form>
       <div className="auth-links">
         <button onClick={onForgotPassword} className="toggle-link">

@@ -9,9 +9,8 @@ import SessionDetailsPage from "./pages/SessionDetailsPage";
 import ResetPassword from "./pages/ResetPassword";
 
 function App() {
-  const userData = localStorage.getItem("user_data");  // Get complete user data (not just the role)
+  const userData = localStorage.getItem("user_data");
 
-  // If no user data, send them to the login page
   if (!userData) {
     return (
       <BrowserRouter>
@@ -23,7 +22,7 @@ function App() {
     );
   }
 
-  const userRole = JSON.parse(userData).role; // Extract the role from the user data
+  const userRole = JSON.parse(userData).role;
 
   return (
     <BrowserRouter>
@@ -46,18 +45,19 @@ function App() {
         {/* Student Dashboard */}
         <Route path="/student" element={<StudentDashboard />} />
 
-        {/* Sessions Page for both roles */}
+        {/* Sessions Page for both roles, with classId */}
         <Route path="/sessions/:classId" element={<SessionsPage />} />
 
+        {/* Student History Page with classId */}
         <Route path="/history/:classId" element={<StudentHistoryPage />} /> 
 
-        <Route path="/session-details/:sessionId" element={<SessionDetailsPage />} />
+        {/* Session Details Page with both classId and sessionId */}
+        <Route path="/session-details/:classId/:sessionId" element={<SessionDetailsPage />} />
 
         <Route path="/resetpassword/:token" element={<ResetPassword />} />
 
         {/* Catch-all route to redirect unknown paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
       </Routes>
     </BrowserRouter>
   );

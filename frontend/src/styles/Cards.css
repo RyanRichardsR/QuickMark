@@ -1,81 +1,135 @@
+/* Cards.css */
 .cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    padding: 60px;
-    max-width: calc(100vw - 400px); /* Full viewport width minus sidebar width */
-    max-height: calc(100vh - 80px); /* Full viewport height minus header height */
-    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-rows: 240px;
+    gap: 32px;
+    column-gap: 65px;
+    padding: 32px;
+    max-width: calc(100vw - 240px);
+    margin-left: 200px;
+    margin-top: 450px;
     background-color: #ffffff;
-    border-radius: 8px;
-    margin-left: auto; /* Aligns it from the left, filling right space */
-    margin-right: 0;
+    min-height: calc(100vh - 80px);
 }
 
 .card {
     background-color: #ffffff;
-    width: 200px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    padding: 0;  /* Added this line */
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-    height: 80px;
+    height: 100px;
     width: 100%;
-    background-color: #4A5D23;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    position: relative;
 }
 
 .card-content {
-    padding: 15px;
-    text-align: center;
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 8px;
 }
 
 .card-title {
     font-size: 18px;
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    color: #1a1a1a;
     margin: 0;
+    line-height: 1.4;
 }
 
 .card-description {
     font-size: 14px;
     color: #666;
-    margin: 5px 0 0 0;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.card-join-code {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
 }
 
 .add-card {
+    background-color: #ffffff;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff;
-    width: 200px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    gap: 12px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
+}
+
+.add-card {
+    background-color: #ffffff;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .add-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+    transform: translateY(-2px);
 }
 
 .add-icon {
-    font-size: 40px;
-    color: #666;
+    font-size: 32px;
+    color: #64748b;
+    margin-bottom: 8px;
 }
 
 .add-text {
-    font-size: 14px;
-    color: #666;
+    font-size: 16px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Custom card header colors */
+.card:nth-child(4n+1) .card-header { background-color: #4A5D23; }
+.card:nth-child(4n+2) .card-header { background-color: #2F4858; }
+.card:nth-child(4n+3) .card-header { background-color: #5B8C5A; }
+.card:nth-child(4n+4) .card-header { background-color: #483D8B; }
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .cards-container {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        padding: 16px;
+    }
 }

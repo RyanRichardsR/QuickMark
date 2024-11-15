@@ -1,0 +1,12 @@
+/* Dashboard.css */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
+}
+
+.dashboard-main {
+    flex: 1;
+    margin-left: 200px; /* Match sidebar width */
+    padding-top: 80px; /* Match header height */
+}

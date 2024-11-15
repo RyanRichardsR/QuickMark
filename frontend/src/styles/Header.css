@@ -1,20 +1,119 @@
 /* Header.css */
 .header {
-    background-color: #0B2545; /* Blue color */
-    color: white;
-    padding: 16px;
-    text-align: center;
-    position: fixed;
-    height: 80px; 
-    width: 100%;
-    top: 0;
-    left: 0;
+  background: linear-gradient(to right, #0B2545, #13315C);
+  color: white;
+  position: fixed;
+  height: 80px;
+  width: calc(100% - 200px);
+  top: 0;
+  left: 200px;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+  height: 100%;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left section styles */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  width: 256px;
+  height: 40px;
+  padding: 0 16px 0 40px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: all 0.3s ease;
+}
+/* Right section styles */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.icon:hover {
+  color: white;
+}
+
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  margin-left: 8px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-icon {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .header {
+      width: 100%;
+      left: 0;
   }
   
-  .title {
-    margin: 0;
-    font-size: 36px;
-    font-weight: bold;
-    align-items:last baseline;
+
+  .user-info {
+      display: none;
   }
-  
+}

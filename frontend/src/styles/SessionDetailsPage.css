@@ -1,5 +1,3 @@
-/* SessionDetailsPage.css */
-
 .session-details-page {
     display: flex;
     flex-direction: column;
@@ -20,27 +18,64 @@
     padding: 20px;
 }
 
-.session-title {
-    font-size: 32px;
-    font-weight: 700;
+.session-header {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.session-header div {
     text-align: center;
-    margin-bottom: 10px;
-    color: #13315C;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.session-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #13315c;
+    margin-bottom: 5px;
+    text-align: center;
 }
 
 .session-subtitle {
-    font-size: 20px;
-    color: #757575;
-    margin-bottom: 20px;
-    font-weight: 600;
+    font-size: 16px;
+    color: #555;
+    margin-top: 0;
     text-align: center;
 }
 
+.export-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    z-index: 2;
+}
+
+.export-button:hover {
+    background-color: #45a049;
+}
+
+/* Rest of your existing styles... */
 .students-table {
     width: 1000px;
     max-width: 1200px;
-    max-height: 500px; /* Set a max height */
-    overflow-y: auto; /* Enable vertical scroll if content exceeds max height */
+    max-height: 500px;
+    overflow-y: auto;
     background-color: #ffffff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -72,14 +107,6 @@
     font-weight: 600;
 }
 
-.no-students-message {
-    text-align: center;
-    color: #9e9e9e;
-    font-size: 16px;
-    font-style: italic;
-    margin-top: 10px;
-}
-
 .breadcrumb {
     font-size: 16px;
     color: #3f51b5;
@@ -88,11 +115,4 @@
     top: 100px;
     left: 260px;
     text-decoration: underline;
-}
-
-.error-message {
-    color: #d32f2f;
-    font-size: 16px;
-    text-align: center;
-    margin-top: 20px;
 }

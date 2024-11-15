@@ -77,6 +77,33 @@ app.post("/api/login", async (req, res) => {
   res.status(200).json(ret);
 });
 
+app.post("/api/getUsersByIds", async (req, res) => {
+  const { userIds } = req.body; // Expecting userIds to be an array of ObjectId strings
+
+  let error = "";
+  let users = [];
+
+  try {
+    const db = client.db("COP4331");
+    const usersCollection = db.collection("Users");
+
+    // Convert user IDs to ObjectId format
+    const objectIds = userIds.map(id => new ObjectId(id));
+
+    // Fetch users by their _id from the Users collection
+    users = await usersCollection.find(
+      { _id: { $in: objectIds } },
+      { projection: { firstName: 1, lastName: 1 } } // Only retrieve firstName and lastName
+    ).toArray();
+
+  } catch (e) {
+    error = e.toString();
+  }
+
+  const ret = { users: users, error: error };
+  res.status(200).json(ret);
+});
+
 // GET CLASSES API
 app.post("/api/classes", async (req, res) => {
   const { login } = req.body;
@@ -219,7 +246,7 @@ app.post("/api/leaveClass", async (req, res) => {
 
     // Find the class with the given classId
     const classToLeave = await classesCollection.findOne({
-      _id: classObjectId,
+      _id: new ObjectId(classObjectId),
     });
 
     if (!classToLeave) {
@@ -239,14 +266,14 @@ app.post("/api/leaveClass", async (req, res) => {
       if (classToLeave.students && studentsStrArray.includes(studentIdStr)) {
         // Remove the student's _id from the students array in the class
         await classesCollection.updateOne(
-          { _id: classObjectId },
+          { _id: new ObjectId(classObjectId) },
           { $pull: { students: new ObjectId(studentObjectId) } }
         );
 
         // Remove the className from the classes array in the user's document
         await usersCollection.updateOne(
           { _id: new ObjectId(studentObjectId) },
-          { $pull: { classes: classToLeave.className } }
+          { $pull: { classes: new ObjectId(classToLeave._id) } }
         );
 
         success = true;
@@ -262,8 +289,10 @@ app.post("/api/leaveClass", async (req, res) => {
   res.status(200).json(ret);
 });
 
-//CLASS INFO TEACHER API
+// CLASS INFO TEACHER API
 app.post("/api/classInfoTeacher", async (req, res) => {
+  console.log("classInfoTeacher endpoint called");
+
   const { _id } = req.body;
 
   let error = "";
@@ -277,25 +306,19 @@ app.post("/api/classInfoTeacher", async (req, res) => {
     // Find the class by _id
     const result = await classesCollection.findOne({ _id: new ObjectId(_id) });
 
-    console.log("Class Id searched: ", result._id);
-
     if (result) {
-      // Log the class sessions for debugging
-      console.log("Class sessions from database:", result.sessions);
+      // Log the class data to ensure it contains `students` and `sessions`
+      console.log("Class Data Retrieved:", result);
 
       // Convert each session ID to an ObjectId and store in an array
       const sessionIds = result.sessions.map(id => new ObjectId(id));
-      console.log("Converted session IDs for query:", sessionIds);
 
       // Retrieve only session documents matching these specific ObjectIds
       const sessionDetails = await sessionsCollection
         .find({ _id: { $in: sessionIds } })
         .toArray();
 
-      // Log the retrieved sessions for debugging
-      console.log("Retrieved sessions:", sessionDetails);
-
-      // Build the class info object with the relevant session data
+      // Build the class info object with sessions and students
       classInfo = {
         interval: result.interval,
         joinCode: result.joinCode,
@@ -304,17 +327,111 @@ app.post("/api/classInfoTeacher", async (req, res) => {
           _id: session._id,
           ...session
         })),
+        //Dina added this for student details page
+        students: result.students, // Include the array of ObjectIds for students directly
       };
     } else {
       error = "Class not found";
     }
   } catch (e) {
-    error = e.toString();
+    console.error("Error retrieving class info:", e);
+    error = "Internal server error";
   }
 
   const ret = { classInfo: classInfo, error: error };
   res.status(200).json(ret);
 });
+
+//CLASS INFO STUDENT API
+app.post("/api/classInfoStudent", async (req, res) => {
+  const { classId, userId } = req.body;
+
+  let error = "";
+  
+  try {
+    //Connect to DB and retrieve classes and sessions
+    const db = client.db("COP4331");
+    const classesCollection = db.collection("Classes");
+    const sessionsCollection = db.collection("Sessions");
+    const usersCollection = db.collection("Users")
+
+
+    //use class id to find document
+    const classDocument = await classesCollection.findOne({ _id: new ObjectId(classId) });
+    if (!classDocument) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+
+    //get teachers name
+    const teacherID = classDocument.teacherID;
+    const teacherUserDocument = await usersCollection.findOne({ _id: new ObjectId(teacherID) });
+    if (!teacherUserDocument) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+    const teacherLastName = teacherUserDocument.lastName;
+    
+    //get all sessionIds
+    const sessionIds = classDocument.sessions;
+    const className = classDocument.className;
+
+    //array for attendance data
+    const attendanceData = [];
+
+    for (const sessionId of sessionIds) {
+      //find each session document
+      const sessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+      // Debugging step: Check if the session document was found
+      //console.log("Checking session ID:", sessionId, "Found:", !!sessionDocument);
+
+      if (sessionDocument) {
+        const { isRunning, startTime, endTime, students} = sessionDocument;
+
+        //check inside students array
+        if(Array.isArray(students)) {
+          //find the student
+          const studentSearch = students.find(s => s.userId.equals(new ObjectId(userId)));
+        
+          if(studentSearch) {
+            attendanceData.push({
+              sessionId: sessionId,         // Track session ID for reference
+              isRunning,
+              startTime,
+              endTime,
+              attendanceGrade: studentSearch.attendanceGrade,
+              attendanceNumber: studentSearch.attendanceNumber
+            });
+          }
+        }
+      }
+    }
+
+    // Label sessions in chronological order
+     attendanceData.forEach((session, index) => {
+      session.sessionNumber = `Session ${index + 1}`;
+    });
+
+    // Get the latest session's isRunning status (from the last session ID in the array)
+    let latestSessionIsRunning = null;
+    if (sessionIds.length > 0) {
+      const latestSessionId = sessionIds[sessionIds.length - 1];
+      const latestSessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(latestSessionId) });
+      latestSessionIsRunning = latestSessionDocument ? latestSessionDocument.isRunning : null;
+    }
+
+    // Respond with the teacher's name and the attendance data for each session
+    res.json({
+      className,
+      teacherLastName,
+      latestSessionIsRunning,
+      attendanceData
+    });
+  } catch (error) {
+    console.error("Error fetching class info for student:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 
@@ -401,7 +518,8 @@ app.post("/api/register", async (req, res) => {
 
 //CREATE SESSION
 app.post("/api/createSession", async (req, res) => {
-  const { uuid, startTime, endTime, signals = 0, isRunning = false, student = [], classId } = req.body;
+  //Update: pass in students array from the class document into the session document
+  const { uuid, startTime, endTime, signals = 0, isRunning = true, classId } = req.body;
   let error = "";
   let newSession = null;
 
@@ -410,6 +528,18 @@ app.post("/api/createSession", async (req, res) => {
     const sessionsCollection = db.collection("Sessions");
     const classesCollection = db.collection("Classes");
 
+    //Grab class document and pass in user ids and set default values
+    const classDocument = await classesCollection.findOne({_id: new ObjectId(classId)});
+    if (!classDocument) {
+      return res.status(404).json({error: "Class not found"});
+    }
+
+    const studentArray = classDocument.students.map(userId => ( {
+      userId: userId,
+      attendanceGrade: false,
+      attendanceNumber: 0
+    }));
+    
     // Step 1: Create the session in the Sessions collection
     const sessionData = {
       uuid,                        // Unique session identifier
@@ -417,7 +547,7 @@ app.post("/api/createSession", async (req, res) => {
       endTime: new Date(endTime),      // Convert to Date object
       signals,                     // Number of signals
       isRunning,                   // Boolean indicating if session is running
-      student: student.map(id => new ObjectId(id)), // Convert student IDs to ObjectIds
+      students: studentArray, // Convert student IDs to ObjectIds
     };
 
     const result = await sessionsCollection.insertOne(sessionData);
@@ -443,6 +573,186 @@ app.post("/api/createSession", async (req, res) => {
 
   // Return the created session data or an error
   res.status(error ? 500 : 201).json({ newSession, error });
+});
+
+
+//End Session
+app.post('/api/endSession', async (req, res) => {
+  // Destructure input values from the request body
+  const { sessionId, endTime } = req.body;
+
+  // Check for required fields
+  if (!sessionId || !endTime) {
+    return res.status(400).json({ error: "sessionId and endTime is missing." });
+  }
+
+  try {
+    // Connect to the database and set up the Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    // Update the session in the Sessions collection
+    const result = await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { $set: { endTime: new Date(endTime), isRunning: false } }
+    );
+
+    // Check if any document was modified
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    // Send a success response
+    res.json({ message: "Session ended successfully" });
+
+  } catch (error) {
+    console.error("Error ending session:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Increment teacher signals
+app.post("/api/incrementTeacherSignals", async (req, res) => {
+  const { sessionId } = req.body;
+
+  try {
+    //Connect to Database and retrieve Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    //Increment the "signals" field by 1 for the specified session.
+    //$inc increments by 1
+    const result = await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { $inc: { signals: 1 } }
+    );
+
+    // Check if the session was found and updated
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    res.json({ message: "Signals incremented successfully" });
+  } catch (error) {
+    console.error("Error incrementing signals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//student scan
+app.post("/api/studentScan", async (req, res) => {
+  const { userId, sessionId, isPresent } = req.body;
+  let error = "";
+  try {
+    //Connect to Database and retrieve Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    //Find the session document
+    const session = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    //Check if the session is currently running
+    const { isRunning } = session;
+    const { signals } = session;
+
+    //if isPresent is true
+      //increment attendanceNumber
+
+    //return isRunning
+    //message
+
+    //Find the student in the session's student array and update attendance if isPresent is true
+    const updatedStudentArray = session.students.map(students => {
+      if (students.userId.equals(new ObjectId(userId))) {
+        //if isPresent update attendance number
+        if (isPresent) {
+          students.attendanceNumber += 1; // Increment attendance if the student is marked as present
+        
+          //check if the increment hits the grade target
+          if (students.attendanceNumber >= (signals - 1) ) {
+            students.attendanceGrade = true; // Update the presence status
+          }
+          else {
+            students.attendanceGrade = false;
+          }
+        
+        }
+      }
+      return students; //Return updated student record
+    });
+
+    // Update the session document with the modified student array
+    await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { $set: { students: updatedStudentArray } }
+    );
+
+    // Respond with a success message and the current session's isRunning status
+    res.json({
+      error: "Student attendance updated successfully",
+      isRunning: isRunning
+    });
+
+  } catch (error) {
+    console.error("Error updating student attendance:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+//Get Session info
+app.post("/api/getSessionInfo", async (req, res) => {
+  const { sessionId } = req.body;
+  let error = "";
+
+  try {
+    //Connect to Database and retrieve Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    //convert sessionId to objectId because a string is passed in
+    const session = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    const { signals } = session; // Get the signals value from the session document
+
+    //Look through each student in the session's student array to update attendance. Map returns a new array of modified student objects.
+    const updatedStudents = session.students.map(students => {
+
+      if (students.attendanceNumber >= signals - 1) {
+        students.attendanceGrade = true;
+      }
+      else {
+        false;
+      }
+      return students;
+    
+    });
+
+    //Update databse
+    await sessionsCollection.updateOne(
+      { _id: new ObjectId(sessionId) },
+      { $set: { students: updatedStudents } }
+    );
+
+    //Respond with the modified session object
+    res.json({
+      ...session,
+      students: updatedStudents
+    });
+
+  } catch (error) {
+    console.error("Error fetching session info:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+
 });
 
 

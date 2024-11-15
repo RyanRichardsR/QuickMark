@@ -1,4 +1,4 @@
-/* Sidebar.css */
+/* Enhanced Sidebar.css */
 .sidebar {
   background-color: #8da9c4;
   width: 200px;
@@ -8,91 +8,107 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding-top: 20px;
-  color: #333;
-  padding-left: 20px;
+  color: #fff;
+  padding: 20px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 10px;
+  padding: 0 24px;
+  margin-bottom: 32px;
 }
 
 .logo {
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Prevents hover effects on the logo */
+  width: 140px;
+  height: auto;
 }
 
-.icon-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 30px;
+.nav-section {
+  padding: 0 16px;
+  margin-bottom: 24px;
 }
 
-.account-label {
-  font-size: 14px;
-  color: #333;
-  text-align: center;
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  align-items: flex-start;
-  gap: 20px;
+.nav-section-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0 8px;
+  margin-bottom: 12px;
 }
 
 .sidebar-button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: none;
+  width: 100%;
+  padding: 12px 16px;
   border: none;
-  padding: 10px 0;
-  font-size: 18px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
   cursor: pointer;
-  color: #333;
-  text-align: left;
-  padding-left: 10px;
-  width: 100%;
-  transition: background 0.3s;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.icon {
-  font-size: 20px;
-}
-
-.divider {
-  width: 90%;
-  height: 1px;
-  background-color: #333;
-  opacity: 0.3;
-  margin: 20px 0;
-}
-
-.about-us {
-  width: 100%;
-}
-
-/* Targeting the images inside sidebar buttons */
-.sidebar-button img {
-  width: 16px; /* Adjust the width as needed */
-  height: 16px; /* Adjust the height as needed */
-  margin-right: 8px; /* Add space between the icon and text */
-  vertical-align: middle; /* Aligns icon vertically with text */
-}
-
-.divider {
-  margin: 20px 0;
-  border-bottom: 1px solid #ddd;
-}
 .sidebar-button:hover {
-  background-color: #e0e7ff;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 500;
+}
+
+.sidebar-icon {
+  margin-right: 12px;
+  opacity: 0.9;
+}
+
+.arrow-icon {
+  position: absolute;
+  right: 12px;
+  opacity: 0.5;
+}
+
+.divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 16px 24px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-button {
+  color: #ef4444;
+}
+
+.logout-button:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Add subtle animation for icons on hover */
+.sidebar-button:hover .sidebar-icon {
+  transform: translateX(2px);
+  transition: transform 0.2s ease;
+}
+
+/* Add a subtle animation for the arrow icon */
+.sidebar-button:hover .arrow-icon {
+  transform: translateX(3px);
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+/* Add a subtle scale effect for active buttons */
+.sidebar-button:active {
+  transform: scale(0.98);
 }

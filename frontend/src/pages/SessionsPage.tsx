@@ -42,7 +42,7 @@ const SessionsPage: React.FC = () => {
   }, [classId]);
 
   const handleSessionClick = (sessionId: string) => {
-    navigate(`/session-details/${sessionId}`);
+    navigate(`/session-details/${classId}/${sessionId}`);
   };
 
   return (
