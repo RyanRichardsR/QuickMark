@@ -58,7 +58,7 @@ app.post("/api/login", async (req, res) => {
     if (results) {
       user = {
         id: results._id,
-        login: results.login,
+        login: login,
         firstName: results.firstName,
         lastName: results.lastName,
         email: results.email,
