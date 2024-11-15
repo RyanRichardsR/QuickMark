@@ -11,21 +11,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
   const [message, setMessage] = useState("");
   const [loginName, setLoginName] = useState("");
   const [loginPassword, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ login?: string; password?: string }>({});
 
   async function doLogin(event: React.FormEvent) {
     event.preventDefault();
 
-    // Reset error messages
-    const newErrors: { login?: string; password?: string } = {};
-    if (!loginName) newErrors.login = "Username is required";
-    if (!loginPassword) newErrors.password = "Password is required";
-
-    // If there are errors, set them and focus on the first error field
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      const firstErrorKey = Object.keys(newErrors)[0] as keyof typeof newErrors;
-      document.getElementById(firstErrorKey)?.focus();
+    // Check for missing fields and set a combined error message
+    if (!loginName && !loginPassword) {
+      setMessage("Username and Password are required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginName) {
+      setMessage("Username is required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginPassword) {
+      setMessage("Password is required");
+      document.getElementById("password")?.focus();
       return;
     }
 
@@ -74,20 +77,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
         <input
           type="text"
           id="login"
-          className={`auth-input ${errors.login ? 'input-error' : ''}`}
+          className="auth-input"
           placeholder="Username"
           onChange={(e) => {
             setLoginName(e.target.value);
-            setErrors((prevErrors) => ({ ...prevErrors, login: "" }));
+            if (message) setMessage(""); 
           }}
           aria-describedby="loginError"
-          aria-invalid={!!errors.login}
         />
-        {errors.login && (
-          <span id="loginError" role="alert" className="error-message">
-            {errors.login}
-          </span>
-        )}
 
         <label htmlFor="password" className="auth-label">
           Password:<span aria-hidden="true" style={{ color: 'red' }}> *</span>
@@ -95,20 +92,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
         <input
           type="password"
           id="password"
-          className={`auth-input ${errors.password ? 'input-error' : ''}`}
+          className="auth-input"
           placeholder="Password"
           onChange={(e) => {
             setPassword(e.target.value);
-            setErrors((prevErrors) => ({ ...prevErrors, password: "" }));
+            if (message) setMessage(""); 
           }}
           aria-describedby="passwordError"
-          aria-invalid={!!errors.password}
         />
-        {errors.password && (
-          <span id="passwordError" role="alert" className="error-message">
-            {errors.password}
-          </span>
-        )}
 
         <button type="submit" className="auth-button">Login</button>
         {message && <span className="auth-message" role="alert">{message}</span>}

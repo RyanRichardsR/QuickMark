@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import "../AuthForm.css";
 import { SERVER_BASE_URL } from "../config";
 
+//EMAIL_USER=officialquickmark@gmail.com
+//EMAIL_PASS=xjjygcjdylbrciln
+
 interface RegistrationFormProps {
   onSwitch: () => void;
 }
