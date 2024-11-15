@@ -62,7 +62,6 @@ app.post("/api/login", async (req, res) => {
         lastName: results.lastName,
         email: results.email,
         role: results.role,
-        //Dina added this - needed for getting classes
         login: results.login,
         emailVerified: results.emailVerified,
       };
