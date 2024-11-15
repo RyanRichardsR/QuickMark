@@ -3,7 +3,7 @@ name: Deploy Project
 on:
   push:
     branches:
-      - BlueApi
+      - main
 
 jobs:
   deploy:
@@ -11,9 +11,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          node-version: 20
-          run: echo "Checked out the repository."
+
+      - name: Log Checkout Status
+        run: echo "Checked out the repository."
 
       - name: Install sshPass
         run: |
@@ -23,12 +23,17 @@ jobs:
 
       - name: Build Frontend
         run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing files in the current directory:"
+          ls -al
           echo "Navigating to the frontend directory."
           cd frontend
+          echo "Listing files in the frontend directory:"
+          ls -al
           echo "Installing frontend dependencies."
-          npm install
+          npm install || { echo "npm install failed"; exit 1; }
           echo "Building the frontend application."
-          npm run build
+          npm run build || { echo "npm run build failed"; exit 1; }
           echo "Frontend build completed."
 
       - name: Deploy Frontend
