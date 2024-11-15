@@ -151,7 +151,7 @@ const StudentHistoryPage: React.FC = () => {
 
         <div className="history-table-container">
           <h2 className="history-title">
-            {className ? `${className} - History` : "Class History"}
+            {className ? `${className} - Attendance History` : "Class History"}
           </h2>
           <div className="history-table">
             {loading ? (

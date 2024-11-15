@@ -17,7 +17,7 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="logo-container">
-        <img src="/QM.png" alt="Logo" className="logo" />
+        <img src="/QM_white.png" alt="Logo" className="logo" />
       </div>
 
       <div className="nav-section">
