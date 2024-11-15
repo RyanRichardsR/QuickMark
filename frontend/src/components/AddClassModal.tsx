@@ -47,7 +47,7 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ isOpen, onClose, onClassA
     }
   
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/createClass`, {
+      const response = await fetch(`http://cop4331.xyz/api/createClass`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

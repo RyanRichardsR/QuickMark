@@ -63,7 +63,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/register`, {
+      const response = await fetch(`http://cop4331.xyz/api/register`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },

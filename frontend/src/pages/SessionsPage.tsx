@@ -16,7 +16,7 @@ const SessionsPage: React.FC = () => {
   useEffect(() => {
     const fetchClassInfo = async () => {
       try {
-        const response = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
+        const response = await fetch(`http://cop4331.xyz/api/classInfoTeacher`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ _id: classId }),

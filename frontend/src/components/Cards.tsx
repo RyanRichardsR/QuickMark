@@ -35,7 +35,7 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
     const { login } = JSON.parse(userData);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/classes`, {
+      const response = await fetch(`http://cop4331.xyz/api/classes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
