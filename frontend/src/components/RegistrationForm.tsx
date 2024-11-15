@@ -180,7 +180,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
             Student
           </button>
         </div>
-        {errors.role && <p className="error-message">{errors.role}</p>}
+        
 
         <button type="submit" className="auth-button">Register</button>
         <span className={`auth-message ${messageType === "success" ? "auth-message-success" : "auth-message-error"}`}>
