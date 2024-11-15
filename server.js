@@ -58,12 +58,7 @@ app.post("/api/login", async (req, res) => {
     if (results) {
       user = {
         id: results._id,
-        login: login,
-        firstName: results.firstName,
-        lastName: results.lastName,
-        email: results.email,
-        role: results.role,
-        emailVerified: results.emailVerified,
+    
       };
     } else {
       error = "Username or Password is incorrect";
