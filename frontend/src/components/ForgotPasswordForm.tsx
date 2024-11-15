@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 import "../AuthForm.css";
 
 interface ForgotPasswordFormProps {

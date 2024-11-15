@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/JoinClassModal.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 interface JoinClassModalProps {
   isOpen: boolean;

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddClassModal from "../components/AddClassModal";
 import JoinClassModal from "../components/JoinClassModal";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 import "../styles/Cards.css";
 
 interface CardsProps {

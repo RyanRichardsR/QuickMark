@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionDetailsPage.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 const SessionDetailsPage: React.FC = () => {
   const navigate = useNavigate();

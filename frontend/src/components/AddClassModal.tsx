@@ -1,7 +1,7 @@
 // AddClassModal.jsx
 import React, { useState } from "react";
 import "../styles/AddClassModal.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 interface AddClassModalProps {
   isOpen: boolean;

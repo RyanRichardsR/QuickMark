@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 interface LoginFormProps {
   onForgotPassword: () => void;
