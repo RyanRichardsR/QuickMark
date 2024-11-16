@@ -1,4 +1,5 @@
 // Header.jsx
+import { useLocation } from 'react-router-dom'; // Import useLocation
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
 import '../styles/Header.css';
@@ -20,12 +21,16 @@ const Header = () => {
     }
   }, []);
 
+  //Changes the header text depending on page
+  const currentTitle = location.pathname === '/about-us' ? 'About Us' : 'Dashboard';
+
+
   return (
     <header className="header">
       <div className="header-container">
         {/* Left section with title */}
         <div className="header-left">
-          <h1 className="title">Dashboard</h1>
+          <h1 className="title">{currentTitle}</h1>
         </div>
 
         {/* Right section with user profile */}

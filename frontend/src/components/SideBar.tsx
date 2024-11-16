@@ -1,11 +1,12 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Info, Home } from 'lucide-react';
 import '../styles/SideBar.css';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Get current route
 
-  function doLogout(event: { preventDefault: () => void; }) {
+  function doLogout(event: { preventDefault: () => void }) {
     event.preventDefault();
     localStorage.removeItem('user_data');
     localStorage.removeItem('role');
@@ -23,7 +24,11 @@ const Sidebar = () => {
       <div className="nav-section">
         <span className="nav-section-label">MAIN MENU</span>
         
-        <button className="sidebar-button active">
+        {/* Dashboard Button */}
+        <button
+          className={`sidebar-button ${location.pathname === '/' ? 'active' : ''}`}
+          onClick={() => navigate('/')}
+        >
           <Home size={20} className="sidebar-icon" />
           <span>Dashboard</span>
         </button>
@@ -33,8 +38,12 @@ const Sidebar = () => {
 
       <div className="nav-section">
         <span className="nav-section-label">SETTINGS</span>
-
-        <button className="sidebar-button" onClick={() => navigate('/about')}>
+        
+        {/* About Us Button */}
+        <button
+          className={`sidebar-button ${location.pathname === '/about-us' ? 'active' : ''}`}
+          onClick={() => navigate('/about-us')}
+        >
           <Info size={20} className="sidebar-icon" />
           <span>About Us</span>
         </button>
