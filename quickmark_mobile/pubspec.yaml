@@ -43,6 +43,7 @@ dependencies:
   confetti: ^0.8.0
   flutter_foreground_task: ^8.13.0
   flutter_reactive_ble: ^5.3.1
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
