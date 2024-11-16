@@ -34,25 +34,18 @@ class AboutUs extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-                    'lib/images/QM_white.png',
-                    height: 60,
-                  ),
-            GestureDetector(
-              onTap:() => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Dashboard(user: user) )
-                )
-              },
-              child: const Text(
+              'lib/images/QM_white.png',
+              height: 60,
+            ),
+            
+            const Text(
                 'QuickMark',
                 style: TextStyle(
                   color: white,
                   fontWeight: FontWeight.bold,
                 ),
-                
               ),
-            ),
+
             const SizedBox(width: 25)
           ],
         ),
