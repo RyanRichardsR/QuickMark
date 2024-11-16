@@ -7,7 +7,7 @@ const teamMembers = [
   { name: "Ryan", title: "Mobile Dev", linkedin: "https://www.linkedin.com/in/ryan-richards-r/" },
   { name: "Dina", title: "Frontend Web Dev", linkedin: "http://linkedin.com/in/dina-kazzoun-b44a9419a" },
   { name: "Niklas", title: "Bluetooth/Mobile Dev", linkedin: "http://linkedin.com/in/niklas-edstrom-306330209" },
-  { name: "Thaw", title: "Bluetooth/Mobile Dev", linkedin: "https://www.linkedin.com/in/thaw" },
+  { name: "Thaw", title: "Bluetooth/Mobile Dev", linkedin: "https://www.linkedin.com/in/thaw-zin-moe-07304a186/" },
   { name: "Sam", title: "API/Database", linkedin: "https://www.linkedin.com/in/samwattsdev/" },
   { name: "Anthony", title: "API/Database", linkedin: "https://www.linkedin.com/in/anthony-bonus-4a083726b/" },
 ];
