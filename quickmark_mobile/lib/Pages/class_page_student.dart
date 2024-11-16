@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:quickmark_mobile/components/scan_buttons.dart';
 import 'package:quickmark_mobile/components/side_menu.dart';
 import 'package:quickmark_mobile/server_calls.dart';
@@ -21,290 +22,192 @@ class ClassPageStudent extends StatefulWidget {
 }
 
 class _ClassPageStudentState extends State<ClassPageStudent> {
-
-  late Future<String> sessionId;
+  late Future<Map<String, dynamic>> classInfo;
 
   @override
   void initState() {
     super.initState();
-    sessionId = classInfoApiCall();
+    classInfo = classInfoApiCall(widget.classId, widget.user['id']);
   }
 
-  // Makeshift classinfo api call to get last session
-  Future<String> classInfoApiCall() async {
+  // make classInfoStudent api call
+  Future<Map<String, dynamic>> classInfoApiCall(String classId, String userId) async {
+    Map<String, dynamic> classInfo = {};
 
-    String sessionId = "";
-
-    // Hard coded for now
     final body = {
-      'classId' : '67279b0b5cc76a6d07cec574',
-      'userId' : '672293bfa372eeb9194679d2',
+      'classId' : classId,
+      'userId' : userId,
     };
-    // Create session api call
+
     try {
       var response = await ServerCalls().post('/classInfoStudent', body);
       if(response['error'] != null) {
         debugPrint('Error: $response');
       } else {
-        final attentdanceData = response['attendanceData'] as List;
-        sessionId = attentdanceData.last['sessionId'];
+        classInfo = response;
       }
     } catch (err) {
       debugPrint('Error: $err');
     }
-    return sessionId;
+    return classInfo;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: sessionId,
+    return FutureBuilder<Map<String, dynamic>>(
+      future: classInfo,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator())
           );
         }
-        else if (snapshot.hasData && snapshot.data != null) {
+        else if (snapshot.hasData) {
           return Scaffold(
-      appBar: AppBar(
-        backgroundColor: blue,
-        iconTheme: const IconThemeData(color: white),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-                    'lib/images/QM_white.png',
-                    height: 60,
-                  ),
-            const Text(
-              'QuickMark',
-              style: TextStyle(
-                color: white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 50)
-          ],
-        ),
-      ),
-      endDrawer: SideMenu(user: widget.user),
-      body: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.bottomRight, colors: [blue, white])
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                  'Class Name', // Replace with actual name
+            appBar: AppBar(
+              backgroundColor: blue,
+              iconTheme: const IconThemeData(color: white),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                          'lib/images/QM_white.png',
+                          height: 60,
+                        ),
+                  const Text(
+                    'QuickMark',
                     style: TextStyle(
-                      color: navy,
-                      fontSize: 25,
+                      color: white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-              const Text(
-                'Join Code: thisisjoincode', // Replace with actual code
-                  style: TextStyle(
-                    color: navy,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  const SizedBox(width: 50)
+                ],
+              ),
+            ),
+            endDrawer: SideMenu(user: widget.user),
+            body: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(begin: Alignment.bottomRight, colors: [blue, white])
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      snapshot.data!['className'], // Replace with actual name
+                      style: TextStyle(
+                        color: navy,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      snapshot.data!['teacherLastName'], // Replace with actual code
+                      style: TextStyle(
+                        color: navy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    
+
+                    const Divider(
+                      height: 40,
+                      color: navy,
+                    ),
+
+                    SizedBox(
+                      height: 180,
+                      // Check if there is an active class session
+                      child: snapshot.data!['latestSessionIsRunning'] ? ScanButtons(
+                        attendReq: 
+                        {
+                          'sessionId' : snapshot.data,
+                          'userId' : widget.classId
+                        },
+                      ) :
+                      Center(child: Text('No active class session')),
+                    ),
+
+                    const Divider(
+                      height: 40,
+                      color: navy,
+                    ),
+
+                    const Text(
+                      'History',
+                      style: TextStyle(
+                        color: navy,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: white,
+                          border: Border.all(color: navy),
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                        ),
+                        child: HistoryTableStudent(attendanceData: snapshot.data!['attendanceData'], isRunning: snapshot.data!['latestSessionIsRunning']),
+                      ),
+                    ),
+                  ],
                 ),
-              
-
-              const Divider(
-                height: 40,
-                color: navy,
               ),
-              ScanButtons(
-                attendReq: 
-                {
-                  'sessionId' : snapshot.data,
-                  'userId' : '672293bfa372eeb9194679d2'
-                },
-              ),  // TODO: Replace with actual info
-
-              const Divider(
-                height: 40,
-                color: navy,
-              ),
-
-              const Text(
-                'History', // Replace with actual name
-                style: TextStyle(
-                  color: navy,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const Expanded(
-                child: SingleChildScrollView(
-                  child:
-                    HistoryTable(sessionInfos: [])
-                  ,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
         }
         else {
-          throw Exception('Some error');
+          throw Exception(snapshot.error);
         }
 
       }
     );
-    /*
-    Scaffold(
-      appBar: AppBar(
-        backgroundColor: blue,
-        iconTheme: const IconThemeData(color: white),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-                    'lib/images/QM_white.png',
-                    height: 60,
-                  ),
-            const Text(
-              'QuickMark',
-              style: TextStyle(
-                color: white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 50)
-          ],
-        ),
-      ),
-      endDrawer: const SideMenu(name: 'name', role: 'role'),
-      body: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.bottomRight, colors: [blue, white])
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                  'Class Name', // Replace with actual name
-                    style: TextStyle(
-                      color: navy,
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-              const Text(
-                'Join Code: thisisjoincode', // Replace with actual code
-                  style: TextStyle(
-                    color: navy,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              
-
-              const Divider(
-                height: 40,
-                color: navy,
-              ),
-              ScanButtons(
-                attendReq: 
-                {
-                  'sesionId' : sessionId,
-                  'userId' : '672293bfa372eeb9194679d2'
-                },
-              ),  // TODO: Replace with actual info
-
-              const Divider(
-                height: 40,
-                color: navy,
-              ),
-
-              const Text(
-                'History', // Replace with actual name
-                style: TextStyle(
-                  color: navy,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const Expanded(
-                child: SingleChildScrollView(
-                  child:
-                    HistoryTable(sessionInfos: [])
-                  ,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    */
   }
 }
 
-class HistoryTable extends StatelessWidget {
-  final List<dynamic> sessionInfos;
-  const HistoryTable({super.key, required this.sessionInfos});
-  
+class HistoryTableStudent extends StatelessWidget {
+  final List<dynamic> attendanceData;
+  final bool isRunning;
+  const HistoryTableStudent({super.key, required this.attendanceData, required this.isRunning});
+
+  String _formatDateTime(int index) {
+    // Reverse the list
+    if (attendanceData[index]['startTime'] == null || attendanceData[index]['endTime'] == null) return 'Invalid Date';
+    DateTime startTime = DateTime.parse(attendanceData[index]['startTime']);
+    DateTime endTime = DateTime.parse(attendanceData[index]['endTime']);
+    var dateFormat = DateFormat('MM/dd/yyyy');
+    var timeFormat = DateFormat.jm();
+    return '${dateFormat.format(startTime)} - ${timeFormat.format(startTime)} to ${timeFormat.format(endTime)}';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DataTable(
-      border: TableBorder.all(),
-      dataTextStyle: const TextStyle(color: navy),
-      dataRowColor: const WidgetStatePropertyAll(Colors.white),
-      dataRowMinHeight: 40,
-      dataRowMaxHeight: 40,
-      headingTextStyle: const TextStyle(color: Colors.white),
-      headingRowColor: const WidgetStatePropertyAll(navy),
-      headingRowHeight: 40,
-      columns: const [
-        DataColumn(
-          label: Expanded(
-            child: Text('Date'),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Text('Start'),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Text('End'),
-          ),
-        ),
-        DataColumn(
-          label: Expanded(
-            child: Text('Signals'),
-          ),
-        ),
-      ],
-
-      rows: List.generate(
-        20,
-        (index) => DataRow(
-          color: WidgetStatePropertyAll((index % 2 == 0) ? white : lightBlue),
-          cells: [
-            DataCell(Text('$index')),
-            DataCell(Text('$index')),
-            DataCell(Text('$index')),
-            DataCell(Text('$index')),
-          ],
-        ),
+    return Scrollbar(
+      child: ListView.separated(
+        padding: EdgeInsets.all(8.0),
+        separatorBuilder: (context, index) => Divider(),
+        itemCount: isRunning ? attendanceData.length-1 : attendanceData.length, // Do not print the last session if it is still running
+        itemBuilder: (context, index) {
+          return Container(
+            padding: EdgeInsets.only(left: 8.0, right: 8.0),
+            height: 30.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_formatDateTime(index)),
+                attendanceData[index]['attendanceGrade'] ?
+                  Text('Present', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)) :
+                  Text('Absent', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
+              ],
+            ),
+          );
+        },
       ),
     );
   }
