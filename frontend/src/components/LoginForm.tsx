@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 interface LoginFormProps {
   onForgotPassword: () => void;
@@ -36,7 +36,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSwitch }) => 
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/login`, {
+      const response = await fetch(`http://cop4331.xyz/api/login`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },

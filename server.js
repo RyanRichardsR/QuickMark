@@ -58,12 +58,11 @@ app.post("/api/login", async (req, res) => {
     if (results) {
       user = {
         id: results._id,
+        login: results.login,
         firstName: results.firstName,
         lastName: results.lastName,
         email: results.email,
         role: results.role,
-        //Dina added this - needed for getting classes
-        login: results.login,
         emailVerified: results.emailVerified,
       };
     } else {
@@ -489,7 +488,7 @@ app.post("/api/register", async (req, res) => {
       success = result.acknowledged;
 
       // Generate a temporary token in the URL (no need to store it)
-      const verificationLink = `${SERVER_BASE_URL}api/verify-email?email=${encodeURIComponent(
+      const verificationLink = `http://cop4331.xyz/api/verify-email?email=${encodeURIComponent(
         email
       )}`;
       const mailOptions = {

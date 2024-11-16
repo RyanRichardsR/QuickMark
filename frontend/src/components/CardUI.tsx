@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 
 function CardUI() {
@@ -26,7 +26,7 @@ function CardUI() {
 
         try
         {
-            const response = await fetch(`${SERVER_BASE_URL}api/addcard`,
+            const response = await fetch(`http://cop4331.xyz/api/addcard`,
             {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
             let txt = await response.text();
@@ -56,7 +56,7 @@ function CardUI() {
 
         try
         {
-            const response = await fetch(`${SERVER_BASE_URL}api/searchcards`,
+            const response = await fetch(`http://cop4331.xyz/api/searchcards`,
             {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
             let txt = await response.text();

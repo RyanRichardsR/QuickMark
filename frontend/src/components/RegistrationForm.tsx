@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 //EMAIL_USER=officialquickmark@gmail.com
 //EMAIL_PASS=xjjygcjdylbrciln
@@ -63,7 +63,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/register`, {
+      const response = await fetch(`http://cop4331.xyz/api/register`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },

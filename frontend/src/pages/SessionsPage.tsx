@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionsPage.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 const SessionsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const SessionsPage: React.FC = () => {
   useEffect(() => {
     const fetchClassInfo = async () => {
       try {
-        const response = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
+        const response = await fetch(`http://cop4331.xyz/api/classInfoTeacher`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ _id: classId }),

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionDetailsPage.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 const SessionDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const SessionDetailsPage: React.FC = () => {
         }
 
         // Fetch class data to get the student ObjectIds
-        const classResponse = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
+        const classResponse = await fetch(`http://cop4331.xyz/api/classInfoTeacher`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ _id: classId }),
@@ -35,7 +35,7 @@ const SessionDetailsPage: React.FC = () => {
         const studentIds = classData.classInfo?.students || [];
 
         // Fetch student names using the /api/getUsersByIds endpoint
-        const namesResponse = await fetch(`${SERVER_BASE_URL}api/getUsersByIds`, {
+        const namesResponse = await fetch(`http://cop4331.xyz/api/getUsersByIds`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userIds: studentIds }),
@@ -51,7 +51,7 @@ const SessionDetailsPage: React.FC = () => {
         }, {});
 
         // Fetch session data for attendance information
-        const sessionResponse = await fetch(`${SERVER_BASE_URL}api/getSessionInfo`, {
+        const sessionResponse = await fetch(`http://cop4331.xyz/api/getSessionInfo`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId }),
