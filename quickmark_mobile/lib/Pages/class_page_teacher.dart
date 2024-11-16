@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quickmark_mobile/components/ClassModel.dart';
 import 'package:quickmark_mobile/components/advertise_buttons.dart';
 import 'package:quickmark_mobile/components/side_menu.dart';
 
@@ -11,10 +10,10 @@ const darkBlue = Color(0xFF13315C) ;
 const navy = Color(0xFF0B2545) ;
 
 class ClassPageTeacher extends StatefulWidget {
-  final ClassModel classInfo;
+  final String classId;
   final Map<String, dynamic> user;
 
-  const ClassPageTeacher({super.key, required this.classInfo, required this.user});
+  const ClassPageTeacher({super.key, required this.classId, required this.user});
 
   @override
   State<ClassPageTeacher> createState() => _ClassPageTeacherState();

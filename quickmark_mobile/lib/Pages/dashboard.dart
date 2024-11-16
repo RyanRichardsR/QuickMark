@@ -144,7 +144,7 @@ class _DashboardState extends State<Dashboard> {
                         onTap: () => {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => isTeacher ? ClassPageTeacher(classInfo: courses[index], user: widget.user) : ClassPageStudent(classInfo: courses[index], user: widget.user))
+                            MaterialPageRoute(builder: (context) => isTeacher ? ClassPageTeacher(classId: courses[index].id, user: widget.user) : ClassPageStudent(classId: courses[index].id, user: widget.user))
                           )
                         },
                         child: CourseCard(

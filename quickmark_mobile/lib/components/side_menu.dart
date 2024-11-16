@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quickmark_mobile/Pages/about_us.dart';
+import 'package:quickmark_mobile/Pages/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quickmark_mobile/Pages/login_page.dart';
 
@@ -52,7 +53,12 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.account_circle),
             title: const Text('Profile'),
             onTap: () {
-              
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(user: user),
+                ),
+              );
             },
           ),
           
