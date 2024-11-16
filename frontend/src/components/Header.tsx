@@ -1,5 +1,4 @@
 // Header.jsx
-import { useLocation } from 'react-router-dom'; // Import useLocation
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
 import '../styles/Header.css';
