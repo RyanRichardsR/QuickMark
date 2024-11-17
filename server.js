@@ -898,7 +898,7 @@ app.post("/api/forgotPassword", async (req, res) =>  {
       );
 
       success = result.acknowledged;
-
+      //sends email out
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
