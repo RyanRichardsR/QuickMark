@@ -909,7 +909,7 @@ app.post("/api/forgotPassword", async (req, res) =>  {
 
         Please click on the following link, or paste this into your browser to complete the process:
 
-        http://localhost:5173/resetpassword/${resetToken}
+        http://cop4331.xyz/resetpassword/${resetToken}
 
         If you did not request this, please ignore this email and your password will remain unchanged.
         `
