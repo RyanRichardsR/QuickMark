@@ -22,7 +22,7 @@ class CourseCard extends StatefulWidget {
   State<CourseCard> createState() => _CourseCardState();
 }
 
-enum Menu { delete, edit }
+enum Menu { delete }
 
 class _CourseCardState extends State<CourseCard> {
   late bool isTeacher;
@@ -54,7 +54,7 @@ class _CourseCardState extends State<CourseCard> {
         setState((){ //Creates the error message
           errorMessage = response['error'];
         });
-        Navigator.push( //Redirect to the Dashboard
+        Navigator.pushReplacement( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : widget.user),
@@ -65,6 +65,37 @@ class _CourseCardState extends State<CourseCard> {
       debugPrint('Error: $err');
     }
   }
+
+  void deleteClass(String classId, context) async {
+
+    final body = {
+      'classObjectId' : classId,
+    };
+
+    //Make Call
+    try {
+      final response = await ServerCalls().post('/deleteClass', body);
+      if(response['error'] != '') {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+          debugPrint(errorMessage);
+        });
+      } else {
+        setState((){ //Creates the error message
+          errorMessage = response['error'];
+        });
+        Navigator.pushReplacement( //Redirect to the Dashboard
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dashboard(user : widget.user),
+          ),
+        );
+      }
+    } catch (err) {
+      debugPrint('Error: $err');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +140,7 @@ class _CourseCardState extends State<CourseCard> {
                       onSelected: (Menu item) {
                         switch (item) {
                           case Menu.delete:
-                            isTeacher ? debugPrint('Delete') : leaveClass(widget.user['id'], widget.classId, context);
-                          case Menu.edit:
-                          
+                            isTeacher ? deleteClass(widget.classId, context) : leaveClass(widget.user['id'], widget.classId, context);    
                         }
                       }, 
                       itemBuilder: (BuildContext context) { 
@@ -122,14 +151,7 @@ class _CourseCardState extends State<CourseCard> {
                               leading:isTeacher ? const Icon(Icons.delete_outline) : const Icon(Icons.exit_to_app),
                               title: Text(isTeacher ? 'Delete' : 'Leave'),
                             ),
-                          ),
-                          const PopupMenuItem<Menu>(
-                            value: Menu.edit,
-                            child: ListTile(
-                              leading: Icon(Icons.edit),
-                              title: Text('Edit'),
-                            )
-                          ),
+                          )
                         ];
                       },
                     ),

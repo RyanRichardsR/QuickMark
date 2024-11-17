@@ -69,11 +69,12 @@ class SideMenu extends StatelessWidget {
             title: const Text('Logout'),
             onTap: () {
               logoutUser();
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const LoginPage(success: false),
                 ),
+                (route) => false,
               );
             },
           ),

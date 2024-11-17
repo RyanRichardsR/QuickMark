@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quickmark_mobile/Pages/dashboard.dart';
 import 'package:quickmark_mobile/components/side_menu.dart';
 
 //Color Pallete Constants
@@ -12,7 +11,6 @@ const navy = Color(0xFF0B2545) ;
 const pictureSize = 130.0;
 const textSize = 20.0;
 const subtitleSize = 13.0;
-
 
 
 class AboutUs extends StatelessWidget {

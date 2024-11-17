@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
           errorMessage = response['error'];
         });
         saveUserLogin(response['user']);
-        Navigator.push( //Redirect to the Dashboard
+        Navigator.pushReplacement( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : response['user']),

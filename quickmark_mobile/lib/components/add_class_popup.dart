@@ -55,7 +55,7 @@ class _AddClassPopupState extends State<AddClassPopup> {
         setState((){ //Reset Error message
           errorMessage = response['error'];
         });
-        Navigator.push( //Redirect to the Dashboard
+        Navigator.pushReplacement( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : widget.user),
@@ -87,7 +87,7 @@ class _AddClassPopupState extends State<AddClassPopup> {
         setState((){ //Reset Error message
           errorMessage = response['error'];
         });
-        Navigator.push( //Redirect to the Dashboard
+        Navigator.pushReplacement( //Redirect to the Dashboard
           context,
           MaterialPageRoute(
             builder: (context) => Dashboard(user : widget.user),

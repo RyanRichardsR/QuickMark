@@ -139,7 +139,7 @@ class _RegisterState extends State<Register> {
         setState((){ //no error, reset error to nothing :)
           errorMessage = response['error'];
         });
-        Navigator.push( //Redirect
+        Navigator.pushReplacement( //Redirect
           context,
           MaterialPageRoute(
             builder: (context) =>  const LoginPage(success: true),
