@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const baseURL = 'http://10.0.2.2:3000/api';
+const baseURL = 'http://cop4331.xyz/api';
 
 class ServerCalls 
 {

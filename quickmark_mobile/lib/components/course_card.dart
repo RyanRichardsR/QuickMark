@@ -126,7 +126,7 @@ class _CourseCardState extends State<CourseCard> {
                         widget.title,
                         style: const TextStyle(fontWeight: FontWeight.bold,)
                       ),
-                      Text('Code: ${widget.subtitle}'),
+                      Text('Code: ${widget.subtitle}', style: TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
