@@ -7,13 +7,13 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 @pragma('vm:entry-point')
 void startAdvertisementCallback() {
-  print('DEBUG: Inside startCallback');
+  debugPrint('DEBUG: Inside startCallback');
   FlutterForegroundTask.setTaskHandler(AdvertisementHandler());
 }
 
 @pragma('vm:entry-point')
 void startScanCallback() {
-  print('DEBUG: Inside startCallback');
+  debugPrint('DEBUG: Inside startCallback');
   FlutterForegroundTask.setTaskHandler(ScanHandler());
 }
 
@@ -27,7 +27,7 @@ class AdvertisementHandler extends TaskHandler {
   // This is called once when session starts.
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    print('DEBUG: onStart()');
+    debugPrint('DEBUG: onStart()');
     pm = PeripheralManager();
 
     // Grab advertisement data from storage
@@ -55,7 +55,6 @@ class AdvertisementHandler extends TaskHandler {
   Future<void> onRepeatEvent(DateTime timestamp) async {
 
     print('DEBUG: onRepeatEvent()');
-    // TODO: Make incrementCount API call
     await pm.startAdvertising(advData);
     FlutterForegroundTask.sendDataToMain(1);  // sendDataToMain execute _onReceiveTaskData method in main thread
     await Future.delayed(const Duration(seconds: 20));
@@ -75,7 +74,6 @@ class AdvertisementHandler extends TaskHandler {
   // When stop button is clicked
   @override
   Future<void> onDestroy(DateTime timestamp) async {
-    print('DEBUG: onDestroy()');
     isDestroyed = true;
     FlutterForegroundTask.sendDataToMain(0);
   }
@@ -89,8 +87,6 @@ class ScanHandler extends TaskHandler {
   
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    print('DEBUG: onStart()');
-
     // Grab uuid from storage
     targetUUID = await FlutterForegroundTask.getData(key: 'uuid');
     FlutterForegroundTask.removeData(key: 'uuid');
@@ -102,11 +98,9 @@ class ScanHandler extends TaskHandler {
 
   @override
   Future<void> onRepeatEvent(DateTime timestamp) async {
-    print('DEBUG: onRepeatEvent()');
     bool hasMarked = false;
     
     StreamSubscription<DiscoveredDevice> scanStream = scanManager.scanForDevices(withServices: [Uuid.parse(targetUUID)]).listen((device) {
-      print('DEBUG: Inside scanStream. hasMarked: $hasMarked, name: ${device.name}, uuid: ${device.serviceUuids.last}');
       if (!hasMarked) {
         hasMarked = true;
       }
@@ -119,13 +113,12 @@ class ScanHandler extends TaskHandler {
       FlutterForegroundTask.sendDataToMain(1);
     }
     else {
-      FlutterForegroundTask.sendDataToMain(0); // TODO: Change back to 0 after testing
+      FlutterForegroundTask.sendDataToMain(0);
     }
   }
 
   @override
   Future<void> onDestroy(DateTime timestamp) async {
-    print('DEBUG: onDestroy()');
     FlutterForegroundTask.sendDataToMain(false);
   }
 }

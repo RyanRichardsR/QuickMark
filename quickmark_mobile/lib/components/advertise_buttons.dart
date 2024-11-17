@@ -5,6 +5,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quickmark_mobile/components/ble_handlers.dart';
 import 'package:quickmark_mobile/server_calls.dart';
+import 'package:uuid/uuid.dart';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -29,12 +30,12 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
    *  1 - Advertising
    *  2 - In between advertising
    *  3 - Advertising starting soon
-   * -1 - Error
    */ 
   int status = 0;
   String statusStr = 'Not advertising';
   int count = 0;
   dynamic sessionId;
+  Uuid uuidPack = Uuid();
 
   @override
   void initState() {
@@ -52,6 +53,14 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
   void dispose() {
     // Remove a callback to receive data sent from the TaskHandler.
     FlutterForegroundTask.removeTaskDataCallback(_onReceiveTaskData);
+
+    // If service is not running, no endsession api call needed
+    if (status == 0) {
+      FlutterForegroundTask.stopService();
+    }
+    else {
+      _stopService();
+    }
     super.dispose();
   }
 
@@ -121,8 +130,8 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
   // This method starts the service. onStart method runs "immediately"
   Future<ServiceRequestResult> _startService() async {
     
-    // TODO: Generate a random uuid
-    const String uuid = '32145678-1234-5678-1234-56789abcdef0';
+    // Generate a random uuid
+    String uuid = uuidPack.v4();
 
     // Prepare data for api call
     final body = {
@@ -195,8 +204,6 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
   // This function is executed when FlutterForegroundTask.sendDataToMain(Object data) is executed in Handler
   void _onReceiveTaskData(Object data) async {
 
-    // TODO: Potentially customize data type as Lists or something
-    // to differentiate between datatypes such as status or scan results
     if (data is int) {
       // Update count for each advertisement start
       if (data == 1) {

@@ -49,6 +49,33 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
     return classInfo;
   }
 
+  // Confirm exit dialog
+  Future<bool?> _showBackDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: ((context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Any ongoing session will end!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel')
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Quit')
+            ),
+          ],
+        );
+      })
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -60,7 +87,19 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
           );
         }
         else if (snapshot.hasData) {
-          return Scaffold(
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) {
+                return;
+              }
+              final bool shouldPop = await _showBackDialog() ?? false;
+              if (context.mounted && shouldPop) {
+                Navigator.pop(context);
+              }
+            },
+          
+          child: Scaffold(
             appBar: AppBar(
               backgroundColor: blue,
               iconTheme: const IconThemeData(color: white),
@@ -102,7 +141,7 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
                       ),
                     ),
                     Text(
-                      snapshot.data!['joinCode'], // Replace with actual code
+                      'Join Code: ${snapshot.data!['joinCode']}', // Replace with actual code
                       style: TextStyle(
                         color: navy,
                         fontSize: 18,
@@ -140,13 +179,16 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
                           border: Border.all(color: navy),
                           borderRadius: BorderRadius.all(Radius.circular(4)),
                         ),
-                        child: HistoryTableTeacher(sessions: snapshot.data!['sessions']),
+                        child: snapshot.data!['sessions'].length > 0 ?
+                          HistoryTableTeacher(sessions : snapshot.data!['sessions'], students: snapshot.data!['students']) :
+                          Center(child: Text('So empty...')),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+          ),
           );
         }
         else {
@@ -159,13 +201,14 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
 
 class HistoryTableTeacher extends StatelessWidget {
   final List<dynamic> sessions;
-  const HistoryTableTeacher({super.key, required this.sessions});
+  final List<dynamic> students;
+  const HistoryTableTeacher({super.key, required this.sessions, required this.students});
 
   String _formatDateTime(int index) {
     // Reverse the list
     if (sessions[index]['startTime'] == null || sessions[index]['endTime'] == null) return 'Invalid Date';
-    DateTime startTime = DateTime.parse(sessions[index]['startTime']);
-    DateTime endTime = DateTime.parse(sessions[index]['endTime']);
+    DateTime startTime = DateTime.parse(sessions[index]['startTime']).toLocal();
+    DateTime endTime = DateTime.parse(sessions[index]['endTime']).toLocal();
     var dateFormat = DateFormat('MM/dd/yyyy');
     var timeFormat = DateFormat.jm();
     return '${dateFormat.format(startTime)} - ${timeFormat.format(startTime)} to ${timeFormat.format(endTime)}';
@@ -177,7 +220,7 @@ class HistoryTableTeacher extends StatelessWidget {
       child: ListView.separated(
         padding: EdgeInsets.all(8.0),
         separatorBuilder: (context, index) => Divider(),
-        itemCount: sessions.length, // Do not print the last session if it is still running
+        itemCount: sessions.length,
         itemBuilder: (context, index) {
           return ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -189,7 +232,7 @@ class HistoryTableTeacher extends StatelessWidget {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => StudentGradeTable(students: sessions[index]['students']),
+                builder: (context) => StudentGradeTable(sessionStudents: sessions[index]['students'], students: students),
               );
             },
             child: Row(
@@ -207,8 +250,9 @@ class HistoryTableTeacher extends StatelessWidget {
 }
 
 class StudentGradeTable extends StatefulWidget {
+  final List<dynamic> sessionStudents;
   final List<dynamic> students;
-  const StudentGradeTable({super.key, required this.students});
+  const StudentGradeTable({super.key, required this.sessionStudents, required this.students});
 
   @override
   State<StudentGradeTable> createState() => _StudentGradeTableState();
@@ -222,8 +266,7 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
     super.initState();
 
     // Transform userIds to names
-    List studentIds = widget.students.map((student) => student['userId']).toList();
-    studentNames = namesByIdsApiCall(studentIds);
+    studentNames = namesByIdsApiCall(widget.students);
   }
 
   // make getUsersByIds api call
@@ -246,7 +289,6 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
     return names;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -263,6 +305,19 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
               );
             }
             else if (snapshot.hasData) {
+
+              // Get attendance for students in class and fill in missing students with Absent
+              Map<String, bool> sessionStudentMap = {
+                for (var student in widget.sessionStudents) student['userId']: student['attendanceGrade']
+              };
+              List<bool> attendance = widget.students.map((id) {
+                if (!sessionStudentMap.containsKey(id) || sessionStudentMap[id] == false) {
+                  return false;
+                } else {
+                  return true;
+                }
+              }).toList();
+
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -287,7 +342,7 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
                           child: ListView.separated(
                             padding: EdgeInsets.all(8.0),
                             separatorBuilder: (context, index) => Divider(),
-                            itemCount: snapshot.data!.length,
+                            itemCount: widget.students.length,
                             itemBuilder: (context, index) {
                               return Container(
                                 padding: EdgeInsets.only(left: 8.0, right: 8.0),
@@ -296,7 +351,7 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('${snapshot.data![index]['firstName']} ${snapshot.data![index]['lastName']}'),
-                                    widget.students[index]['attendanceGrade'] ?
+                                    attendance[index] ?
                                       Text('Present', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)) :
                                       Text('Absent', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
                                   ],

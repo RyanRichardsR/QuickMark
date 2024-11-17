@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,7 +5,6 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:quickmark_mobile/components/ble_handlers.dart';
 import 'package:quickmark_mobile/server_calls.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 //Color Pallete Constants
 const white = Color(0xFFF7FCFF) ;
@@ -34,9 +32,9 @@ class _ScanButtonsState extends State<ScanButtons> {
   @override
   void initState() {
     super.initState();
+    print('DEBUG: inside scanbuttons init');
     // To allow foreground thread to send data back to main thread
     FlutterForegroundTask.addTaskDataCallback(_onReceiveTaskData);
-    debugPrint("DEBUG: attendReq = ${widget.attendReq}");
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _requestPermissions();
@@ -49,23 +47,21 @@ class _ScanButtonsState extends State<ScanButtons> {
   void dispose() {
     // Remove a callback to receive data sent from the TaskHandler.
     FlutterForegroundTask.removeTaskDataCallback(_onReceiveTaskData);
+    FlutterForegroundTask.stopService();
     super.dispose();
   }
 
   // API call for getting session info
   Future<Map<String, dynamic>> sessionInfoApiCall() async {
-    Map<String, dynamic> sessionInfo = {'error' : 'Failed to load session'};
+    Map<String, dynamic> sessionInfo = {};
     final body = {
       'sessionId' : widget.attendReq['sessionId'],
     };
     try {
-      debugPrint('DEBUG: body = $body');
       var response = await ServerCalls().post('/getSessionInfo', body);
-      debugPrint('DEBUG: response = $response');
       if(response['error'] != null) {
         debugPrint('${response['error']}');
       } else {
-      debugPrint('Session loaded. sessionId: ${response['_id']}]');
         sessionInfo = response;
       }
     } catch (err) {
@@ -128,20 +124,9 @@ class _ScanButtonsState extends State<ScanButtons> {
       ),
     );
   }
-  // TZM: Continue converting code from here.
 
   // This method starts the service. onStart method runs "immediately"
   Future<ServiceRequestResult> _startService() async {
-    
-    // Prepare advertisement data for scanning
-    // TODO: Link with API
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(
-      'advertisement_data', jsonEncode({
-        'name' : 'COP4331',
-        'UUID' : '32145678-1234-5678-1234-56789abcdef0'
-      })
-    );
 
     //Initial delay and uuid set up
     setState(() {
@@ -166,15 +151,12 @@ class _ScanButtonsState extends State<ScanButtons> {
 
   // Stop service and potentially do things
   Future<ServiceRequestResult> _stopService() async {
-    
-    // TODO: Call endSession API
     return FlutterForegroundTask.stopService();
   }
   
   // This function is executed when FlutterForegroundTask.sendDataToMain(Object data) is executed in Handler
   void _onReceiveTaskData(Object data) async {
 
-    // TODO: Potentially customize data type as Lists or something
     // This is for scan status
     if (data is bool) {
       setState(() {
@@ -197,14 +179,11 @@ class _ScanButtonsState extends State<ScanButtons> {
         'sessionId' : widget.attendReq['sessionId'],
         'isPresent' : (data == 1) ? true : false,
       };
-      debugPrint("DEBUG: body result = $body");
       try {
         var response = await ServerCalls().post('/studentScan', body);
         if(response['error'] != null) {
           debugPrint('Error: ${response['error']}');
         } else {
-          debugPrint(response['message']);
-
           // If session is no longer running, stop.
           if (!response['isRunning']) {
             setState(() {
