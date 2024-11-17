@@ -410,7 +410,6 @@ app.post("/api/classInfoStudent", async (req, res) => {
     //get all sessionIds
     const sessionIds = classDocument.sessions;
     const className = classDocument.className;
-    const allStudents = classDocument.students;
 
     //array for attendance data
     const attendanceData = [];
@@ -426,8 +425,8 @@ app.post("/api/classInfoStudent", async (req, res) => {
         const { isRunning, startTime, endTime, students} = sessionDocument;
 
         //check inside students array
-        // Now check for all students in class and assign missing students with default values
-        if(Array.isArray(allStudents)) {
+        // Now assign default values if student is not in the session
+        if(Array.isArray(students)) {
           //find the student
           const studentSearch = students.find(s => new ObjectId(s.userId).equals(new ObjectId(userId)));
 
@@ -436,7 +435,7 @@ app.post("/api/classInfoStudent", async (req, res) => {
           let attendanceNumber = 0;
           // If student is in the session, use real values
           if (studentSearch) {
-            attandanceGrade = studentSearch.attendanceGrade;
+            attendanceGrade = studentSearch.attendanceGrade;
             attendanceNumber = studentSearch.attendanceNumber;
           }
         
