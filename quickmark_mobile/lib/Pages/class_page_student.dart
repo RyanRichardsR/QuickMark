@@ -52,6 +52,33 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
     return classInfo;
   }
 
+  // Confirm exit dialog
+  Future<bool?> _showBackDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: ((context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Any ongoing session will end!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel')
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Quit')
+            ),
+          ],
+        );
+      })
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -63,100 +90,114 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
           );
         }
         else if (snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: blue,
-              iconTheme: const IconThemeData(color: white),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                          'lib/images/QM_white.png',
-                          height: 60,
-                        ),
-                  const Text(
-                    'QuickMark',
-                    style: TextStyle(
-                      color: white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 50)
-                ],
-              ),
-            ),
-            endDrawer: SideMenu(user: widget.user),
-            body: Container(
-              padding: const EdgeInsets.all(20.0),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(begin: Alignment.bottomRight, colors: [blue, white])
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) {
+                return;
+              }
+              final bool shouldPop = await _showBackDialog() ?? false;
+              if (context.mounted && shouldPop) {
+                Navigator.pop(context);
+              }
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: blue,
+                iconTheme: const IconThemeData(color: white),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      snapshot.data!['className'], // Replace with actual name
-                      style: TextStyle(
-                        color: navy,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      snapshot.data!['teacherLastName'], // Replace with actual code
-                      style: TextStyle(
-                        color: navy,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    
-
-                    const Divider(
-                      height: 40,
-                      color: navy,
-                    ),
-
-                    SizedBox(
-                      height: 180,
-                      // Check if there is an active class session
-                      child: snapshot.data!['latestSessionIsRunning'] ? ScanButtons(
-                        attendReq: 
-                        {
-                          'sessionId' : snapshot.data,
-                          'userId' : widget.classId
-                        },
-                      ) :
-                      Center(child: Text('No active class session')),
-                    ),
-
-                    const Divider(
-                      height: 40,
-                      color: navy,
-                    ),
-
+                    Image.asset(
+                            'lib/images/QM_white.png',
+                            height: 60,
+                          ),
                     const Text(
-                      'History',
+                      'QuickMark',
                       style: TextStyle(
-                        color: navy,
-                        fontSize: 25,
+                        color: white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: white,
-                          border: Border.all(color: navy),
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                        ),
-                        child: HistoryTableStudent(attendanceData: snapshot.data!['attendanceData'], isRunning: snapshot.data!['latestSessionIsRunning']),
-                      ),
-                    ),
+                    const SizedBox(width: 50)
                   ],
+                ),
+              ),
+              endDrawer: SideMenu(user: widget.user),
+              body: Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(begin: Alignment.bottomRight, colors: [blue, white])
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        snapshot.data!['className'], // Replace with actual name
+                        style: TextStyle(
+                          color: navy,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        snapshot.data!['teacherLastName'], // Replace with actual code
+                        style: TextStyle(
+                          color: navy,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      
+
+                      const Divider(
+                        height: 40,
+                        color: navy,
+                      ),
+
+                      SizedBox(
+                        height: 180,
+                        // Check if there is an active class session
+                        child: snapshot.data!['latestSessionIsRunning'] ? ScanButtons(
+                          attendReq: 
+                          {
+                            'sessionId' : snapshot.data!['attendanceData'].last['sessionId'],
+                            'userId' : widget.classId
+                          },
+                        ) :
+                        Center(child: Text('No active class session')),
+                      ),
+
+                      const Divider(
+                        height: 40,
+                        color: navy,
+                      ),
+
+                      const Text(
+                        'History',
+                        style: TextStyle(
+                          color: navy,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: white,
+                            border: Border.all(color: navy),
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                          ),
+                          child: snapshot.data!['attendanceData'].length > 0 ?
+                            HistoryTableStudent(attendanceData: snapshot.data!['attendanceData'], isRunning: snapshot.data!['latestSessionIsRunning']) :
+                            Center(child: Text('So empty...')),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -179,8 +220,8 @@ class HistoryTableStudent extends StatelessWidget {
   String _formatDateTime(int index) {
     // Reverse the list
     if (attendanceData[index]['startTime'] == null || attendanceData[index]['endTime'] == null) return 'Invalid Date';
-    DateTime startTime = DateTime.parse(attendanceData[index]['startTime']);
-    DateTime endTime = DateTime.parse(attendanceData[index]['endTime']);
+    DateTime startTime = DateTime.parse(attendanceData[index]['startTime']).toLocal();
+    DateTime endTime = DateTime.parse(attendanceData[index]['endTime']).toLocal();
     var dateFormat = DateFormat('MM/dd/yyyy');
     var timeFormat = DateFormat.jm();
     return '${dateFormat.format(startTime)} - ${timeFormat.format(startTime)} to ${timeFormat.format(endTime)}';
