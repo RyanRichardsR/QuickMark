@@ -5,14 +5,23 @@ import "../styles/Dashboard.css";
 
 const StudentDashboard = () => {
   return (
-    <div className="dashboard-container">
+    <div>
+      {/* Header at the top */}
       <Header />
+
+      {/* Sidebar as a fixed overlay on the left */}
       <SideBar />
-      <main className="dashboard-main">
+
+      {/* Scrollable container for cards */}
+      <div className="cards-scroll-container">
         <Cards userRole="student" showJoinCode />
-      </main>
+        {/* Show join code on student dashboard */}
+      </div>
     </div>
   );
 };
 
 export default StudentDashboard;
+
+
+

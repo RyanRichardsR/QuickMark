@@ -33,7 +33,7 @@ html, body {
   display: flex;
   width: 1000px;
   max-width: 90%;
-  background-color: #eef4ed;
+  background-color: #F7FCFF;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
@@ -43,7 +43,7 @@ html, body {
 .auth-left {
   flex: 1;
   background: linear-gradient(to bottom right, #0b2545, #134074);
-  color: #eef4ed;
+  color: #F7FCFF;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,7 +78,7 @@ html, body {
 .auth-left .logo {
   font-size: 3rem;
   font-weight: 800;
-  color: #eef4ed;
+  color: #F7FCFF;
   margin-bottom: 1rem;
 }
 
@@ -90,7 +90,7 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-color: #eef4ed;
+  background-color: #F7FCFF;
   overflow-y: auto;
 }
 
@@ -118,7 +118,7 @@ html, body {
   border-radius: 30px;
   font-size: 1rem;
   color: #333;
-  background-color: #f9f9fb;
+  background-color: #ffffff;
   transition: border-color 0.3s;
 }
 
@@ -164,7 +164,7 @@ html, body {
   padding: 0.8rem 1.2rem;
   border-radius: 20px;
   border: 2px solid #134074;
-  background-color: #f9f9fb;
+  background-color: #ffffff;
   color: #134074;
   font-weight: bold;
   cursor: pointer;
@@ -283,3 +283,31 @@ html, body {
   font-size: 0.9rem;
   text-align: center;
 }
+
+
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px; /* Add space for the eye icon */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px; /* Position on the right */
+  top: 50%; /* Center vertically */
+  transform: translateY(-90%); /* Adjust for perfect centering */
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.eye-icon:hover {
+  color: #134074; /* Change color on hover */
+}
+

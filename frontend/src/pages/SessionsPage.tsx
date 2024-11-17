@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; 
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/SessionsPage.css";
-import { SERVER_BASE_URL } from "../config";
 
 const SessionsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,11 +11,12 @@ const SessionsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [className, setClassName] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     const fetchClassInfo = async () => {
       try {
-        const response = await fetch(`${SERVER_BASE_URL}api/classInfoTeacher`, {
+        const response = await fetch(`http://cop4331.xyz/api/classInfoTeacher`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ _id: classId }),
@@ -45,6 +45,30 @@ const SessionsPage: React.FC = () => {
     navigate(`/session-details/${classId}/${sessionId}`);
   };
 
+  const handleDeleteClass = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete this class? All your history will be lost and you cannot undo this action.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`http://cop4331.xyz/api/deleteClass`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ classObjectId: classId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage("Class deleted successfully.");
+        navigate("/teacher"); // Redirect to the teacher's classes page
+      } else {
+        setMessage(data.error || "Failed to delete the class. Please try again.");
+      }
+    } catch (error) {
+      setMessage("An error occurred. Please try again later.");
+    }
+  };
+
   return (
     <div className="sessions-page">
       <Header />
@@ -53,6 +77,15 @@ const SessionsPage: React.FC = () => {
         <div className="breadcrumb" onClick={() => navigate("/teacher")}>
           &lt; Back to Classes
         </div>
+
+        {message && <p className="delete-message">{message}</p>}
+
+        <div className="delete-class-container">
+          <button className="delete-class-button" onClick={handleDeleteClass}>
+            Delete Class
+          </button>
+        </div>
+
         <div className="sessions-table-container">
           <h2 className="sessions-title">{className ? `${className} - Sessions` : "Class Sessions"}</h2>
           <div className="sessions-table">

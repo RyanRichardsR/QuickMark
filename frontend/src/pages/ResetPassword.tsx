@@ -45,7 +45,7 @@ const ResetPassword: React.FC = () => {
         const js = JSON.stringify(obj); 
 
         try {
-            const response = await fetch(`${SERVER_BASE_URL}api/resetpassword/${token}`, {
+            const response = await fetch(`http://cop4331.xyz/api/resetpassword/${token}`, {
                 method: 'POST',   
                 body: js,
                 headers: { 'Content-Type': 'application/json' },

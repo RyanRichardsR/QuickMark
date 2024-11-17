@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/JoinClassModal.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 interface JoinClassModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ const JoinClassModal: React.FC<JoinClassModalProps> = ({
     }
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/joinClass`, {
+      const response = await fetch(`http://cop4331.xyz/api/joinClass`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

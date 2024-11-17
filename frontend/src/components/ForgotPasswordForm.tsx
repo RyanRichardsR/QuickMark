@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {  } from "../config";
 import "../AuthForm.css";
 
 interface ForgotPasswordFormProps {
@@ -18,7 +19,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ onSwitchToLogin
     setMessageType(""); // Clear the message type on new submission
 
     try {
-      const response = await fetch("http://localhost:3000/api/forgotPassword", {
+      const response = await fetch(`http://cop4331.xyz/api/forgotPassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

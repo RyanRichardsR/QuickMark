@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import "../styles/StudentHistoryPage.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 
 const StudentHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const StudentHistoryPage: React.FC = () => {
 
         // Fetch class info to get sessions and class name
         const classResponse = await fetch(
-          `${SERVER_BASE_URL}api/classInfoTeacher`,
+          `http://cop4331.xyz/api/classInfoTeacher`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -48,7 +48,7 @@ const StudentHistoryPage: React.FC = () => {
           sessionIds.map(async (sessionId: string) => {
             console.log("Fetching session info for Session ID:", sessionId);
             const sessionResponse = await fetch(
-              `${SERVER_BASE_URL}api/getSessionInfo`,
+              `http://cop4331.xyz/api/getSessionInfo`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -113,7 +113,7 @@ const StudentHistoryPage: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/leaveClass`, {
+      const response = await fetch(`http://cop4331.xyz/api/leaveClass`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentObjectId: studentId, classObjectId: classId }),
@@ -151,7 +151,7 @@ const StudentHistoryPage: React.FC = () => {
 
         <div className="history-table-container">
           <h2 className="history-title">
-            {className ? `${className} - History` : "Class History"}
+            {className ? `${className} - Attendance History` : "Class History"}
           </h2>
           <div className="history-table">
             {loading ? (

@@ -93,3 +93,32 @@
   font-size: 18px;
   font-style: italic;
 }
+
+.delete-class-container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1000px;
+  margin-bottom: 40px;
+}
+
+.delete-class-button {
+  background-color: #d9534f;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.delete-class-button:hover {
+  background-color: #c9302c;
+}
+
+.delete-message {
+  color: green;
+  font-size: 1rem;
+  margin-top: 10px;
+}
