@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
 import { SERVER_BASE_URL } from "../config";
+import { Eye, EyeOff } from "lucide-react";
 
 interface RegistrationFormProps {
   onSwitch: () => void;
@@ -15,6 +16,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("user");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errors, setErrors] = useState({
     firstName: "",
@@ -29,7 +31,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
     { id: "length", label: "7 characters", isValid: password.length >= 7 },
     { id: "uppercase", label: "1 uppercase", isValid: /[A-Z]/.test(password) },
     { id: "lowercase", label: "1 lowercase", isValid: /[a-z]/.test(password) },
-    { id: "special", label: "1 special character", isValid: /[^a-zA-Z0-9]/.test(password) },
+    {
+      id: "special",
+      label: "1 special character",
+      isValid: /[^a-zA-Z0-9]/.test(password),
+    },
   ];
 
   const allRequirementsMet = passwordRequirements.every((req) => req.isValid);
@@ -42,7 +48,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
     if (!login) newErrors.login = "Username is required";
     if (!password) newErrors.password = "Password is required";
     if (!email) newErrors.email = "Email address is required";
-    if (!roleSelected) newErrors.role = "Please select either 'Teacher' or 'Student'";
+    if (!roleSelected)
+      newErrors.role = "Please select either 'Teacher' or 'Student'";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -84,7 +91,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
       <h2 className="auth-title">Create an Account</h2>
       <form className="auth-form" onSubmit={doRegister}>
         <label htmlFor="firstName" className="auth-label">
-          First Name: <span className="required" style={{ color: 'red' }}> *</span>
+          First Name:{" "}
+          <span className="required" style={{ color: "red" }}>
+            {" "}
+            *
+          </span>
         </label>
         <input
           type="text"
@@ -94,10 +105,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
           onChange={(e) => setFirstName(e.target.value)}
           required
         />
-        {errors.firstName && <p className="error-message">{errors.firstName}</p>}
+        {errors.firstName && (
+          <p className="error-message">{errors.firstName}</p>
+        )}
 
         <label htmlFor="lastName" className="auth-label">
-          Last Name: <span className="required" style={{ color: 'red' }}> *</span>
+          Last Name:{" "}
+          <span className="required" style={{ color: "red" }}>
+            {" "}
+            *
+          </span>
         </label>
         <input
           type="text"
@@ -110,7 +127,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
         {errors.lastName && <p className="error-message">{errors.lastName}</p>}
 
         <label htmlFor="username" className="auth-label">
-          Username:<span className="required" style={{ color: 'red' }}> *</span>
+          Username:
+          <span className="required" style={{ color: "red" }}>
+            {" "}
+            *
+          </span>
         </label>
         <input
           type="text"
@@ -123,16 +144,30 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
         {errors.login && <p className="error-message">{errors.login}</p>}
 
         <label htmlFor="password" className="auth-label">
-          Password:<span className="required" style={{ color: 'red' }}> *</span>
+          Password:
+          <span className="required" style={{ color: "red" }}>
+            {" "}
+            *
+          </span>
         </label>
-        <input
-          type="password"
-          id="password"
-          className={`auth-input ${errors.password && "input-error"}`}
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="password-container">
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            className={`auth-input ${errors.password && "input-error"}`}
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <span
+            className="eye-icon"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label="Toggle password visibility"
+            role="button"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </span>
+        </div>
         {errors.password && <p className="error-message">{errors.password}</p>}
 
         {/* Password Requirements Bubbles */}
@@ -140,7 +175,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
           {passwordRequirements.map((requirement) => (
             <div key={requirement.id} className="requirement-item">
               <span
-                className={`requirement-bubble ${requirement.isValid ? "filled" : ""}`}
+                className={`requirement-bubble ${
+                  requirement.isValid ? "filled" : ""
+                }`}
               ></span>
               <span className="requirement-label">{requirement.label}</span>
             </div>
@@ -148,7 +185,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
         </div>
 
         <label htmlFor="email" className="auth-label">
-          Email Address: <span className="required" style={{ color: 'red' }}> *</span>
+          Email Address:{" "}
+          <span className="required" style={{ color: "red" }}>
+            {" "}
+            *
+          </span>
         </label>
         <input
           type="email"
@@ -179,12 +220,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
         </div>
         {errors.role && <p className="error-message">{errors.role}</p>}
 
-        <button type="submit" className="auth-button">Register</button>
-        <span className={`auth-message ${messageType === "success" ? "auth-message-success" : "auth-message-error"}`}>
+        <button type="submit" className="auth-button">
+          Register
+        </button>
+        <span
+          className={`auth-message ${
+            messageType === "success"
+              ? "auth-message-success"
+              : "auth-message-error"
+          }`}
+        >
           {message}
         </span>
       </form>
-      <button onClick={onSwitch} className="toggle-link">Already have an account? Login</button>
+      <button onClick={onSwitch} className="toggle-link">
+        Already have an account? Login
+      </button>
     </div>
   );
 };

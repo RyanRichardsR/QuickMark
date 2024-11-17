@@ -283,3 +283,31 @@ html, body {
   font-size: 0.9rem;
   text-align: center;
 }
+
+
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px; /* Add space for the eye icon */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px; /* Position on the right */
+  top: 50%; /* Center vertically */
+  transform: translateY(-90%); /* Adjust for perfect centering */
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.eye-icon:hover {
+  color: #134074; /* Change color on hover */
+}
+
