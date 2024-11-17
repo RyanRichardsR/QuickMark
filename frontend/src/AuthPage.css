@@ -30,7 +30,7 @@ html, body {
   width: 900px;
   max-width: 90%;
   max-height: 90vh; /* Prevents the container from exceeding the viewport height */
-  background-color: #eef4ed;
+  background-color: #F7FCFF;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   overflow: hidden; /* Prevents content from spilling outside the container */
@@ -41,7 +41,7 @@ html, body {
 .auth-left {
   flex: 1;
   background-color: #0b2545;
-  color: #eef4ed;
+  color: #F7FCFF;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,7 +71,7 @@ html, body {
   align-items: center;
   justify-content: flex-start; /* Aligns form to start at the top */
   padding: 2rem;
-  background-color: #eef4ed;
+  background-color: #F7FCFF;
   overflow-y: auto; /* Allows scrolling within the form area */
 }
 
@@ -94,7 +94,7 @@ html, body {
 .auth-button {
   padding: 0.8rem;
   background-color: #134074;
-  color: #eef4ed;
+  color: #F7FCFF;
   border: none;
   border-radius: 4px;
   cursor: pointer;
