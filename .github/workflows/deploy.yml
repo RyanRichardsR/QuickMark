@@ -3,30 +3,53 @@ name: Deploy Project
 on:
   push:
     branches:
-      - BlueApi
+      - Dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # Step 1: Checkout the code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: echo "Checked out the repository."
+        
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 20
-          
-      - name: Install sshPass
-        run: sudo apt-get install -y sshpass
         
-      - name: Build
+      # Step 3: Install dependencies (including lucide-react)
+      - name: Install Dependencies
         run: |
           cd frontend
           npm install
+          npm install lucide-react
+
+      # Step 4: Build the frontend
+      - name: Build Frontend
+        run: |
+          cd frontend
           npm run build
-          
-      - name: Delpoy frontend
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r ./frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+      - run: echo "Frontend built successfully."
         
-      - name: Deploy server
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
+      # Step 5: Deploy frontend
+      - name: Deploy Frontend
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r frontend/dist/* ${{ secrets.SSH_USER }}@cop4331.xyz:/var/www/html
+      - run: echo "Frontend deployed successfully."
         
-      - name: Restart
-        run: sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
+      # Step 6: Deploy server files
+      - name: Deploy Server
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -o StrictHostKeyChecking=no -r server.js ${{ secrets.SSH_USER }}@cop4331.xyz:/var/Server
+      - run: echo "Server deployed successfully."
+        
+      # Step 7: Restart the server
+      - name: Restart Server
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@cop4331.xyz "pm2 restart 0"
+      - run: echo "Server restarted successfully."

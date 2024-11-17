@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 import { Eye, EyeOff } from "lucide-react";
+
+//EMAIL_USER=officialquickmark@gmail.com
+//EMAIL_PASS=xjjygcjdylbrciln
 
 interface RegistrationFormProps {
   onSwitch: () => void;
@@ -67,7 +70,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/register`, {
+      const response = await fetch(`http://cop4331.xyz/api/register`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },
@@ -218,7 +221,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
             Student
           </button>
         </div>
-        {errors.role && <p className="error-message">{errors.role}</p>}
+        
 
         <button type="submit" className="auth-button">
           Register

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AddClassModal from "../components/AddClassModal";
 import JoinClassModal from "../components/JoinClassModal";
+import {  } from "../config";
 import "../styles/Cards.css";
 
 interface CardsProps {
@@ -34,7 +35,7 @@ const Cards: React.FC<CardsProps> = ({ showJoinCode, userRole }) => {
     const { login } = JSON.parse(userData);
 
     try {
-      const response = await fetch("http://localhost:3000/api/classes", {
+      const response = await fetch(`http://cop4331.xyz/api/classes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

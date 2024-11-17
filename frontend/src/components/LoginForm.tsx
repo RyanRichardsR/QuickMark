@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../AuthForm.css";
-import { SERVER_BASE_URL } from "../config";
+import {  } from "../config";
 import { Eye, EyeOff } from "lucide-react";
 
 interface LoginFormProps {
@@ -23,16 +23,20 @@ const LoginForm: React.FC<LoginFormProps> = ({
   async function doLogin(event: React.FormEvent) {
     event.preventDefault();
 
-    // Reset error messages
-    const newErrors: { login?: string; password?: string } = {};
-    if (!loginName) newErrors.login = "Username is required";
-    if (!loginPassword) newErrors.password = "Password is required";
-
-    // If there are errors, set them and focus on the first error field
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      const firstErrorKey = Object.keys(newErrors)[0] as keyof typeof newErrors;
-      document.getElementById(firstErrorKey)?.focus();
+    // Check for missing fields and set a combined error message
+    if (!loginName && !loginPassword) {
+      setMessage("Username and Password are required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginName) {
+      setMessage("Username is required");
+      document.getElementById("login")?.focus();
+      return;
+    }
+    if (!loginPassword) {
+      setMessage("Password is required");
+      document.getElementById("password")?.focus();
       return;
     }
 
@@ -40,7 +44,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     const js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(`${SERVER_BASE_URL}api/login`, {
+      const response = await fetch(`http://cop4331.xyz/api/login`, {
         method: "POST",
         body: js,
         headers: { "Content-Type": "application/json" },
@@ -88,20 +92,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
         <input
           type="text"
           id="login"
-          className={`auth-input ${errors.login ? "input-error" : ""}`}
+          className="auth-input"
           placeholder="Username"
           onChange={(e) => {
             setLoginName(e.target.value);
-            setErrors((prevErrors) => ({ ...prevErrors, login: "" }));
+            if (message) setMessage(""); 
           }}
           aria-describedby="loginError"
-          aria-invalid={!!errors.login}
         />
-        {errors.login && (
-          <span id="loginError" role="alert" className="error-message">
-            {errors.login}
-          </span>
-        )}
 
         <label htmlFor="password" className="auth-label">
           Password:
