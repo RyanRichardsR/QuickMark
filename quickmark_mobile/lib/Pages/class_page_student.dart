@@ -59,7 +59,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
       builder: ((context) {
         return AlertDialog(
           title: const Text('Are you sure?'),
-          content: const Text('This will take you out of the session!'),
+          content: const Text('You will be removed from any ongoing session',),
           actions: [
             TextButton(
               onPressed: () {
@@ -91,7 +91,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
         }
         else if (snapshot.hasData) {
           return PopScope(
-            canPop: !snapshot.data!['latestSessionIsRunning'],
+            canPop: false,
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) {
                 return;
@@ -135,18 +135,20 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        snapshot.data!['className'], // Replace with actual name
+                        snapshot.data!['className'],
+                        textAlign: TextAlign.center, // Replace with actual name
                         style: TextStyle(
                           color: navy,
-                          fontSize: 25,
+                          fontSize: 35,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        snapshot.data!['teacherLastName'], // Replace with actual code
+                        'Instructor: ${snapshot.data!['teacherLastName']}', 
+                        textAlign: TextAlign.center,// Replace with actual code
                         style: TextStyle(
-                          color: navy,
-                          fontSize: 18,
+                          color: blue,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -158,7 +160,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                       ),
 
                       SizedBox(
-                        height: 180,
+                        height: 70,
                         // Check if there is an active class session
                         child: snapshot.data!['latestSessionIsRunning'] ? ScanButtons(
                           attendReq: 
@@ -167,7 +169,35 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                             'userId' : widget.classId
                           },
                         ) :
-                        Center(child: Text('No active class session')),
+                        SizedBox(
+                          height: 180,
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        disabledBackgroundColor: lightBlue, 
+                                        elevation: 5,
+                                        fixedSize: Size(320, 70),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'No Active Session', 
+                                        style: const TextStyle(color: Colors.white)
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                       ),
 
                       const Divider(
@@ -185,15 +215,18 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                       ),
 
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: white,
-                            border: Border.all(color: navy),
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: white,
+                              border: Border.all(color: navy),
+                              borderRadius: BorderRadius.all(Radius.circular(4)),
+                            ),
+                            child: snapshot.data!['attendanceData'].length > 0 ?
+                              HistoryTableStudent(attendanceData: snapshot.data!['attendanceData'], isRunning: snapshot.data!['latestSessionIsRunning']) :
+                              Center(child: Text('So empty...')),
                           ),
-                          child: snapshot.data!['attendanceData'].length > 0 ?
-                            HistoryTableStudent(attendanceData: snapshot.data!['attendanceData'], isRunning: snapshot.data!['latestSessionIsRunning']) :
-                            Center(child: Text('So empty...')),
                         ),
                       ),
                     ],

@@ -40,13 +40,14 @@ class _RegisterState extends State<Register> {
   bool hasNumber = false;
 
   String errorMessage = '';
+  late bool passwordVisible;
 
 
   // Validate password
   @override
   void initState() {
     super.initState();
-
+    passwordVisible = false;
     // Add a listener to the FocusNode to detect focus changes
     passwordFocusNode.addListener(() {
       setState(() {
@@ -158,268 +159,264 @@ class _RegisterState extends State<Register> {
       backgroundColor: white,     
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [              
-              //Quickmark logo
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/images/QM.png',
-                    height: 175,
-                  ),
-                ],
-              ),
-          
-              //Sign up text for our soon to be users
-              const Text(
-                'Create an Account!',
-                style: TextStyle(fontSize: 22, color: navy),
-              ),
-
-              
-              //Spacer for spacing
-              const SizedBox(height: 25),
-          
-              //First Name Last Name
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  smallTextField( //First Name
-                    input: firstNameController,
-                    hintText: 'First Name',
-                    obscureText: false,
-                  ),
-
-                  smallTextField( //Last Name
-                    input: lastNameController,
-                    hintText: 'Last Name',
-                    obscureText: false,
-                  ),
-                ],                
-              ),
-
-              //Spacer for spacing
-              const SizedBox(height: 25),
-          
-              //Email
-              textField(
-                input: emailController,
-                hintText: 'Email Address',
-                obscureText: false,
-                paddingHorizontal: 20.0,
-              ),
-
-              //Spacer for spacing
-              const SizedBox(height: 25),
-          
-              //Username
-              textField(
-                input: usernameController,
-                hintText: 'Username',
-                obscureText: false,
-                paddingHorizontal: 20.0,
-              ),
-
-              //Spacer for spacing
-              if(!showPasswordStrength)
-                const SizedBox(height: 25),
-              if(showPasswordStrength)
-                const SizedBox(height: 10),
-              
-              //Shows the password requirements only when password field is enabled
-              if(showPasswordStrength)
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [              
+                //Quickmark logo
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                  PasswordRequirements(label: 'At Least\n8 Characters', isMet: hasLength),
-                  const SizedBox(width: 10),
-                  PasswordRequirements(label: 'Uppercase\nLetter', isMet: hasUpperCase),
-                  const SizedBox(width: 10),
-                  PasswordRequirements(label: 'Lowercase\nLetter', isMet: hasLowerCase),
-                  const SizedBox(width: 10),
-                  PasswordRequirements(label: 'Special\nCharacter', isMet: hasSpecialChar),
-                  const SizedBox(width: 10),
-                  PasswordRequirements(label: 'Number', isMet: hasNumber),
+                    Image.asset(
+                      'lib/images/QM.png',
+                      height: 150,
+                    ),
                   ],
                 ),
+            
+                //Sign up text for our soon to be users
+                const Text(
+                  'Create an Account!',
+                  style: TextStyle(fontSize: 22, color: navy),
+                ),
+            
+                //First Name Last Name
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      smallTextField( //First Name
+                        input: firstNameController,
+                        hintText: 'First Name',
+                        obscureText: false,
+                      ),
                   
-              if(showPasswordStrength)
-                const SizedBox(height: 5), //spacer for spacing
-
-              //Password
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  focusNode: passwordFocusNode,
-                  decoration: InputDecoration(
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    hintText: 'Password',
-                    hintStyle: TextStyle(color: Colors.grey.shade500),
+                      smallTextField( //Last Name
+                        input: lastNameController,
+                        hintText: 'Last Name',
+                        obscureText: false,
+                      ),
+                    ],                
                   ),
                 ),
-              ),
-
-              //Spacer for spacing
-              const SizedBox(height: 25),
-
-              //Confirm Password
-              textField(
-                input: confirmPasswordController,
-                hintText: 'Confirm Password',
-                obscureText: true,
-                paddingHorizontal: 20.0,
-              ),
-
-              //Spacer for spacing
-              const SizedBox(height: 25),
-
-              //Teacher or Student boxes
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Row(
-                  children: [
-                    //Student selection box
-                    Expanded(
-                      child: RadioListTile(                      
-                        value: 'Student',
-                        onChanged: (String? value) { 
+            
+                //Email
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: textField(
+                    input: emailController,
+                    hintText: 'Email Address',
+                    obscureText: false,
+                    paddingHorizontal: 20.0,
+                  ),
+                ),
+            
+                //Username
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: textField(
+                    input: usernameController,
+                    hintText: 'Username',
+                    obscureText: false,
+                    paddingHorizontal: 20.0,
+                  ),
+                ),
+                
+                //Shows the password requirements only when password field is enabled
+                if(showPasswordStrength)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                      PasswordRequirements(label: 'At Least\n8 Characters', isMet: hasLength),
+                      const SizedBox(width: 10),
+                      PasswordRequirements(label: 'Uppercase\nLetter', isMet: hasUpperCase),
+                      const SizedBox(width: 10),
+                      PasswordRequirements(label: 'Lowercase\nLetter', isMet: hasLowerCase),
+                      const SizedBox(width: 10),
+                      PasswordRequirements(label: 'Special\nCharacter', isMet: hasSpecialChar),
+                      const SizedBox(width: 10),
+                      PasswordRequirements(label: 'Number', isMet: hasNumber),
+                      ],
+                    ),
+                  ),
+            
+                //Password
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                  child: TextField(
+                    controller: passwordController,
+                    obscureText: !passwordVisible,
+                    focusNode: passwordFocusNode,
+                    decoration: InputDecoration(
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black),
+                      ),
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: 'Password',
+                      hintStyle: TextStyle(color: Colors.grey.shade500),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          passwordVisible ? Icons.visibility : Icons.visibility_off,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
                           setState(() {
-                            _role = value!;
+                            passwordVisible = !passwordVisible;
                           });
-                        },
-                        groupValue: _role,
-                        title: Text(
-                          'Student',
-                          style: TextStyle(
-                            color: _role == 'Student' ? Colors.white : Colors.black,
-                            fontSize: 14
+                        }, 
+                      ),
+                    ),
+                  ),
+                ),
+            
+                //Confirm Password
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: textField(
+                    input: confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    obscureText: true,
+                    paddingHorizontal: 20.0,
+                  ),
+                ),
+            
+                //Teacher or Student boxes
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20.0),
+                  child: Row(
+                    children: [
+                      //Student selection box
+                      Expanded(
+                        child: RadioListTile(                      
+                          value: 'Student',
+                          onChanged: (String? value) { 
+                            setState(() {
+                              _role = value!;
+                            });
+                          },
+                          groupValue: _role,
+                          title: Text(
+                            'Student',
+                            style: TextStyle(
+                              color: _role == 'Student' ? Colors.white : Colors.black,
+                              fontSize: 14
+                            ),
+                          ),
+                          tileColor: _role == 'Student' ? blue : white,
+                          activeColor: Colors.white,
+                          dense: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        tileColor: _role == 'Student' ? blue : white,
-                        activeColor: Colors.white,
-                        dense: true,
+                      ),
+                      
+                      //Teacher selection box
+                      Expanded(
+                        child: RadioListTile(
+                          value: 'Teacher',
+                          onChanged: (String? value) { 
+                            setState(() {
+                              _role = value!;
+                            });
+                          },
+                          groupValue: _role,
+                          title: Text(
+                            'Teacher',
+                            style: TextStyle(
+                              color: _role == 'Teacher' ? Colors.white : Colors.black,
+                              fontSize: 14
+                            ),
+                          ),
+                          tileColor: _role == 'Teacher' ? blue : white,
+                          activeColor: Colors.white,
+                          dense: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                              
+                //Shows error message for failed login             
+                if (errorMessage.isNotEmpty) 
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    errorMessage,  // Display the error message
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+            
+            
+                //Register button
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: SizedBox(
+                    width: 250,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        signUp(usernameController.text, passwordController.text, firstNameController.text, lastNameController.text, emailController.text, _role!.toLowerCase(), confirmPasswordController.text, context);                  
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: blue,                   
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
+                        ),                                
+                      ),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                    
-                    const SizedBox(width: 15), // Spacer for spacing
-
-                    //Teacher selection box
-                    Expanded(
-                      child: RadioListTile(
-                        value: 'Teacher',
-                        onChanged: (String? value) { 
-                          setState(() {
-                            _role = value!;
-                          });
+                  ),
+                ),
+                
+                //already have an account text
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account?',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      const SizedBox(width: 4,),
+                      GestureDetector(
+                        onTap: () => {
+                          Navigator.push( //redirect
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginPage(success: false) )
+                          )
                         },
-                        groupValue: _role,
-                        title: Text(
-                          'Teacher',
-                          style: TextStyle(
-                            color: _role == 'Teacher' ? Colors.white : Colors.black,
-                            fontSize: 14
-                          ),
-                        ),
-                        tileColor: _role == 'Teacher' ? blue : white,
-                        activeColor: Colors.white,
-                        dense: true,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        child: const Text(                    
+                          'Login',
+                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              //Spacer for spacing
-              if (errorMessage.isEmpty)
-                const SizedBox(height: 15),
-
-              if (errorMessage.isEmpty)
-                const SizedBox(height: 5),
-                            
-              //Shows error message for failed login             
-              if (errorMessage.isNotEmpty) 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text(
-                  errorMessage,  // Display the error message
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
+                    ],
                   ),
                 ),
-              ),
-
-
-              //Register button
-              SizedBox(
-                width: 250,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    signUp(usernameController.text, passwordController.text, firstNameController.text, lastNameController.text, emailController.text, _role!.toLowerCase(), confirmPasswordController.text, context);                  
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,                   
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),                                
-                  ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 50), //spacer for spacing
-
-              //already have an account text
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already have an account?',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(width: 4,),
-                  GestureDetector(
-                    onTap: () => {
-                      Navigator.push( //redirect
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage(success: false) )
-                      )
-                    },
-                    child: const Text(                    
-                      'Login',
-                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10), //spacer for spacing
-            ]
+              ]
+            ),
           )),
       )
     );

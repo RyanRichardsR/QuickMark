@@ -85,13 +85,13 @@ const ResetPassword: React.FC = () => {
                         {errors.password && <p className="error-message">{errors.password}</p>}
                         
                         {/* Password Requirements Bubbles */}
-                        <div className="password-requirements">
+                        <div className="reset-password-requirements">
                         {passwordRequirements.map((requirement) => (
-                            <div key={requirement.id} className="requirement-item">
+                            <div key={requirement.id} className="reset-requirement-item">
                             <span
-                                className={`requirement-bubble ${requirement.isValid ? "filled" : ""}`}
+                                className={`reset-requirement-bubble ${requirement.isValid ? "filled" : ""}`}
                             ></span>
-                            <span className="requirement-label">{requirement.label}</span>
+                            <span className="reset-requirement-label">{requirement.label}</span>
                             </div>
                         ))}
                         </div>

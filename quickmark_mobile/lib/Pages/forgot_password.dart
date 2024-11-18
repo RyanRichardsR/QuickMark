@@ -1,5 +1,6 @@
 //import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:quickmark_mobile/Pages/login_page.dart';
 import 'package:quickmark_mobile/components/input_field.dart';
 import 'package:quickmark_mobile/server_calls.dart';
 
@@ -76,27 +77,27 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     ),
                     leading: IconButton(
                       icon: const Icon(Icons.arrow_back_ios, color: Colors.grey),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => const LoginPage(success: false) )
+                      ),
                     ),
                     backgroundColor: Colors.blue.withOpacity(0),
                     elevation: 0.0, //No shadow
                   ),
-                  //Spacer for spacing
-                  const SizedBox(height: 50),
               
                   //login logo
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'lib/images/QM.png',
-                        height: 200,
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'lib/images/QM.png',
+                          height: 200,
+                        ),
+                      ],
+                    ),
                   ),        
-        
-                  //Spacer for spacing
-                  const SizedBox(height: 50),
         
                   const Text(
                     'Did someone forget their password?',

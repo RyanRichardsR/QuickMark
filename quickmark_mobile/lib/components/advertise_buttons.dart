@@ -234,53 +234,33 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
   // Modify this to change the look of buttons
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
+    return SizedBox(
       height: 180,
       child: Center(
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: (status == 1 || status == 2 || status == 3) ? null : () {
-                    _startService();
+                  onPressed: (status == 0) ? _startService : () {
+                    _stopService;
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,
-                    fixedSize: const Size(140, 100),
-                    elevation: 10,
+                    backgroundColor: (status == 0) ? Colors.green : Colors.red,
+                    fixedSize: const Size(320, 70),
+                    elevation: 5,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  child: const Text('Start Session', style: TextStyle(color: Colors.white)),
-                ),
-                ElevatedButton(
-                  onPressed: (status == 0 || status == 3) ? null : () {
-                    _stopService();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,
-                    fixedSize: const Size(140, 100),
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  child: Text(
+                    (status == 0) ? 'Start Session' : 'End Session', 
+                    style: const TextStyle(color: Colors.white)
                   ),
-                  child: const Text('End Session', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
-            const SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(statusStr),
-                Text('count: $count'),
-              ]
-            )
           ],
         ),
       ),

@@ -133,29 +133,31 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      snapshot.data!['className'], // Replace with actual name
+                      snapshot.data!['className'],
+                      textAlign: TextAlign.center, // Replace with actual name
                       style: TextStyle(
                         color: navy,
-                        fontSize: 25,
+                        fontSize: 35,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Join Code: ${snapshot.data!['joinCode']}', // Replace with actual code
+                      'Join Code: ${snapshot.data!['joinCode']}',
+                      textAlign: TextAlign.center, // Replace with actual code
                       style: TextStyle(
-                        color: navy,
-                        fontSize: 18,
+                        color: blue,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     
-
                     const Divider(
                       height: 40,
                       color: navy,
                     ),
+
                     SizedBox(
-                      height: 180,
+                      height: 70,
                       child: AdvertiseButtons(classId: widget.classId)
                     ),
 

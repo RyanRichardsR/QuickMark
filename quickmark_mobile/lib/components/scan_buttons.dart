@@ -205,53 +205,33 @@ class _ScanButtonsState extends State<ScanButtons> {
   // Modify this to change the look of buttons
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
+    return SizedBox(
       height: 180,
       child: Center(
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: (isScanning) ? null : () {
+                  onPressed: (isScanning) ? _stopService : () {
                     _startService();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,
-                    fixedSize: const Size(140, 100),
-                    elevation: 10,
+                    backgroundColor: isScanning ? Colors.red : Colors.green,
+                    elevation: 5,
+                    fixedSize: Size(320, 70),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  child: const Text('Join Session', style: TextStyle(color: Colors.white)),
-                ),
-                ElevatedButton(
-                  onPressed: (!isScanning) ? null : () {
-                    _stopService();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,
-                    fixedSize: const Size(140, 100),
-                    elevation: 10,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  child: Text(
+                    isScanning ? 'Leave Session' : 'Join Session', 
+                    style: const TextStyle(color: Colors.white)
                   ),
-                  child: const Text('Leave Session', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
-            const SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(statusStr),
-                Text('count: $count'),
-              ]
-            )
           ],
         ),
       ),

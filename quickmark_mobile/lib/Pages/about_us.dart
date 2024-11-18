@@ -53,67 +53,83 @@ class AboutUs extends StatelessWidget {
       endDrawer: SideMenu(user: user),
 
       body: const Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [          
-            Column(           
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 40),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
+        padding: EdgeInsets.all(30.0),
+        child: Column(
+          
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Text(
+                'About Us:',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text("Ryan", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Niklas", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("BlueTooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Sam", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("API/DataBase", style: TextStyle(fontSize: subtitleSize,)),
-              ],
+              ),
             ),
-            SizedBox(width: 100),
-            Column(           
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 40),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
+
+            Divider(
+              height: 40,
+              color: navy,
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [          
+                Column(           
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Ryan", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Niklas", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("Bluetooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Sam", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("API/Database", style: TextStyle(fontSize: subtitleSize,)),
+                  ],
                 ),
-                Text("Dina", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Frontend Web Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
+                Column(           
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Dina", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("Front-End Web Dev", style: TextStyle(fontSize: subtitleSize,)),
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Thaw", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("Bluetooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
+                    Icon(
+                      Icons.account_circle,
+                        size: pictureSize,
+                        color: blue,
+                    ),
+                    Text("Anthony", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                    Text("API/Database", style: TextStyle(fontSize: subtitleSize,)),
+                  ],
                 ),
-                Text("Thaw", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Bluetooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Anthony", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("API/Database", style: TextStyle(fontSize: subtitleSize,)),
               ],
             ),
           ],

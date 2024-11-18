@@ -14,7 +14,7 @@ class smallTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 200,
+      width: 185,
       height: 50,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),

@@ -31,9 +31,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSwitch }) => {
   });
 
   const passwordRequirements = [
-    { id: "length", label: "7 characters", isValid: password.length >= 7 },
     { id: "uppercase", label: "1 uppercase", isValid: /[A-Z]/.test(password) },
     { id: "lowercase", label: "1 lowercase", isValid: /[a-z]/.test(password) },
+    { id: "length", label: "7 characters", isValid: password.length >= 7 },
     {
       id: "special",
       label: "1 special character",
