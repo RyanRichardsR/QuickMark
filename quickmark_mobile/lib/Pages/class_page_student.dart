@@ -59,7 +59,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
       builder: ((context) {
         return AlertDialog(
           title: const Text('Are you sure?'),
-          content: const Text('Any ongoing session will end!'),
+          content: const Text('This will take you out of the session!'),
           actions: [
             TextButton(
               onPressed: () {
@@ -91,7 +91,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
         }
         else if (snapshot.hasData) {
           return PopScope(
-            canPop: false,
+            canPop: !snapshot.data!['latestSessionIsRunning'],
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) {
                 return;
@@ -164,7 +164,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                           attendReq: 
                           {
                             'sessionId' : snapshot.data!['attendanceData'].last['sessionId'],
-                            'userId' : widget.classId
+                            'userId' : widget.user['id']
                           },
                         ) :
                         Center(child: Text('No active class session')),
@@ -204,7 +204,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
           );
         }
         else {
-          throw Exception(snapshot.error);
+          return Center(child: Text('Error: ${snapshot.error.toString()}'));
         }
 
       }

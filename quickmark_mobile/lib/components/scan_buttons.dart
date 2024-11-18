@@ -32,7 +32,6 @@ class _ScanButtonsState extends State<ScanButtons> {
   @override
   void initState() {
     super.initState();
-    print('DEBUG: inside scanbuttons init');
     // To allow foreground thread to send data back to main thread
     FlutterForegroundTask.addTaskDataCallback(_onReceiveTaskData);
 
@@ -60,7 +59,7 @@ class _ScanButtonsState extends State<ScanButtons> {
     try {
       var response = await ServerCalls().post('/getSessionInfo', body);
       if(response['error'] != null) {
-        debugPrint('${response['error']}');
+        throw Exception(response['error']);
       } else {
         sessionInfo = response;
       }
@@ -97,7 +96,9 @@ class _ScanButtonsState extends State<ScanButtons> {
       await Permission.bluetoothConnect.request();
     }
 
-    // TODO: Check if location is necessary
+    if (!await Permission.location.status.isGranted) {
+      await Permission.location.request();
+    }
 
     if (Platform.isAndroid) {
       if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
@@ -182,7 +183,7 @@ class _ScanButtonsState extends State<ScanButtons> {
       try {
         var response = await ServerCalls().post('/studentScan', body);
         if(response['error'] != null) {
-          debugPrint('Error: ${response['error']}');
+          throw Exception(response['error']);
         } else {
           // If session is no longer running, stop.
           if (!response['isRunning']) {
