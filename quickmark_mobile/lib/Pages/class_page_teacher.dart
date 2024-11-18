@@ -39,7 +39,7 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
     try {
       var response = await ServerCalls().post('/classInfoTeacher', body);
       if(response['error'] != '') {
-        debugPrint('Error: ${response['error']}');
+        throw Exception(response['error']);
       } else {
         classInfo = response['classInfo'];
       }
@@ -192,7 +192,7 @@ class _ClassPageTeacherState extends State<ClassPageTeacher> {
           );
         }
         else {
-          throw Exception(snapshot.error);
+          return Center(child: Text('Error: ${snapshot.error.toString()}'));
         }
       }
     );
@@ -367,7 +367,7 @@ class _StudentGradeTableState extends State<StudentGradeTable> {
               );
             }
             else {
-              throw Exception(snapshot.error);
+              return Center(child: Text('Error: ${snapshot.error.toString()}'));
             }
           },
         )

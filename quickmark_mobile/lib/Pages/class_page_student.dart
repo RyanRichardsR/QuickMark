@@ -164,7 +164,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
                           attendReq: 
                           {
                             'sessionId' : snapshot.data!['attendanceData'].last['sessionId'],
-                            'userId' : widget.classId
+                            'userId' : widget.user['id']
                           },
                         ) :
                         Center(child: Text('No active class session')),
@@ -204,7 +204,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
           );
         }
         else {
-          throw Exception(snapshot.error);
+          return Center(child: Text('Error: ${snapshot.error.toString()}'));
         }
 
       }
