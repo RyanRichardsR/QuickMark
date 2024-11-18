@@ -120,7 +120,7 @@ class _ScanButtonsState extends State<ScanButtons> {
         showNotification: true,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(30000),
+        eventAction: ForegroundTaskEventAction.repeat(60000),
         allowWakeLock: true,
       ),
     );

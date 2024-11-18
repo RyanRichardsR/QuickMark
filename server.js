@@ -718,7 +718,7 @@ app.post("/api/studentScan", async (req, res) => {
           students.attendanceNumber += 1; // Increment attendance if the student is marked as present
         
           //check if the increment hits the grade target
-          if (students.attendanceNumber >= (signals - 1) ) {
+          if (students.attendanceNumber >= (signals/2) ) {
             students.attendanceGrade = true; // Update the presence status
           }
           else {
@@ -771,7 +771,7 @@ app.post("/api/getSessionInfo", async (req, res) => {
     //Look through each student in the session's student array to update attendance. Map returns a new array of modified student objects.
     const updatedStudents = session.students.map(students => {
 
-      if (students.attendanceNumber >= signals - 1) {
+      if (students.attendanceNumber >= signals/2) {
         students.attendanceGrade = true;
       }
       else {

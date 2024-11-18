@@ -121,7 +121,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
         // TODO: Change interval value
-        eventAction: ForegroundTaskEventAction.repeat(30000),
+        eventAction: ForegroundTaskEventAction.repeat(60000),
         allowWakeLock: true,
       ),
     );
@@ -164,7 +164,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
     count = 0;
     // Initial delay
     // TODO: Change this value
-    await Future.delayed(const Duration(seconds: 10));
+    await Future.delayed(const Duration(minutes: 1));
 
     if (status != 1) {
       return ServiceRequestResult(success: false);
