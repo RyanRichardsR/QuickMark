@@ -37,7 +37,7 @@ class _ScanButtonsState extends State<ScanButtons> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _requestPermissions();
-      sessionInfo = await sessionInfoApiCall();
+      sessionInfo = await mobileSessionApiCall();
       _initService();
     });
   }
@@ -51,13 +51,13 @@ class _ScanButtonsState extends State<ScanButtons> {
   }
 
   // API call for getting session info
-  Future<Map<String, dynamic>> sessionInfoApiCall() async {
+  Future<Map<String, dynamic>> mobileSessionApiCall() async {
     Map<String, dynamic> sessionInfo = {};
     final body = {
       'sessionId' : widget.attendReq['sessionId'],
     };
     try {
-      var response = await ServerCalls().post('/getSessionInfo', body);
+      var response = await ServerCalls().post('/getMobileSession', body);
       if(response['error'] != null) {
         throw Exception(response['error']);
       } else {

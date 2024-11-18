@@ -136,7 +136,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
     // Prepare data for api call
     final body = {
       'uuid' : uuid,
-      'startTime' : DateTime.now().toIso8601String(),
+      'startTime' : DateTime.now().toUtc().toIso8601String(),
       'classId' : widget.classId,
     };
 
@@ -185,7 +185,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
     // End session api call
     final body = {
       'sessionId' : sessionId,
-      'endTime' : DateTime.now().toIso8601String(),
+      'endTime' : DateTime.now().toUtc().toIso8601String(),
     };
     try {
       var response = await ServerCalls().post('/endSession', body);

@@ -16,6 +16,15 @@ const subtitleSize = 13.0;
 class AboutUs extends StatelessWidget {
   final Map<String, dynamic> user;
 
+  final List us = const [
+    ['Ryan', 'Mobile Dev'],
+    ['Dina', 'Frontend Web Dev'],
+    ['Niklas', 'Bluetooth/Mobile Dev'],
+    ['Thaw', 'Bluetooth/Mobile Dev'],
+    ['Sam', 'API/Database'],
+    ['Anthony', 'API/Database']
+  ];
+
   const AboutUs({
     super.key,
     required this.user,
@@ -52,71 +61,30 @@ class AboutUs extends StatelessWidget {
       // This is the side menu
       endDrawer: SideMenu(user: user),
 
-      body: const Padding(
+      body: Padding(
         padding: EdgeInsets.all(20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [          
-            Column(           
-              mainAxisAlignment: MainAxisAlignment.start,
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            childAspectRatio: 0.8,
+          ),
+          itemCount: us.length,
+          itemBuilder: (context, index) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 40),
                 Icon(
                   Icons.account_circle,
                     size: pictureSize,
                     color: blue,
                 ),
-                Text("Ryan", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Niklas", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("BlueTooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Sam", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("API/DataBase", style: TextStyle(fontSize: subtitleSize,)),
+                Text(us[index][0], style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
+                Text(us[index][1], style: TextStyle(fontSize: subtitleSize,)),
               ],
-            ),
-            SizedBox(width: 100),
-            Column(           
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 40),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Dina", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Frontend Web Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Thaw", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("Bluetooth/Mobile Dev", style: TextStyle(fontSize: subtitleSize,)),
-                SizedBox(height: 80),
-                Icon(
-                  Icons.account_circle,
-                    size: pictureSize,
-                    color: blue,
-                ),
-                Text("Anthony", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold,)),
-                Text("API/Database", style: TextStyle(fontSize: subtitleSize,)),
-              ],
-            ),
-          ],
+            );
+          }
         ),
       )
     );
