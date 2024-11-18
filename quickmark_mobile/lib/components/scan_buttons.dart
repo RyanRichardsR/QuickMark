@@ -137,6 +137,10 @@ class _ScanButtonsState extends State<ScanButtons> {
     FlutterForegroundTask.saveData(key: 'uuid', value: sessionInfo['uuid']);
     await Future.delayed(getNextScanDelay());
 
+    if (!isScanning) {
+      return ServiceRequestResult(success: false);
+    }
+
     if (await FlutterForegroundTask.isRunningService) {
       return FlutterForegroundTask.restartService();
     }
@@ -151,7 +155,11 @@ class _ScanButtonsState extends State<ScanButtons> {
   }
 
   // Stop service and potentially do things
-  Future<ServiceRequestResult> _stopService() async {
+  Future<ServiceRequestResult> _stopService() {
+    setState(() {
+      isScanning = false;
+      statusStr = 'Not scanning';
+    });
     return FlutterForegroundTask.stopService();
   }
   
@@ -215,9 +223,7 @@ class _ScanButtonsState extends State<ScanButtons> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: (isScanning) ? _stopService : () {
-                    _startService();
-                  },
+                  onPressed: (isScanning) ? _stopService : _startService,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isScanning ? Colors.red : Colors.green,
                     elevation: 5,

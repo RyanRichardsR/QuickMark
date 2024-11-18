@@ -129,6 +129,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
 
   // This method starts the service. onStart method runs "immediately"
   Future<ServiceRequestResult> _startService() async {
+    _updateStatus(1);
     
     // Generate a random uuid
     String uuid = uuidPack.v4();
@@ -160,11 +161,14 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
     // Store uuid locally for use in handler
     FlutterForegroundTask.saveData(key: 'uuid', value: uuid);
 
+    count = 0;
     // Initial delay
     // TODO: Change this value
-    count = 0;
-    _updateStatus(3);
     await Future.delayed(const Duration(seconds: 10));
+
+    if (status != 1) {
+      return ServiceRequestResult(success: false);
+    }
 
     if (await FlutterForegroundTask.isRunningService) {
       return FlutterForegroundTask.restartService();
@@ -181,6 +185,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
 
   // Stop service and potentially do things
   Future<ServiceRequestResult> _stopService() async {
+    _updateStatus(0);
 
     // End session api call
     final body = {
@@ -196,7 +201,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
       }
     } catch (err) {
       debugPrint('Error: $err');
-    }    
+    }
 
     return FlutterForegroundTask.stopService();
   }
@@ -243,9 +248,7 @@ class _AdvertiseButtonsState extends State<AdvertiseButtons> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: (status == 0) ? _startService : () {
-                    _stopService;
-                  },
+                  onPressed: (status == 0) ? _startService : _stopService,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: (status == 0) ? Colors.green : Colors.red,
                     fixedSize: const Size(320, 70),
