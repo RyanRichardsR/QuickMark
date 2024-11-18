@@ -53,12 +53,25 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.account_circle),
             title: const Text('Profile'),
             onTap: () {
-              Navigator.push(
+              if (ModalRoute.of(context)?.settings.name == '/SideRoute') {
+                Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(user: user),
-                ),
-              );
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(user: user),
+                    settings: RouteSettings(name: '/SideRoute'),
+                  ),
+                );
+              }
+              else {
+                Navigator.push(
+                context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(user: user),
+                    settings: RouteSettings(name: '/SideRoute'),
+                  ),
+                );
+              }
+              
             },
           ),
           
@@ -85,12 +98,24 @@ class SideMenu extends StatelessWidget {
             leading: const Icon(Icons.group),
             title: const Text('About Us'),
             onTap: () {
-              Navigator.push(
+              if (ModalRoute.of(context)?.settings.name == '/SideRoute') {
+                Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => AboutUs(user: user),
-                ),
-              );
+                  MaterialPageRoute(
+                    builder: (context) => AboutUs(user: user),
+                    settings: RouteSettings(name: '/SideRoute'),
+                  ),
+                );
+              }
+              else {
+                Navigator.push(
+                context,
+                  MaterialPageRoute(
+                    builder: (context) => AboutUs(user: user),
+                    settings: RouteSettings(name: '/SideRoute'),
+                  ),
+                );
+              }
             },
           ),
         ],

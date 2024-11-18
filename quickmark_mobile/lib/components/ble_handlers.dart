@@ -7,13 +7,11 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 @pragma('vm:entry-point')
 void startAdvertisementCallback() {
-  debugPrint('DEBUG: Inside startCallback');
   FlutterForegroundTask.setTaskHandler(AdvertisementHandler());
 }
 
 @pragma('vm:entry-point')
 void startScanCallback() {
-  debugPrint('DEBUG: Inside startCallback');
   FlutterForegroundTask.setTaskHandler(ScanHandler());
 }
 
@@ -27,7 +25,6 @@ class AdvertisementHandler extends TaskHandler {
   // This is called once when session starts.
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
-    debugPrint('DEBUG: onStart()');
     pm = PeripheralManager();
 
     // Grab advertisement data from storage
@@ -37,6 +34,7 @@ class AdvertisementHandler extends TaskHandler {
         throw Exception('uuid not found in local storage');
       }
       advData = Advertisement(
+        name: 'COP4331',
         serviceUUIDs: [
           UUID.fromString(uuid),
         ]
@@ -54,7 +52,6 @@ class AdvertisementHandler extends TaskHandler {
   @override
   Future<void> onRepeatEvent(DateTime timestamp) async {
 
-    print('DEBUG: onRepeatEvent()');
     await pm.startAdvertising(advData);
     FlutterForegroundTask.sendDataToMain(1);  // sendDataToMain execute _onReceiveTaskData method in main thread
     await Future.delayed(const Duration(seconds: 20));

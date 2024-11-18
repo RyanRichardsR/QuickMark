@@ -32,13 +32,12 @@ class _ScanButtonsState extends State<ScanButtons> {
   @override
   void initState() {
     super.initState();
-    print('DEBUG: inside scanbuttons init');
     // To allow foreground thread to send data back to main thread
     FlutterForegroundTask.addTaskDataCallback(_onReceiveTaskData);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _requestPermissions();
-      sessionInfo = await sessionInfoApiCall();
+      sessionInfo = await mobileSessionApiCall();
       _initService();
     });
   }
@@ -52,15 +51,15 @@ class _ScanButtonsState extends State<ScanButtons> {
   }
 
   // API call for getting session info
-  Future<Map<String, dynamic>> sessionInfoApiCall() async {
+  Future<Map<String, dynamic>> mobileSessionApiCall() async {
     Map<String, dynamic> sessionInfo = {};
     final body = {
       'sessionId' : widget.attendReq['sessionId'],
     };
     try {
-      var response = await ServerCalls().post('/getSessionInfo', body);
+      var response = await ServerCalls().post('/getMobileSession', body);
       if(response['error'] != null) {
-        debugPrint('${response['error']}');
+        throw Exception(response['error']);
       } else {
         sessionInfo = response;
       }
@@ -97,7 +96,9 @@ class _ScanButtonsState extends State<ScanButtons> {
       await Permission.bluetoothConnect.request();
     }
 
-    // TODO: Check if location is necessary
+    if (!await Permission.location.status.isGranted) {
+      await Permission.location.request();
+    }
 
     if (Platform.isAndroid) {
       if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
@@ -182,7 +183,7 @@ class _ScanButtonsState extends State<ScanButtons> {
       try {
         var response = await ServerCalls().post('/studentScan', body);
         if(response['error'] != null) {
-          debugPrint('Error: ${response['error']}');
+          throw Exception(response['error']);
         } else {
           // If session is no longer running, stop.
           if (!response['isRunning']) {

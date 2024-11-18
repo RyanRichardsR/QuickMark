@@ -800,6 +800,34 @@ app.post("/api/getSessionInfo", async (req, res) => {
 
 });
 
+//Get Session info
+app.post("/api/getMobileSession", async (req, res) => {
+  const { sessionId } = req.body;
+  let error = "";
+
+  try {
+    //Connect to Database and retrieve Sessions collection
+    const db = client.db("COP4331");
+    const sessionsCollection = db.collection("Sessions");
+
+    //convert sessionId to objectId because a string is passed in
+    const session = await sessionsCollection.findOne({ _id: new ObjectId(sessionId) });
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+  
+    //Respond with session object
+    res.json(session);
+
+  } catch (error) {
+    console.error("Error fetching session info:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+
+});
+
 
 
 app.delete("/api/deleteUser", async (req, res) => {
