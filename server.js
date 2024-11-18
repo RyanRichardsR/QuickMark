@@ -766,32 +766,9 @@ app.post("/api/getSessionInfo", async (req, res) => {
       return res.status(404).json({ error: "Session not found" });
     }
 
-    const { signals } = session; // Get the signals value from the session document
+    res.json(session);
 
-    //Look through each student in the session's student array to update attendance. Map returns a new array of modified student objects.
-    const updatedStudents = session.students.map(students => {
-
-      if (students.attendanceNumber >= signals - 1) {
-        students.attendanceGrade = true;
-      }
-      else {
-        students.attendanceGrade = false;
-      }
-      return students;
-    
-    });
-
-    //Update databse
-    await sessionsCollection.updateOne(
-      { _id: new ObjectId(sessionId) },
-      { $set: { students: updatedStudents } }
-    );
-
-    //Respond with the modified session object
-    res.json({
-      ...session,
-      students: updatedStudents
-    });
+  
 
   } catch (error) {
     console.error("Error fetching session info:", error);
