@@ -59,7 +59,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
       builder: ((context) {
         return AlertDialog(
           title: const Text('Are you sure?'),
-          content: const Text('Any ongoing session will end!'),
+          content: const Text('This will take you out of the session!'),
           actions: [
             TextButton(
               onPressed: () {
@@ -91,7 +91,7 @@ class _ClassPageStudentState extends State<ClassPageStudent> {
         }
         else if (snapshot.hasData) {
           return PopScope(
-            canPop: false,
+            canPop: !snapshot.data!['latestSessionIsRunning'],
             onPopInvokedWithResult: (didPop, result) async {
               if (didPop) {
                 return;

@@ -457,11 +457,11 @@ app.post("/api/classInfoStudent", async (req, res) => {
     });
 
     // Get the latest session's isRunning status (from the last session ID in the array)
-    let latestSessionIsRunning = null;
+    let latestSessionIsRunning = false;
     if (sessionIds.length > 0) {
       const latestSessionId = sessionIds[sessionIds.length - 1];
       const latestSessionDocument = await sessionsCollection.findOne({ _id: new ObjectId(latestSessionId) });
-      latestSessionIsRunning = latestSessionDocument ? latestSessionDocument.isRunning : null;
+      latestSessionIsRunning = latestSessionDocument ? latestSessionDocument.isRunning : false;
     }
 
     // Respond with the teacher's name and the attendance data for each session
@@ -898,9 +898,9 @@ app.post("/api/forgotPassword", async (req, res) =>  {
       );
 
       success = result.acknowledged;
-
+      //sends email out
       const mailOptions = {
-        from: process.env.EMAIL,
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'QuickMark Password Reset',
         text: `
